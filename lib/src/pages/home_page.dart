@@ -255,7 +255,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               },
             ),
           ),
-          _creaSwitchNoMolestar(),
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: _creaBtnTags(),
+              ),
+              Expanded(
+                flex: 4,
+                child: _creaSwitchNoMolestar(),
+              )
+            ],
+          ),
           Container(
               padding: EdgeInsets.only(left: 15, right: 15),
               child:
@@ -276,6 +287,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ],
       ),
     );
+  }
+
+  Widget _creaBtnTags() {
+    return FlatButton(
+        child: SvgPicture.asset(utils.rutaIconoEntradasTags,
+            color: Theme.of(context).iconTheme.color,
+            height: 55
+            ),
+        onPressed: () {});
   }
 
   Widget _creaSwitchNoMolestar() {

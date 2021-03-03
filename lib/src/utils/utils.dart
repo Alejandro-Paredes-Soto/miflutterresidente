@@ -57,6 +57,7 @@ String rutaGifLoadRed = 'assets/loading-red.gif';
 String rutaGifLoadBanner = 'assets/loading-banner.gif';
 String rutaIconoWhastApp = 'assets/whatsapp.svg';
 String rutaFondoLogin = 'assets/fondo-login.jpg';
+String rutaIconoEntradasTags = 'assets/IconoEntradasTags.svg';
 // String rutaLogoDostopPNG = 'assets/logo_dostop_d.png';
 
 AppBar appBarLogo({@required String titulo}) {
