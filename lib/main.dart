@@ -1,4 +1,5 @@
 import 'package:dostop_v2/src/pages/aviso_detalle_page.dart';
+import 'package:dostop_v2/src/pages/mis_accesos_page.dart';
 import 'package:dostop_v2/src/pages/nuevo_visitante_freq_page.dart';
 import 'package:dostop_v2/src/pages/promocion_detalle_page.dart';
 import 'package:dostop_v2/src/pages/login_page.dart';
@@ -98,6 +99,7 @@ class _MyAppState extends State<MyApp> {
                 NuevoVisitanteFrecuentePage(),
             'Incidente': (BuildContext context) => ReportarIncidentePage(),
             'SeguimientoInc': (BuildContext context) => SeguimientoIncidentePage(),
+            'MisAccesos': (BuildContext context) => MisAccesosPage(),
           },
           theme: ThemeData(
               snackBarTheme: SnackBarThemeData(actionTextColor: Colors.white),
