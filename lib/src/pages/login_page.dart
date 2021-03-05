@@ -4,6 +4,7 @@ import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -58,11 +59,7 @@ class _LoginPageState extends State<LoginPage> {
               Text('Protegemos ',
                   style: TextStyle(fontFamily: 'Play', color: Colors.white)),
               TyperAnimatedTextKit(
-                text: [
-                  'tu casa', 
-                  'a tu familia', 
-                  'lo que más importa'
-                ],
+                text: ['tu hogar', 'a tu familia', 'lo que más importa'],
                 pause: Duration(seconds: 2),
                 speed: Duration(milliseconds: 100),
                 textStyle: TextStyle(fontFamily: 'Play', color: Colors.white),
@@ -135,10 +132,11 @@ class _LoginPageState extends State<LoginPage> {
     return TextFormField(
       style: TextStyle(color: colorFondoPrincipalDark),
       enabled: !_iniciando,
+      inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[ ]'))],
       controller: _txtUserCtrl,
       textInputAction: TextInputAction.next,
       keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(    
+      decoration: InputDecoration(
         filled: true,
         fillColor: colorTextLoginSemi,
         border: UnderlineInputBorder(borderRadius: BorderRadius.circular(15)),
