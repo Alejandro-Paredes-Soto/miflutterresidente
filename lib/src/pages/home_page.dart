@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (!mounted) return;
       setState(() {
         if (estadoAccesos.containsKey('valor')) {
-          _accesos = estadoAccesos['valor'] != '1';
+          _accesos = estadoAccesos['valor'] == '1';
         }
       });
     });
