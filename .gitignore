@@ -146,3 +146,5 @@ app.*.symbols
 .DS_Store
 .AppleDouble
 .LSOverride
+ios/Flutter/.last_build_id
+ios/Flutter/.last_build_id
