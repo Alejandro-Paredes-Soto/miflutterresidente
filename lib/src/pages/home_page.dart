@@ -26,10 +26,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final avisosProvider = AvisosProvider();
   final visitasProvider = VisitasProvider();
-  final configUsuario = ConfigUsuarioProvider();
+  final configUsuarioProvider = ConfigUsuarioProvider();
   final _prefs = PreferenciasUsuario();
   Map _resultados;
-  bool _nuevaEncuesta = false, _respuestaEnviada = false, _noMolestar = false;
+  bool _nuevaEncuesta = false,
+      _respuestaEnviada = false,
+      _noMolestar = false,
+      _accesos = false;
   Map _encuesta;
 
   @override
@@ -42,6 +45,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         if (encuesta.containsKey(1)) {
           _encuesta = encuesta[1];
           _nuevaEncuesta = true;
+        }
+      });
+    });
+    configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 2)
+        .then((estadoAccesos) {
+      ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
+      if (!mounted) return;
+      setState(() {
+        if (estadoAccesos.containsKey('valor')) {
+          _accesos = estadoAccesos['valor'] == '1';
         }
       });
     });
@@ -255,7 +269,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               },
             ),
           ),
-          _creaSwitchNoMolestar(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                flex: 2,
+                child: _creaBtnTags(),
+              ),
+              Expanded(
+                flex: 4,
+                child: _creaSwitchNoMolestar(),
+              )
+            ],
+          ),
           Container(
               padding: EdgeInsets.only(left: 15, right: 15),
               child:
@@ -278,9 +304,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
+  Widget _creaBtnTags() {
+    return AnimatedContainer(
+      width: _accesos ? MediaQuery.of(context).size.width / 3 : 0,
+      duration: Duration(milliseconds: 800),
+      curve: Curves.bounceOut,
+      margin: EdgeInsets.only(left: 15),
+      child: RaisedButton(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          child: SvgPicture.asset(utils.rutaIconoEntradasTags,
+              color: Colors.white, height: 55),
+          onPressed: () => Navigator.of(context).pushNamed('MisAccesos'),
+          color: utils.colorPrincipal),
+    );
+  }
+
   Widget _creaSwitchNoMolestar() {
     return FutureBuilder(
-        future: configUsuario.obtenerEstadoConfig(_prefs.usuarioLogged, 1),
+        future: configUsuarioProvider.obtenerEstadoConfig(
+            _prefs.usuarioLogged, 1), //VALOR 1 MODO NO MOLESTAR
         builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data.containsKey('valor')) {
@@ -351,8 +394,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   _cambiaModoNoMolestar(bool valor) async {
     creaDialogProgress(context, 'Cambiando modo');
-    Map resultado =
-        await configUsuario.configurarOpc(_prefs.usuarioLogged, 1, valor);
+    Map resultado = await configUsuarioProvider.configurarOpc(
+        _prefs.usuarioLogged, 1, valor);
     Navigator.pop(context);
     setState(() {
       _noMolestar = valor;
