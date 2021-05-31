@@ -57,6 +57,7 @@ String rutaGifLoadRed = 'assets/loading-red.gif';
 String rutaGifLoadBanner = 'assets/loading-banner.gif';
 String rutaIconoWhastApp = 'assets/whatsapp.svg';
 String rutaFondoLogin = 'assets/fondo-login.jpg';
+String rutaIconoEntradasTags = 'assets/IconoEntradasTags.svg';
 // String rutaLogoDostopPNG = 'assets/logo_dostop_d.png';
 
 AppBar appBarLogo({@required String titulo}) {
@@ -161,9 +162,8 @@ Brightness temaStatusBar(BuildContext context) {
 }
 
 bool correoValido(String email) {
-  Pattern pattern =
-      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-  if (!RegExp(pattern).hasMatch(email))
+  Pattern patternCorreoValido = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+  if (!RegExp(patternCorreoValido).hasMatch(email))
     return false;
   else
     return true;
@@ -251,10 +251,10 @@ abrirPaginaWeb({@required String url}) async {
 }
 
 String fechaCompleta(DateTime tm) {
+  if(tm==null)return "";
   DateTime today = new DateTime.now();
   Duration oneDay = new Duration(days: 1);
   Duration twoDay = new Duration(days: 2);
-  Duration oneWeek = new Duration(days: 7);
   String month;
   switch (tm.month) {
     case 1:
@@ -301,36 +301,9 @@ String fechaCompleta(DateTime tm) {
     return "Hoy";
   } else if (difference.compareTo(twoDay) < 1) {
     return "Ayer";
-  } else if (difference.compareTo(oneWeek) < 1) {
-    switch (tm.weekday) {
-      case 1:
-        //return 'Lunes pasado';
-        return '${tm.day} de $month de ${tm.year}';
-      case 2:
-        //return 'Martes pasado';
-        return '${tm.day} de $month de ${tm.year}';
-      case 3:
-        //return 'Miércoles pasado';
-        return '${tm.day} de $month de ${tm.year}';
-      case 4:
-        //return 'Jueves pasado';
-        return '${tm.day} de $month de ${tm.year}';
-      case 5:
-        //return 'Viernes pasado';
-        return '${tm.day} de $month de ${tm.year}';
-      case 6:
-        //return 'Sábado pasado';
-        return '${tm.day} de $month de ${tm.year}';
-      case 7:
-        //return 'Domingo pasado';
-        return '${tm.day} de $month de ${tm.year}';
-    }
-    // } else if (tm.year == today.year) {
-    //   return '${tm.day} de $month';
   } else {
-    return '${tm.day} de $month de ${tm.year}';
+    return '${tm.day} de $month de ${tm.year} ${tm.hour}';
   }
-  return "";
 }
 
 String fechaCompletaFuturo(DateTime tm, {String articuloDef = ''}) {

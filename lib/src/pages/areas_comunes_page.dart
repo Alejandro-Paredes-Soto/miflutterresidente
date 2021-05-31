@@ -14,38 +14,25 @@ class AreasComunesPage extends StatefulWidget {
 }
 
 class _AreasComunesPageState extends State<AreasComunesPage> {
-  
-  String _seleccionArea = '1',_area;
+  AreaComunModel _seleccionArea;
   bool _reservando = true;
   CalendarController _calendarController;
   AreasComunesProvider _areasComunesProvider;
   final _prefs = PreferenciasUsuario();
-  List<AreaComunModel> _areasComunesList = List();
   List<String> _fechasNoDispsList = List();
   Future<List<AreaReservadaModel>> _areasResevadasFuture;
+  Future<List<AreaComunModel>> _areasComunesFuture;
   final _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _calendarController = CalendarController();
     _areasComunesProvider = AreasComunesProvider();
-    _areasComunesProvider
-        .obtenerListadoAreas(_prefs.usuarioLogged)
-        .then((areas) {
-      setState(() {
-        _areasComunesList = areas;
-      });
-      _areasComunesProvider
-          .obtenerReservasCalendario(_prefs.usuarioLogged, _seleccionArea)
-          .then((reservas) {
-        setState(() {
-          _fechasNoDispsList = reservas;
-          _reservando = false;
-        });
-      });
-      _areasResevadasFuture =
-          _areasComunesProvider.obtenerMisReservas(_prefs.usuarioLogged);
-    });
+    _areasComunesFuture =
+        _areasComunesProvider.obtenerListadoAreas(_prefs.usuarioLogged);
+    _areasResevadasFuture =
+        _areasComunesProvider.obtenerMisReservas(_prefs.usuarioLogged);
   }
 
   @override
@@ -55,7 +42,6 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
       body: _creaBody(),
     );
   }
-
 
   Widget _creaBody() {
     return SingleChildScrollView(
@@ -73,42 +59,57 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
     );
   }
 
-  _creaListadoAreas() {
-    // if(Platform.isIOS)
-    // _seleccionArea=_areasComunesList.length != 0?_areasComunesList[0].idAreasComunes:'0';
-    return IgnorePointer(
-      ignoring: _reservando,
-      child: DropdownButton(
-        hint: Text(_areasComunesList.length == 0
-            ? 'No hay áreas comunes disponibles'
-            : 'Seleccione'),
-        // focusNode: FocusNode(), NO OLVIDAR REMOVER EL COMENTARIO - ESTA DISPONIBLE EN NUEVAS VERSIONES DE SDK DE FLUTTER >= 1.12.13H5
-        isExpanded: true,
-        value: _seleccionArea,
-        items: getOpcionesDropdown(),
-        onChanged: (opc) {
-          setState(() {
-            _reservando = true;
-          });
-          _seleccionArea = opc;
-          _areasComunesProvider
-              .obtenerReservasCalendario(_prefs.usuarioLogged, _seleccionArea)
-              .then((reservas) {
-            setState(() {
-              _fechasNoDispsList = reservas;
-              _reservando = false;
-            });
-          });
-        },
-      ),
+  Widget _creaListadoAreas() {
+    return FutureBuilder(
+      future: _areasComunesFuture,
+      //initialData: ,
+      builder:
+          (BuildContext context, AsyncSnapshot<List<AreaComunModel>> snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data.length > 0) {
+            return DropdownButton<AreaComunModel>(
+              hint: Text('Seleccione'),
+              // focusNode: FocusNode(), NO OLVIDAR REMOVER EL COMENTARIO - ESTA DISPONIBLE EN NUEVAS VERSIONES DE SDK DE FLUTTER >= 1.12.13H5
+              isExpanded: true,
+              items: getOpcionesDropdown(snapshot.data),
+              value: _seleccionArea,
+              onChanged: (AreaComunModel opc) {
+                setState(() {
+                  _reservando = true;
+                });
+                _seleccionArea = opc;
+                _areasComunesProvider
+                    .obtenerReservasCalendario(
+                        _prefs.usuarioLogged, _seleccionArea.idAreasComunes)
+                    .then((reservas) {
+                  setState(() {
+                    _fechasNoDispsList = reservas;
+                    _reservando = false;
+                  });
+                });
+              },
+            );
+          } else {
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: 22.0),
+              child: Text('No hay áreas comunes disponibles'),
+            );
+          }
+        } else {
+          return Padding(
+            padding:  EdgeInsets.symmetric(vertical: 22.0),
+            child: LinearProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(utils.colorPrincipal) ,backgroundColor: Theme.of(context).scaffoldBackgroundColor,),
+          );
+        }
+      },
     );
   }
 
-  List<DropdownMenuItem<String>> getOpcionesDropdown() {
-    return _areasComunesList.map((AreaComunModel item) {
-      return new DropdownMenuItem(
-        child: new Text(item.nombre),
-        value: item.idAreasComunes,
+    List<DropdownMenuItem<AreaComunModel>> getOpcionesDropdown(List<AreaComunModel> list) {
+    return list.map((AreaComunModel item) {
+      return DropdownMenuItem(
+        child: Text(item.nombre),
+        value: item,
       );
     }).toList();
   }
@@ -169,22 +170,20 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
       onPressed: _reservando
           ? null
           : () {
-              if (_areasComunesList.length > 0) {
+              if (_seleccionArea.idAreasComunes!='') {
                 if (!_fechasNoDispsList.contains(DateFormat('yyyy-MM-dd')
-                    .format(_calendarController.selectedDay))){
-                  _area = _areasComunesList.singleWhere((area) => area.idAreasComunes.contains(_seleccionArea)).nombre??'Area común seleccionada';
+                    .format(_calendarController.selectedDay))) {
                   creaDialogYesNo(
                       context,
                       'Confirma tu reserva',
-                      '¿Confirmas la reserva de $_area para '
+                      '¿Confirmas la reserva de ${_seleccionArea.nombre} para '
                           '${utils.fechaCompletaFuturo(_calendarController.selectedDay, articuloDef: 'el')}?\n\nCuando confirmes, '
                           'le llegará una notificación a tu administración, la cual será la encargada de reservar tu fecha.',
                       'Sí',
                       'No',
                       () => _confirmarArea(),
                       () => Navigator.pop(context));
-                    }
-                else
+                } else
                   creaDialogSimple(
                       context,
                       '¡Ups!',
@@ -205,7 +204,7 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
     Map resultado = await _areasComunesProvider.reservarAreaComun(
         _prefs.usuarioLogged,
         _calendarController.selectedDay.toIso8601String(),
-        _seleccionArea);
+        _seleccionArea.idAreasComunes);
     Navigator.pop(context);
     setState(() {
       _reservando = false;
@@ -216,7 +215,8 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
       _areasResevadasFuture =
           _areasComunesProvider.obtenerMisReservas(_prefs.usuarioLogged);
     });
-    _scrollController.animateTo(_scrollController.position.maxScrollExtent, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+    _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300), curve: Curves.easeIn);
   }
 
   Widget _creaListadoReservasActivas() {
@@ -281,10 +281,14 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
               SizedBox(
                 width: 5,
               ),
-              Text(reserva.estatus,
-                  softWrap: false,
-                  style: TextStyle(color: getColorReserva(reserva.estatus),),
-                  overflow: TextOverflow.fade,),
+              Text(
+                reserva.estatus,
+                softWrap: false,
+                style: TextStyle(
+                  color: getColorReserva(reserva.estatus),
+                ),
+                overflow: TextOverflow.fade,
+              ),
             ],
           ),
         ));
@@ -307,7 +311,6 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
   void dispose() {
     super.dispose();
     _calendarController.dispose();
-    _areasComunesList.clear();
     _fechasNoDispsList.clear();
   }
 }

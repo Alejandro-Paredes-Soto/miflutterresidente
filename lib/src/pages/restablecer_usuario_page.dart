@@ -2,6 +2,7 @@ import 'package:dostop_v2/src/providers/restablecer_usuario_provider.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RestablecerUsuarioPage extends StatefulWidget {
   @override
@@ -90,6 +91,7 @@ class _RestablecerUsuarioPageState extends State<RestablecerUsuarioPage> {
       enabled: !_enviando,
       textInputAction: TextInputAction.done,
       keyboardType: TextInputType.emailAddress,
+      inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[ ]'))],
       decoration: InputDecoration(
         prefixIcon: Icon(Icons.mail_outline),
         labelText: 'Correo electrónico asociado a la cuenta',
@@ -158,7 +160,7 @@ class _RestablecerUsuarioPageState extends State<RestablecerUsuarioPage> {
           context,
           'Correo enviado',
           'Se ha enviado un correo con las instrucciones.\n\n Si no lo ves en tu bandeja de entrada, '
-          'te recomendamos revisar tu bandeja de Spam/Correo no deseado.\n\n¿No lo recibiste? Por favor inténtalo de nuevo en 3 minutos.',
+              'te recomendamos revisar tu bandeja de Spam/Correo no deseado.\n\n¿No lo recibiste? Por favor inténtalo de nuevo en 3 minutos.',
           'Aceptar', () {
         Navigator.pop(context);
         Navigator.of(context).pop();
