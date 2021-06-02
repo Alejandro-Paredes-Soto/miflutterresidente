@@ -28,7 +28,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   final _pushManager = PushNotificationsManager();
   bool _respuestaEnviada = false;
   final _prefs = PreferenciasUsuario();
-  String id ='';
+  String id = '';
 
   @override
   void initState() {
@@ -39,7 +39,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   @override
   Widget build(BuildContext context) {
     final VisitaModel visita = ModalRoute.of(context).settings.arguments;
-    id=visita.idVisitas;
+    id = visita.idVisitas;
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -62,7 +62,16 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Visibility(visible: visita.tipoVisita==3, child: Text('El tiempo para responder esta visita ha expirado', textAlign: TextAlign.center, style: TextStyle(color: utils.colorPrincipal, fontSize: 16, fontWeight: FontWeight.bold),)),
+          Visibility(
+              visible: visita.tipoVisita == 3,
+              child: Text(
+                'El tiempo para responder esta visita ha expirado',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: utils.colorPrincipal,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
+              )),
           _imagenesVisitante(utils.validaImagenes(
               [visita.imgRostro, visita.imgId, visita.imgPlaca])),
           SizedBox(height: 20),
@@ -94,30 +103,29 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                 scale: 0.8,
                 itemBuilder: (BuildContext context, int index) {
                   return GestureDetector(
-                      child: PinchZoomImage(
-                        image: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: double.infinity,
-                            child: CachedNetworkImage(
-                              placeholder: (context, url) =>
-                                  Image.asset(utils.rutaGifLoadRed),
-                              errorWidget: (context, url, error) => Container(
-                                  height: 200,
-                                  child:
-                                      Center(child: Icon(Icons.broken_image))),
-                              imageUrl: imagenes[index],
-                              fit: BoxFit.cover,
-                              fadeInDuration: Duration(milliseconds: 300),
-                            ),
+                    child: PinchZoomImage(
+                      image: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          width: double.infinity,
+                          child: CachedNetworkImage(
+                            placeholder: (context, url) =>
+                                Image.asset(utils.rutaGifLoadRed),
+                            errorWidget: (context, url, error) => Container(
+                                height: 200,
+                                child: Center(child: Icon(Icons.broken_image))),
+                            imageUrl: imagenes[index],
+                            fit: BoxFit.cover,
+                            fadeInDuration: Duration(milliseconds: 300),
                           ),
                         ),
                       ),
-                      onLongPress: () {
-                        HapticFeedback.vibrate();
-                        _descargaImagen(context, imagenes[index]);
-                      },
-                    );
+                    ),
+                    onLongPress: () {
+                      HapticFeedback.vibrate();
+                      _descargaImagen(context, imagenes[index]);
+                    },
+                  );
                 }),
           ),
           SizedBox(height: 10),
@@ -175,14 +183,78 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   }
 
   Widget _creaFABAprobar(BuildContext context, String idVisita) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        Container(
-          child: MaterialButton(
+    return AnimatedCrossFade(
+      sizeCurve: Curves.bounceInOut,
+      duration: Duration(milliseconds: 200),
+      crossFadeState: _respuestaEnviada
+          ? CrossFadeState.showFirst
+          : CrossFadeState.showSecond,
+      firstChild: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: LinearProgressIndicator(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            valueColor: AlwaysStoppedAnimation<Color>(utils.colorPrincipal)),
+      ),
+      secondChild: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          Container(
+            child: _respuestaEnviada
+                ? CircularProgressIndicator()
+                : MaterialButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    color: utils.colorContenedorSaldo,
+                    height: 90,
+                    child: Container(
+                      width: 90,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(
+                            Icons.transfer_within_a_station,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            'Aceptar',
+                            textAlign: TextAlign.center,
+                            style: utils.estiloBotones(16),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onPressed: _respuestaEnviada
+                        ? null
+                        : () {
+                            setState(() {
+                              _respuestaEnviada = true;
+                            });
+                            _notifProvider
+                                .respuestaVisita(
+                                    _prefs.usuarioLogged, idVisita, 1)
+                                .then((resp) {
+                              toast.showToast(
+                                resp['mensaje'],
+                                backgroundColor: resp['id'] == '0'
+                                    ? utils.colorToastAceptada
+                                    : null,
+                                textStyle: TextStyle(
+                                    fontSize: 24,
+                                    color: Colors.white,
+                                    fontFamily: 'Poppins'),
+                                borderRadius: BorderRadius.circular(20),
+                              );
+                              Navigator.pop(context);
+                            });
+                          },
+                  ),
+          ),
+          MaterialButton(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            color: utils.colorContenedorSaldo,
+            color: utils.colorPrincipal,
             height: 90,
             child: Container(
               width: 90,
@@ -190,13 +262,13 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Icon(
-                    Icons.transfer_within_a_station,
+                    Icons.pan_tool,
                     color: Colors.white,
                     size: 32,
                   ),
                   SizedBox(height: 5),
                   Text(
-                    'Aceptar',
+                    'Rechazar',
                     textAlign: TextAlign.center,
                     style: utils.estiloBotones(16),
                   ),
@@ -210,67 +282,25 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                       _respuestaEnviada = true;
                     });
                     _notifProvider
-                        .respuestaVisita(_prefs.usuarioLogged, idVisita, 1)
-                        .then((respEnviada) {
-                      if (respEnviada)
-                        print('Respuesta enviada');
-                      else
-                        print('No se pudo enviar la respuesta');
+                        .respuestaVisita(_prefs.usuarioLogged, idVisita, 2)
+                        .then((resp) {
+                      toast.showToast(
+                        resp['mensaje'],
+                        backgroundColor: resp['id'] == '0'
+                            ? utils.colorToastRechazada
+                            : null,
+                        textStyle: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            fontFamily: 'Poppins'),
+                        borderRadius: BorderRadius.circular(20),
+                      );
+                      Navigator.pop(context);
                     });
-                    toast.showToast('Tu visita está en camino...',
-                      backgroundColor: Color.fromRGBO(25, 163, 14, 1.0), 
-                      textStyle: TextStyle(fontSize: 24, color: Colors.white, fontFamily: 'Poppins'), 
-                      borderRadius: BorderRadius.circular(20),);
-                    Navigator.pop(context);
                   },
           ),
-        ),
-        MaterialButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          color: utils.colorPrincipal,
-          height: 90,
-          child: Container(
-            width: 90,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(
-                  Icons.pan_tool,
-                  color: Colors.white,
-                  size: 32,
-                ),
-                SizedBox(height: 5),
-                Text(
-                  'Rechazar',
-                  textAlign: TextAlign.center,
-                  style: utils.estiloBotones(16),
-                ),
-              ],
-            ),
-          ),
-          onPressed: _respuestaEnviada
-              ? null
-              : () {
-                  setState(() {
-                    _respuestaEnviada = true;
-                  });
-                  _notifProvider
-                      .respuestaVisita(_prefs.usuarioLogged, idVisita, 2)
-                      .then((respEnviada) {
-                    if (respEnviada)
-                      print('Respuesta enviada');
-                    else
-                      print('No se pudo enviar la respuesta');
-                  });
-                  toast.showToast('¡Haz rechazado la visita!',
-                    backgroundColor: Color.fromRGBO(233, 55, 54, 1.0), 
-                    textStyle: TextStyle(fontSize: 24, color: Colors.white, fontFamily: 'Poppins'), 
-                    borderRadius: BorderRadius.circular(20),);
-                  Navigator.pop(context);
-                },
-        ),
-      ],
+        ],
+      ),
     );
   }
 
