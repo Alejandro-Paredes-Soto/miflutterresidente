@@ -110,7 +110,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       key: navigatorKey,
-      body:  _creaBody(),
+      body: _creaBody(),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -198,6 +198,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     return BottomNavigationBar(
       key: _navKey,
       type: BottomNavigationBarType.fixed,
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
       selectedItemColor: utils.colorPrincipal,
       currentIndex: _indexItem,
       onTap: (index) {
@@ -212,36 +214,23 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       },
       items: [
         BottomNavigationBarItem(
-            icon: SvgPicture.asset(utils.rutaIconoInicio,
-                color: Theme.of(context).iconTheme.color,
-                height: utils.tamanoIcoNavBar),
-            activeIcon: SvgPicture.asset(
-              utils.rutaIconoInicio,
-              height: utils.tamanoIcoNavBar,
-              color: utils.colorPrincipal,
-            ),
-            title: Column(
-              children: <Widget>[
-                // SizedBox(
-                //   height: 5.0,
-                // ),
-                // Text('Inicio', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            )),
+          icon: SvgPicture.asset(utils.rutaIconoInicio,
+              color: Theme.of(context).iconTheme.color,
+              height: utils.tamanoIcoNavBar),
+          activeIcon: SvgPicture.asset(
+            utils.rutaIconoInicio,
+            height: utils.tamanoIcoNavBar,
+            color: utils.colorPrincipal,
+          ),
+          label: 'Inicio',
+        ),
         BottomNavigationBarItem(
             icon: SvgPicture.asset(utils.rutaIconoVisitas,
                 color: Theme.of(context).iconTheme.color,
                 height: utils.tamanoIcoNavBar),
             activeIcon: SvgPicture.asset(utils.rutaIconoVisitas,
                 height: utils.tamanoIcoNavBar, color: utils.colorPrincipal),
-            title: Column(
-              children: <Widget>[
-                // SizedBox(
-                //   height: 5.0,
-                // ),
-                // Text('Visitas', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            )),
+            label: 'Historial'),
         BottomNavigationBarItem(
           icon: SvgPicture.asset(utils.rutaIconoEmergencia,
               color: Theme.of(context).iconTheme.color,
@@ -251,14 +240,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
             height: utils.tamanoIcoNavBar,
             color: utils.colorPrincipal,
           ),
-          title: Column(
-            children: <Widget>[
-              // SizedBox(
-              //   height: 5.0,
-              // ),
-              // Text('Emergencias', style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
+          label: 'Emergencias',
         ),
         BottomNavigationBarItem(
           icon: Container(
@@ -269,14 +251,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
               padding: EdgeInsets.symmetric(vertical: 10),
               child: SvgPicture.asset(utils.rutaIconoMenu,
                   height: 16, color: utils.colorPrincipal)),
-          title: Column(
-            children: <Widget>[
-              SizedBox(
-                height: 5.0,
-              ),
-              // Text('Menú', style: TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
+          label: 'Más',
         ),
       ],
     );
@@ -317,7 +292,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                                 });
                               }),
                         ),
-                        //FUTURO BOTÖN DE CONFIGURACIONES.
+                        //FUTURO BOTÓN DE CONFIGURACIONES.
                         // Flexible(
                         //   flex: 1,
                         //   child: IconButton(
@@ -408,13 +383,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                           _cerrarSesion();
                         }),
                     _creaTerminosLegales()
-                    // ListTile(
-                    //     trailing: Icon(
-                    //       Icons.close,
-                    //       size: 40,
-                    //     ),
-                    //     onTap: () => Navigator.pop(ctx)),
-                    //subtitle: Text('deslice hacia abajo para cerrar',textAlign: TextAlign.right,),
                   ],
                 ),
               ),
