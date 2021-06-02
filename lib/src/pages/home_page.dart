@@ -329,48 +329,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             if (snapshot.data.containsKey('valor')) {
               _noMolestar = snapshot.data['valor'] == '1' ? true : false;
               return Container(
-                // padding: EdgeInsets.only(right:15),
-                // child: Row(
-                //   mainAxisAlignment: MainAxisAlignment.end,
-                //   children: <Widget>[
-                //     Text('No molestar'),
-                //     CupertinoSwitch(
-                //   value: true, onChanged: (value){}),
-                //   ],
-                // )
-                child: SwitchListTile(
-                  value: _noMolestar,
-                  selected: _noMolestar,
+                child: ListTile(
                   title: Text('Modo no molestar',
                       textAlign: TextAlign.right,
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(_noMolestar ? 'Activado' : 'Desactivado',
                       textAlign: TextAlign.right),
-                  activeColor: utils.colorPrincipal,
-                  inactiveThumbColor: utils.colorContenedorSaldo,
-                  onChanged: (valor) {
-                    if (valor)
-                      creaDialogYesNo(
-                          context,
-                          'Activar modo no molestar',
-                          '¿Seguro que deseas activar el modo no molestar?'
-                              '\n\nTodas tus visitas serán rechazadas automaticamente.'
-                              '\nNota: Los códigos de visitantes frecuentes seguirán teniendo acceso',
-                          'Sí',
-                          'No', () {
-                        Navigator.pop(context);
-                        _cambiaModoNoMolestar(valor);
-                      }, () {
-                        setState(
-                          () {
-                            _noMolestar = false;
-                          },
-                        );
-                        Navigator.pop(context);
-                      });
-                    else
-                      _cambiaModoNoMolestar(valor);
-                  },
+                  trailing: CupertinoSwitch(
+                      activeColor: utils.colorPrincipal,
+                      trackColor: utils.colorContenedorSaldo,
+                      value: _noMolestar,
+                      onChanged: (valor) {
+                        if (valor)
+                          creaDialogYesNo(
+                              context,
+                              'Activar modo no molestar',
+                              '¿Seguro que deseas activar el modo no molestar?'
+                                  '\n\nTodas tus visitas serán rechazadas automaticamente.'
+                                  '\nNota: Los códigos de visitantes frecuentes seguirán teniendo acceso',
+                              'Sí',
+                              'No', () {
+                            Navigator.pop(context);
+                            _cambiaModoNoMolestar(valor);
+                          }, () {
+                            setState(
+                              () {
+                                _noMolestar = false;
+                              },
+                            );
+                            Navigator.pop(context);
+                          });
+                        else
+                          _cambiaModoNoMolestar(valor);
+                      }),
                 ),
               );
             } else {
@@ -379,21 +370,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               );
             }
           } else {
-            return SwitchListTile(
-                value: false,
-                title: Text(
-                  'Modo no molestar',
-                  textAlign: TextAlign.right,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text('Cargando...', textAlign: TextAlign.right),
-                onChanged: null);
+            return ListTile(
+              title: Text(
+                'Modo no molestar',
+                textAlign: TextAlign.right,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text('Cargando...', textAlign: TextAlign.right),
+              trailing: CupertinoSwitch(value: false, onChanged: null),
+            );
           }
         });
   }
 
   _cambiaModoNoMolestar(bool valor) async {
-    creaDialogProgress(context, 'Cambiando modo');
+    creaDialogProgress(context, 'Cambiando...');
     Map resultado = await configUsuarioProvider.configurarOpc(
         _prefs.usuarioLogged, 1, valor);
     Navigator.pop(context);
