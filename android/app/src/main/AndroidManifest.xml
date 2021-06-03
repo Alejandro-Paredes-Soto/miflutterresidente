@@ -14,6 +14,7 @@
         android:label="Dostop"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
+        android:requestLegacyExternalStorage="true"
         tools:ignore="GoogleAppIndexingWarning">
         <!-- FCM - se agrega fragmento para cambiar el color y el icono de la notificación -->
         <meta-data

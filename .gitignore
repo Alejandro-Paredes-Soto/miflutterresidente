@@ -72,8 +72,12 @@ unlinked_spec.ds
 
 #built application files
 *.apk
+*.aar
 *.ap_
 *.aab
+
+#built app dir
+**/android/app/release/
                            
 # files for the dex VM
 *.dex

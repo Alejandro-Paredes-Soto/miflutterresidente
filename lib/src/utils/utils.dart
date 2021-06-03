@@ -4,15 +4,15 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 bool isDebug = !kReleaseMode;
 
-// bool darkMode=false;
 Color colorFondoPrincipalDark = Color.fromRGBO(18, 18, 18, 1.0);
 Color colorTextoPrincipalDark = Color.fromRGBO(184, 184, 184, 1.0);
-Color colorIconos = Color.fromRGBO(65,64,64,1.0);
+Color colorIconos = Color.fromRGBO(65, 64, 64, 1.0);
 Color colorPrincipal = Color.fromRGBO(233, 55, 54, 1.0);
 Color colorSecundario = Color.fromRGBO(102, 106, 106, 1.0);
 Color colorSecundarioSemi = Color.fromRGBO(102, 106, 106, 0.5);
@@ -24,6 +24,8 @@ Color colorIndicadorSwiper = Color.fromRGBO(128, 128, 128, 0.8);
 Color colorFondoTarjeta = Color.fromRGBO(244, 244, 244, 1.0);
 Color colorFondoTarjetaFreq = Color.fromRGBO(226, 226, 226, 1.0);
 Color colorContenedorSaldo = Color.fromRGBO(25, 163, 14, 1.0);
+Color colorToastAceptada = Color.fromRGBO(25, 163, 14, 1.0);
+Color colorToastRechazada = Color.fromRGBO(233, 55, 54, 1.0);
 MaterialColor colorCalendario = MaterialColor(0xFFDF3736, _colorCalendario);
 const Map<int, Color> _colorCalendario = {
   50: const Color(0xFFDF3736),
@@ -94,8 +96,11 @@ AppBar appBarLogoD(
     title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Text(
         titulo,
-        style: TextStyle( fontFamily: 'Poppins',
-            color: colorPrincipal, fontSize: 28, fontWeight: FontWeight.bold),
+        style: TextStyle(
+            fontFamily: 'Poppins',
+            color: colorPrincipal,
+            fontSize: 28,
+            fontWeight: FontWeight.bold),
       ),
       SizedBox(),
       SvgPicture.asset(
@@ -112,9 +117,12 @@ AppBar appBarLogoD(
 Text dostopLogo() {
   return Text(
     'Dostop',
-    //style: TextStyle(fontFamily: 'Play', color: colorPrincipal, fontSize: 40),
     textScaleFactor: 0.85,
-    style: TextStyle(fontFamily: 'Play', color: colorPrincipal, fontSize: 22, ),
+    style: TextStyle(
+      fontFamily: 'Play',
+      color: colorPrincipal,
+      fontSize: 22,
+    ),
   );
 }
 
@@ -126,7 +134,8 @@ TextStyle estiloItemsModal(double fontSize) {
 }
 
 TextStyle estiloTextoAppBar(double fontSize) {
-  return TextStyle(fontFamily:'Poppins', fontWeight: FontWeight.bold, fontSize: fontSize);
+  return TextStyle(
+      fontFamily: 'Poppins', fontWeight: FontWeight.bold, fontSize: fontSize);
 }
 
 TextStyle estiloBotones(double fontSize) {
@@ -136,12 +145,12 @@ TextStyle estiloBotones(double fontSize) {
 
 TextStyle estiloTituloTarjeta(double fontSize) {
   return TextStyle(
-      /*color: colorPrincipal,*/ fontSize: fontSize, /*fontWeight: FontWeight.bold*/);
+    fontSize: fontSize,
+  );
 }
 
 TextStyle estiloSubtituloTarjeta(double fontSize) {
-  return TextStyle(
-      /*color: Colors.black,*/ fontSize: fontSize, fontWeight: FontWeight.bold);
+  return TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold);
 }
 
 TextStyle estiloTextoBlancoSombreado(double fontSize) {
@@ -162,7 +171,8 @@ Brightness temaStatusBar(BuildContext context) {
 }
 
 bool correoValido(String email) {
-  Pattern patternCorreoValido = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+  Pattern patternCorreoValido =
+      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
   if (!RegExp(patternCorreoValido).hasMatch(email))
     return false;
   else
@@ -250,8 +260,8 @@ abrirPaginaWeb({@required String url}) async {
     print('No se pudo abrir: $url');
 }
 
-String fechaCompleta(DateTime tm) {
-  if(tm==null)return "";
+String fechaCompleta(DateTime tm, {bool showTime = false}) {
+  if (tm == null) return "";
   DateTime today = new DateTime.now();
   Duration oneDay = new Duration(days: 1);
   Duration twoDay = new Duration(days: 2);
@@ -302,7 +312,8 @@ String fechaCompleta(DateTime tm) {
   } else if (difference.compareTo(twoDay) < 1) {
     return "Ayer";
   } else {
-    return '${tm.day} de $month de ${tm.year} ${tm.hour}';
+    return '${tm.day} de $month de ${tm.year}' +
+        (showTime ? ' ${DateFormat("h:mm a").format(tm)}' : '');
   }
 }
 
@@ -363,16 +374,6 @@ String fechaCompletaFuturo(DateTime tm, {String articuloDef = ''}) {
 List<String> validaImagenes(List<String> imagenes) {
   List<String> list = [];
   list.addAll(imagenes);
-
-  // if (imagenes[0] == '') {
-  //   list.removeAt(0);
-  // }
-  // if (imagenes[1] == '') {
-  //    list.removeAt(0);
-  // }
-  // if (imagenes[2] == '') {
-  //   list.removeAt(0);
-  // }
   imagenes.forEach((item) {
     if (item == '' || item == null) list.remove(item);
   });

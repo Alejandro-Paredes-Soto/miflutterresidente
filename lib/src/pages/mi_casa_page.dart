@@ -89,7 +89,7 @@ class _MiCasaPageState extends State<MiCasaPage> {
                           child: ListTile(
                             contentPadding: EdgeInsets.symmetric(horizontal: 5),
                             title: Text(
-                                '${utils.fechaCompleta(datosPago.pagos[index].fechaPago)}'),
+                                '${utils.fechaCompleta(datosPago.pagos[index].fechaPago, showTime: true)}'),
                             trailing: Text(
                               '\$${datosPago.pagos[index].monto}',
                               style: TextStyle(fontSize: 16),

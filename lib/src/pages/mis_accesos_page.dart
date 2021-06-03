@@ -1,7 +1,11 @@
-import 'package:dostop_v2/src/providers/mis_accesos_provider.dart';
-import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
-import 'package:dostop_v2/src/widgets/dinamic_list_view.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/providers/mis_accesos_provider.dart';
+import 'package:dostop_v2/src/widgets/dinamic_list_view.dart';
+import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
+import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
 class MisAccesosPage extends StatefulWidget {
@@ -11,8 +15,10 @@ class MisAccesosPage extends StatefulWidget {
 
 class _MisAccesosPageState extends State<MisAccesosPage> {
   final _accesosProvider = MisAccesosProvider();
+  final _configUsuarioProvider = ConfigUsuarioProvider();
   final _prefs = PreferenciasUsuario();
   final _key = GlobalKey();
+  bool _notificarAccesos = false, _obteniendoConfig = true;
   Future<List<AccesoModel>> _accesosProviderFuture;
   int _pag = 1;
 
@@ -21,6 +27,16 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
     super.initState();
     _accesosProviderFuture =
         _accesosProvider.obtenerAccesos(_prefs.usuarioLogged, _pag);
+    _configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 3)
+        .then((resultado) {
+      ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
+      if (!mounted) return;
+      setState(() {
+        _obteniendoConfig = resultado['OK'] != 1;
+        _notificarAccesos = resultado['valor'] == '1';
+      });
+    });
   }
 
   @override
@@ -33,15 +49,49 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
 
   Widget _creaBody() {
     return Container(
-      padding: EdgeInsets.all(15),
+      padding: EdgeInsets.symmetric(horizontal: 15.0),
       child: Column(
         children: [
+          _creaSwitchNotifAccesos(),
           _creaListaVehiculos(),
           Expanded(child: _cargaListadoAccesos()),
           _creaBannerIconos()
         ],
       ),
     );
+  }
+
+  Widget _creaSwitchNotifAccesos() {
+    return ListTile(
+      title: Text(
+        'Notificar mis accesos',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(_obteniendoConfig
+          ? ''
+          : _notificarAccesos
+              ? 'Activado'
+              : 'Desactivado'),
+      trailing: CupertinoSwitch(
+          value: _notificarAccesos,
+          onChanged: _obteniendoConfig
+              ? null
+              : (valor) => _cambiarNotifAccesos(valor)),
+    );
+  }
+
+  _cambiarNotifAccesos(valor) async {
+    creaDialogProgress(context, 'Configurando...');
+    Map resultado = await _configUsuarioProvider.configurarOpc(
+        _prefs.usuarioLogged, 3, valor);
+    Navigator.of(context).pop('dialog');
+    setState(() {
+      _notificarAccesos = resultado['OK'] == 1 ? valor : _notificarAccesos;
+      //   Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+      //       Icon(resultado['OK'] == 1 ? Icons.notifications_active : Icons.error),
+      //       resultado['message'],
+      //       5));
+    });
   }
 
   Widget _creaListaVehiculos() {
@@ -102,7 +152,7 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
                       style: utils.estiloSubtituloTarjeta(17)),
                   Text('Placas', style: utils.estiloTituloTarjeta(14)),
                   Text('${acceso.placas}',
-                     style: utils.estiloSubtituloTarjeta(17)),
+                      style: utils.estiloSubtituloTarjeta(17)),
                   Padding(
                     padding: EdgeInsets.only(right: 15.0),
                     child: Text(

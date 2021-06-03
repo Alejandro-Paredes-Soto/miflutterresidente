@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ConfigUsuarioProvider {
-  final String url = 'https://dostop.mx/dostop/WebService';
+    final String url = 'https://dostop.mx/dostop/WebService';
 
   Future<Map<String, dynamic>> configurarOpc(
     String idUsuario,
@@ -26,7 +26,7 @@ class ConfigUsuarioProvider {
       }
     } catch (e) {
       print(
-          'Ocurrió un error en la llamada al Servicio de CONFIGURACIONES USUARIO - NO MOLESTAR:\n $e');
+          'Ocurrió un error en la llamada al Servicio de CONFIGURACINES USUARIO - CONFIGURAR OPCIONES:\n $e');
       return {'OK': 2, 'message': 'No se pudo activar'};
     }
   }
@@ -44,13 +44,13 @@ class ConfigUsuarioProvider {
       Map<String, dynamic> mapResp = json.decode(resp.body);
       if (!mapResp.containsKey('estatus')) return {'OK': 2};
       if (mapResp['estatus'].toString().contains('1')) {
-        return {'valor': mapResp['valorConfig']};
+        return {'OK': 1, 'valor': mapResp['valorConfig']};
       } else {
         return {'OK': 2};
       }
     } catch (e) {
       print(
-          'Ocurrió un error en la llamada al Servicio de CONFIGURACIONES USUARIO - NO MOLESTAR:\n $e');
+          'Ocurrió un error en la llamada al Servicio de CONFIGURACINES USUARIO - OBTENER CONFIGURACIONES:\n $e');
       return {'OK': 2};
     }
   }
