@@ -159,7 +159,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         .map((element) => CupertinoActionSheetAction(
             child: Text(element.respuestaEncuesta,
                 style: TextStyle(
-                    fontSize: 20.0, color: Theme.of(context).iconTheme.color)),
+                    fontSize: 20.0, color: Theme.of(context).iconTheme.color), textScaleFactor: 1.0,),
             onPressed: () => _enviarRespuesta(
                   int.tryParse(element.idRespuestaEncuesta),
                 )))
@@ -170,15 +170,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         builder: (_) => CupertinoActionSheet(
               title: Text(pregunta,
                   style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.bodyText2.color)),
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyText2.color,
+                  ),
+                  textScaleFactor: 0.9,),
               actions: actions,
               cancelButton: CupertinoActionSheetAction(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   'Cancelar',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold,),
+                  textScaleFactor: 1.0,
                 ),
               ),
             ));
@@ -200,7 +203,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         });
       } else {
         setState(() {
-          _nuevaEncuesta=false;
+          _nuevaEncuesta = false;
         });
         Scaffold.of(context).showSnackBar(
             utils.creaSnackBarIcon(Icon(Icons.error), resultados[2], 10));
@@ -217,19 +220,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     creaDialogWidget(
         context,
         titulo,
-        Expanded(
-          child: PieChart(
-            dataMap: dataMap,
-            legendOptions: LegendOptions(
-              showLegends: true,
-              legendPosition: LegendPosition.top,
-            ),
-            chartValuesOptions: ChartValuesOptions(
-              showChartValueBackground: true,
-              showChartValues: true,
-              showChartValuesInPercentage: true,
-              decimalPlaces: 1,
-            ),
+        PieChart(
+          dataMap: dataMap,
+          legendOptions: LegendOptions(
+            showLegends: true,
+            legendPosition: LegendPosition.top,
+          ),
+          chartValuesOptions: ChartValuesOptions(
+            showChartValueBackground: true,
+            showChartValues: true,
+            showChartValuesInPercentage: true,
+            decimalPlaces: 1,
           ),
         ),
         'Aceptar',

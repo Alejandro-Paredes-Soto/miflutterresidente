@@ -81,15 +81,20 @@ creaDialogWidget(BuildContext context, String titulo, Widget widget,
                       color: Colors.transparent,
                       height: MediaQuery.of(context).size.height * 0.5,
                       width: MediaQuery.of(context).size.width * 0.95,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            titulo,
-                            textScaleFactor: 1.05,
+                      child: Scrollbar(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              widget,
+                              Text(
+                                titulo,
+                                textScaleFactor: 1.05,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
-                          widget,
-                        ],
+                        ),
                       ))),
               actions: [
                 FlatButton(
