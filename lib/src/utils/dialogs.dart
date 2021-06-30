@@ -51,9 +51,14 @@ creaDialogBloqueo(BuildContext context, String titulo, String mensaje) {
               title: Text(titulo, style: TextStyle(fontSize: 24)),
               content: Column(
                 children: [
-                  Icon(Icons.lock, size: 100,),
-                  Text(mensaje, style: TextStyle(fontSize: 20),),
-
+                  Icon(
+                    Icons.lock,
+                    size: 100,
+                  ),
+                  Text(
+                    mensaje,
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ],
               )),
         );
@@ -64,19 +69,44 @@ creaDialogWidget(BuildContext context, String titulo, Widget widget,
     String textOpcionOK, Function funcionOK) {
   showCupertinoDialog(
       context: context,
-      builder: (ctx) {
-        return CupertinoAlertDialog(
-          title: Text(titulo),
-          content: widget,
-          actions: <Widget>[
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              child: Text(textOpcionOK),
-              onPressed: funcionOK,
+      builder: (ctx) => ButtonBarTheme(
+            data: ButtonBarThemeData(alignment: MainAxisAlignment.center),
+            child: AlertDialog(
+              contentPadding: EdgeInsets.all(10.0),
+              scrollable: true,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15.0))),
+              content: Builder(
+                  builder: (context) => Container(
+                      color: Colors.transparent,
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      width: MediaQuery.of(context).size.width * 0.95,
+                      child: Scrollbar(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              widget,
+                              Text(
+                                titulo,
+                                textScaleFactor: 1.05,
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ))),
+              actions: [
+                FlatButton(
+                  child: Text(
+                    textOpcionOK,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  onPressed: funcionOK,
+                ),
+              ],
             ),
-          ],
-        );
-      });
+          ));
 }
 
 void creaDialogYesNo(

@@ -1,8 +1,13 @@
 import 'dart:convert';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
-import 'package:dostop_v2/src/providers/login_validator.dart';
+import 'package:dostop_v2/src/models/encuesta_model.dart';
+import 'package:dostop_v2/src/models/resultados_encuesta_model.dart';
 export 'package:dostop_v2/src/models/aviso_model.dart';
+export 'package:dostop_v2/src/models/encuesta_model.dart';
+export 'package:dostop_v2/src/models/resultados_encuesta_model.dart';
+import 'package:dostop_v2/src/providers/login_validator.dart';
+
 import 'package:http/http.dart' as http;
 
 class AvisosProvider {
@@ -27,7 +32,6 @@ class AvisosProvider {
       print('Ocurrió un error en la llamada al Servicio de AVISOS:\n $e');
       return [];
     }
-    //return[];
   }
 
   Future<List<AvisoModel>> obtenerUltimosAvisos(String idUsuario) async {
@@ -53,13 +57,14 @@ class AvisosProvider {
   Future<Map<int, dynamic>> obtenerUltimaEncuesta(String idUsuario) async {
     validaSesion.verificaSesion();
     try {
-      final resp = await http
-          .post('$url/obtener_ultima_encuesta2.php', body: {'id': idUsuario});
-      Map decodeResp = json.decode(resp.body);
-      // print(decodeResp);
-      if (decodeResp == null) return {};
-      if (decodeResp.containsKey('pregunta')) {
-        return {1: decodeResp};
+      final resp = await http.post('$url/obtener_ultima_encuesta_disp.php',
+          body: {'id': idUsuario});
+      Map encuesta = json.decode(resp.body);
+      if (encuesta == null) return {};
+      if (encuesta.containsKey('datos_encuesta')) {
+        return {
+          1: encuestaModelFromJson(json.encode(encuesta['datos_encuesta']))
+        };
       }
       return {2: 'No hay ninguna encuesta disponible'};
     } catch (e) {
@@ -70,21 +75,27 @@ class AvisosProvider {
   }
 
   Future<Map<int, dynamic>> enviarRespuestaEncuesta(
-      String idUsuario, String idPregunta, bool respuesta) async {
+      String idUsuario, int idRespuesta) async {
     try {
-      final resp =
-          await http.post('$url/enviar_respuesta_encuesta2.php', body: {
-        'idColono': idUsuario,
-        'idPregunta': idPregunta,
-        'respuesta': respuesta.toString()
+      final resp = await http
+          .post('$url/enviar_respuesta_encuesta_resultados.php', body: {
+        'id': idUsuario,
+        'id_respuesta': idRespuesta.toString(),
       });
       Map decodeResp = json.decode(resp.body);
       print(decodeResp);
       if (decodeResp == null) return {};
       if (decodeResp.containsKey('resultados')) {
-        return {1: decodeResp['resultados']};
+        return {
+          1: resultadosEncuestaModelFromJson(
+              json.encode(decodeResp['resultados']))
+        };
       }
-      return {2: 'No se pueden obtener los resultados'};
+      return {
+        2: decodeResp.containsKey('message')
+            ? decodeResp['message']
+            : 'No se pueden obtener los resultados'
+      };
     } catch (e) {
       print(
           'Ocurrió un error en la llamada al Servicio de AVISOS - ENVIAR RESPUESTAS:\n $e');
