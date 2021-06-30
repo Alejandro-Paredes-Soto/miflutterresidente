@@ -1,10 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
-import 'package:fl_chart/fl_chart.dart' as charts;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:pie_chart/pie_chart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
@@ -15,6 +14,7 @@ import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:dostop_v2/src/utils/dialogs.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class HomePage extends StatefulWidget {
   final PageController pageController;
@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _respuestaEnviada = false,
       _noMolestar = false,
       _accesos = false;
-  Map _encuesta;
+  EncuestaModel _datosEncuesta;
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (!mounted) return;
       setState(() {
         if (encuesta.containsKey(1)) {
-          _encuesta = encuesta[1];
+          _datosEncuesta = encuesta[1];
           _nuevaEncuesta = true;
         }
       });
@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         if (!mounted) return;
         setState(() {
           if (encuesta.containsKey(1)) {
-            _encuesta = encuesta[1];
+            _datosEncuesta = encuesta[1];
             _nuevaEncuesta = true;
           }
         });
@@ -122,9 +122,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       style: utils.estiloBotones(15),
                     ),
                     onPressed: !_respuestaEnviada
-                        ? _responderEncuesta
+                        ? () => _responderEncuesta(
+                              pregunta: _datosEncuesta.pregunta,
+                              respuestas: _datosEncuesta.respuestas,
+                            )
                         : () => _mostrarResultados(
-                            _encuesta['pregunta'], _resultados[1]),
+                            _datosEncuesta.pregunta, _resultados[1]),
                   ),
                   SizedBox(width: 20),
                   RaisedButton(
@@ -151,17 +154,44 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  _responderEncuesta() {
-    creaDialogEncuesta(context, _encuesta['pregunta'], 'Sí', 'No',
-        () => _enviarRespuesta(true), () => _enviarRespuesta(false));
+  _responderEncuesta({String pregunta, List<Respuesta> respuestas}) {
+    List<CupertinoActionSheetAction> actions = respuestas
+        .map((element) => CupertinoActionSheetAction(
+            child: Text(element.respuestaEncuesta,
+                style: TextStyle(
+                    fontSize: 20.0, color: Theme.of(context).iconTheme.color), textScaleFactor: 1.0,),
+            onPressed: () => _enviarRespuesta(
+                  int.tryParse(element.idRespuestaEncuesta),
+                )))
+        .toList();
+
+    showCupertinoModalPopup(
+        context: context,
+        builder: (_) => CupertinoActionSheet(
+              title: Text(pregunta,
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyText2.color,
+                  ),
+                  textScaleFactor: 0.9,),
+              actions: actions,
+              cancelButton: CupertinoActionSheetAction(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(fontWeight: FontWeight.bold,),
+                  textScaleFactor: 1.0,
+                ),
+              ),
+            ));
   }
 
-  _enviarRespuesta(bool respuesta) {
+  _enviarRespuesta(int respuesta) {
     Navigator.pop(context);
     creaDialogProgress(context, 'Enviando respuesta');
     avisosProvider
-        .enviarRespuestaEncuesta(
-            _prefs.usuarioLogged, _encuesta['idPregunta'], respuesta)
+        .enviarRespuestaEncuesta(_prefs.usuarioLogged, respuesta)
         .then((resultados) {
       Navigator.pop(context);
       if (resultados.containsKey(1)) {
@@ -172,74 +202,36 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           _resultados = resultados;
         });
       } else {
-        Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-            Icon(Icons.error), 'No se pudo enviar tu respuesta', 10));
+        setState(() {
+          _nuevaEncuesta = false;
+        });
+        Scaffold.of(context).showSnackBar(
+            utils.creaSnackBarIcon(Icon(Icons.error), resultados[2], 10));
       }
     });
   }
 
-  _mostrarResultados(String titulo, Map resultados) {
+  _mostrarResultados(String titulo, List<ResultadosEncuestaModel> resultados) {
+    Map<String, double> dataMap = {};
+    resultados.forEach((element) {
+      dataMap[element.respuestaEncuesta] = double.tryParse(element.porcentaje);
+    });
+    //Map<String,double> dataMap={"Test":1,"Test2":1};
     creaDialogWidget(
         context,
         titulo,
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            charts.PieChart(
-              charts.PieChartData(
-                  borderData: charts.FlBorderData(show: false),
-                  centerSpaceRadius: 50,
-                  pieTouchData:
-                      charts.PieTouchData(touchCallback: (pieTouchResponse) {}),
-                  sections: [
-                    charts.PieChartSectionData(
-                        value: resultados['si'] + .0,
-                        title: resultados['si'] > 0.0
-                            ? '${resultados['si']}%'
-                            : '',
-                        color: Colors.green,
-                        radius: 40),
-                    charts.PieChartSectionData(
-                        value: resultados['no'] + .0,
-                        title: resultados['no'] > 0.0
-                            ? '${resultados['no']}%'
-                            : '',
-                        radius: 40)
-                  ]),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: 15,
-                  height: 15,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Text(
-                  'Sí',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(width: 30),
-                Container(
-                  width: 15,
-                  height: 15,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.red,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Text(
-                  'No',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-          ],
+        PieChart(
+          dataMap: dataMap,
+          legendOptions: LegendOptions(
+            showLegends: true,
+            legendPosition: LegendPosition.top,
+          ),
+          chartValuesOptions: ChartValuesOptions(
+            showChartValueBackground: true,
+            showChartValues: true,
+            showChartValuesInPercentage: true,
+            decimalPlaces: 1,
+          ),
         ),
         'Aceptar',
         () => Navigator.pop(context));
