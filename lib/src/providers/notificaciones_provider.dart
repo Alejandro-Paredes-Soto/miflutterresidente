@@ -1,15 +1,16 @@
 import 'dart:convert';
 
-import 'package:dostop_v2/src/providers/visitas_provider.dart';
+import 'visitas_provider.dart';
+import 'constantes_provider.dart' as constantes;
+
 import 'package:http/http.dart' as http;
 
 class NotificacionesProvider {
-  final String url = 'https://dostop.mx/dostop/WebService';
 
   Future<VisitaModel> obtenerUltimaNotificacion(String idUsuario) async {
     try {
       final resp = await http
-          .post('$url/revisa_notificacion_visita.php', body: {'id': idUsuario});
+          .post('${constantes.urlApp}/revisa_notificacion_visita.php', body: {'id': idUsuario});
       Map decodeResp = json.decode(resp.body);
       // print(decodeResp);
       if (decodeResp == null) return null;
@@ -35,7 +36,7 @@ class NotificacionesProvider {
   Future<Map<String, dynamic>> respuestaVisita(
       String idUsuario, String idVisita, int respuesta) async {
     try {
-      final resp = await http.post('$url/actualizar_visita_notificacion.php',
+      final resp = await http.post('${constantes.urlApp}/actualizar_visita_notificacion.php',
           body: {
             'id': idUsuario,
             'id_visita': idVisita,
@@ -66,7 +67,7 @@ class NotificacionesProvider {
 
   Future<bool> actualizarEstadoNotif(String idUsuario) async {
     try {
-      final resp = await http.post('$url/actualizar_notificacion2.php', body: {
+      final resp = await http.post('${constantes.urlApp}/actualizar_notificacion2.php', body: {
         'id': idUsuario,
       });
       Map decodeResp = json.decode(resp.body);

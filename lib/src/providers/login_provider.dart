@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
+import 'constantes_provider.dart' as constantes;
+
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class LoginProvider {
-  final String url = 'https://dostop.mx/dostop/WebService';
   final _prefs = new PreferenciasUsuario();
 
   Future<Map<String, dynamic>> login(String email, String password) async {
@@ -15,7 +16,7 @@ class LoginProvider {
       'contrasena': password,
     };
     try {
-      final resp = await http.post('$url/login.php', body: authData);
+      final resp = await http.post('${constantes.urlApp}/login.php', body: authData);
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
     } catch (e) {
@@ -56,7 +57,7 @@ class LoginProvider {
     };
     try {
       final resp =
-          await http.post('$url/registrar_token_disp.php', body: authData);
+          await http.post('${constantes.urlApp}/registrar_token_disp.php', body: authData);
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
     } catch (e) {
@@ -79,7 +80,7 @@ class LoginProvider {
 
   Future<bool> logout() async {
     try {
-      final resp = await http.post('$url/elimina_token.php',
+      final resp = await http.post('${constantes.urlApp}/elimina_token.php',
           body: {'token': _prefs.token});
       Map decodeResp = json.decode(resp.body);
       //print(decodeResp);
