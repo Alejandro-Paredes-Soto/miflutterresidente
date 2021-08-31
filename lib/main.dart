@@ -1,6 +1,7 @@
 import 'package:dostop_v2/src/pages/aviso_detalle_page.dart';
 import 'package:dostop_v2/src/pages/mis_accesos_page.dart';
 import 'package:dostop_v2/src/pages/nuevo_visitante_freq_page.dart';
+import 'package:dostop_v2/src/pages/nuevo_visitante_rostro_page.dart';
 import 'package:dostop_v2/src/pages/promocion_detalle_page.dart';
 import 'package:dostop_v2/src/pages/login_page.dart';
 import 'package:dostop_v2/src/pages/main_page.dart';
@@ -97,6 +98,8 @@ class _MyAppState extends State<MyApp> {
             'promoDetalle': (BuildContext context) => PromocionDetallePage(),
             'NuevoVisitFreq': (BuildContext context) =>
                 NuevoVisitanteFrecuentePage(),
+            'NuevoVisitRostro': (BuildContext context) =>
+                NuevoVisitanteRostroPage(),
             'Incidente': (BuildContext context) => ReportarIncidentePage(),
             'SeguimientoInc': (BuildContext context) => SeguimientoIncidentePage(),
             'MisAccesos': (BuildContext context) => MisAccesosPage(),
