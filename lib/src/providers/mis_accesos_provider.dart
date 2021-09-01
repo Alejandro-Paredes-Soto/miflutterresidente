@@ -14,7 +14,7 @@ class MisAccesosProvider {
       {bool vaciarLista = false}) async {
     _validaSesion.verificaSesion();
     try {
-      final resp = await http.post('${constantes.urlApp}/obtener_accesos_colono.php',
+      final resp = await http.post('${constantes.urlApp}/obtener_accesos_colono_facial_vehicular.php',
           body: {'id': idUsuario, 'page_no': pagina.toString()});
       final Map<String, dynamic> decodeResp = json.decode(resp.body);
       if (decodeResp == null) return [];
