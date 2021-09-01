@@ -19,6 +19,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   final _prefs = PreferenciasUsuario();
   final _visitantesFreqProvider = VisitantesFreqProvider();
   final _formKey = GlobalKey<FormState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _txtNombreCtrl = TextEditingController();
   final _txtApPatCtrl = TextEditingController();
   final _txtApMatCtrl = TextEditingController();
@@ -33,6 +34,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   Widget build(BuildContext context) {
     _tipoRostro = ModalRoute.of(context).settings.arguments;
     return Scaffold(
+      key: _scaffoldKey,
       appBar: utils.appBarLogoD(
           titulo: 'Agregar',
           backbtn: BackButton(
@@ -230,18 +232,17 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
     var imgFile = await picker.ImagePicker.pickImage(
         source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
     if (imgFile != null) {
-      if (await imgFile.length() < 200000) {
-        var img = await decodeImageFromList(imgFile.readAsBytesSync());
-        if (img.height > img.width) {
-          _imgRostro = imgFile;
-          setState(() {
-            _imagenLista = true;
-          });
-        } else {
-          print('La imagen no está en modo vertical');
-        }
+      var img = await decodeImageFromList(imgFile.readAsBytesSync());
+      if (img.height > img.width) {
+        _imgRostro = imgFile;
+        setState(() {
+          _imagenLista = true;
+        });
       } else {
-        print('la imagen es demasiado GRANDE');
+        _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+            Icon(Icons.error),
+            'La imagen no está en formato vertical',
+            2));
       }
       print(await imgFile.length());
     }
@@ -259,7 +260,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
 
   Widget _creaRecomendacionImg() {
     return Text(
-      'Por favor, usa una imagen en formato vertical. No usar lentes o algun accesorio que pueda cubrir parte del rostro.',
+      'Por favor, usa una imagen en formato vertical. No usar lentes o algún accesorio que pueda cubrir parte del rostro.',
       textAlign: TextAlign.center,
       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
     );
@@ -323,10 +324,11 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         setState(() {
           _visitanteRegistrado = true;
         });
-          Navigator.pop(context, _visitanteRegistrado);
+        Navigator.pop(context, _visitanteRegistrado);
         break;
       case 2:
-        creaDialogSimple(context, '¡Ups! Algo salió mal', estatus['message'], 'Aceptar', () {
+        creaDialogSimple(
+            context, '¡Ups! Algo salió mal', estatus['message'], 'Aceptar', () {
           Navigator.of(context).pop('dialog');
           Navigator.pop(context, _visitanteRegistrado);
         });
