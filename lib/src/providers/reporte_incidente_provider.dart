@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:dostop_v2/src/models/reporte_model.dart';
 export 'package:dostop_v2/src/models/reporte_model.dart';
+import 'constantes_provider.dart' as constantes;
 
 import 'package:http/http.dart' as http;
 
 class ReportesProvider {
-  final String url = 'https://dostop.mx/dostop/WebService';
     Future<Map<String, dynamic>> enviaReporteIncidente(
       {String idUsuario,
       String reporte,
@@ -20,7 +20,7 @@ class ReportesProvider {
     };
     try {
       final resp =
-          await http.post('$url/reportar_visita.php', body: reporteData);
+          await http.post('${constantes.urlApp}/reportar_visita.php', body: reporteData);
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((k, v) => mapResp[k] = v);
       // print(decodeResp);
@@ -47,7 +47,7 @@ class ReportesProvider {
     };
     try {
       final resp =
-          await http.post('$url/obtener_reporte.php', body: reporteData);
+          await http.post('${constantes.urlApp}/obtener_reporte.php', body: reporteData);
       Map decodeResp = json.decode(resp.body);
       if (decodeResp['estatus'].toString().contains('1')) {
         return {'OK': 1, 'datos': ReporteModel.fromJson(decodeResp)};

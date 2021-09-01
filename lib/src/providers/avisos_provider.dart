@@ -6,19 +6,20 @@ import 'package:dostop_v2/src/models/resultados_encuesta_model.dart';
 export 'package:dostop_v2/src/models/aviso_model.dart';
 export 'package:dostop_v2/src/models/encuesta_model.dart';
 export 'package:dostop_v2/src/models/resultados_encuesta_model.dart';
-import 'package:dostop_v2/src/providers/login_validator.dart';
+import 'login_validator.dart';
+import 'constantes_provider.dart' as constantes;
 
 import 'package:http/http.dart' as http;
 
 class AvisosProvider {
-  final String url = 'https://dostop.mx/dostop/WebService';
+  
   final validaSesion = LoginValidator();
 
   Future<List<AvisoModel>> cargaAvisos(String idUsuario) async {
     validaSesion.verificaSesion();
     try {
       final resp = await http
-          .post('$url/obtener_notificaciones.php', body: {'id': idUsuario});
+          .post('${constantes.urlApp}/obtener_notificaciones.php', body: {'id': idUsuario});
       List decodeResp = json.decode(resp.body);
       final List<AvisoModel> avisos = new List();
       if (decodeResp == null) return [];
@@ -37,7 +38,7 @@ class AvisosProvider {
   Future<List<AvisoModel>> obtenerUltimosAvisos(String idUsuario) async {
     try {
       final resp = await http
-          .post('$url/obtener_ultimos_avisos.php', body: {'id': idUsuario});
+          .post('${constantes.urlApp}/obtener_ultimos_avisos.php', body: {'id': idUsuario});
       List decodeResp = json.decode(resp.body);
       final List<AvisoModel> avisos = new List();
       if (decodeResp == null) return [];
@@ -57,7 +58,7 @@ class AvisosProvider {
   Future<Map<int, dynamic>> obtenerUltimaEncuesta(String idUsuario) async {
     validaSesion.verificaSesion();
     try {
-      final resp = await http.post('$url/obtener_ultima_encuesta_disp.php',
+      final resp = await http.post('${constantes.urlApp}/obtener_ultima_encuesta_disp.php',
           body: {'id': idUsuario});
       Map encuesta = json.decode(resp.body);
       if (encuesta == null) return {};
@@ -78,7 +79,7 @@ class AvisosProvider {
       String idUsuario, int idRespuesta) async {
     try {
       final resp = await http
-          .post('$url/enviar_respuesta_encuesta_resultados.php', body: {
+          .post('${constantes.urlApp}/enviar_respuesta_encuesta_resultados.php', body: {
         'id': idUsuario,
         'id_respuesta': idRespuesta.toString(),
       });
@@ -106,7 +107,7 @@ class AvisosProvider {
   Future<Map<int, dynamic>> obtenerNumeroCaseta(String idUsuario) async {
     try {
       final resp = await http
-          .post('$url/obtener_numero_caseta.php', body: {'id': idUsuario});
+          .post('${constantes.urlApp}/obtener_numero_caseta.php', body: {'id': idUsuario});
       Map decodeResp = json.decode(resp.body);
       // print(decodeResp);
       if (decodeResp == null) return {};

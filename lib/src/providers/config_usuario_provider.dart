@@ -1,8 +1,10 @@
 import 'dart:convert';
+
+import 'constantes_provider.dart' as constantes;
+
 import 'package:http/http.dart' as http;
 
 class ConfigUsuarioProvider {
-    final String url = 'https://dostop.mx/dostop/WebService';
 
   Future<Map<String, dynamic>> configurarOpc(
     String idUsuario,
@@ -11,7 +13,7 @@ class ConfigUsuarioProvider {
   ) async {
     try {
       final resp =
-          await http.post('$url/modificar_configuraciones_usuario.php', body: {
+          await http.post('${constantes.urlApp}/modificar_configuraciones_usuario.php', body: {
         'id': idUsuario,
         'tipoConfig': tipoConfig.toString(),
         'valorConfig': valor ? '1' : '0'
@@ -37,7 +39,7 @@ class ConfigUsuarioProvider {
   ) async {
     try {
       final resp =
-          await http.post('$url/obtener_configuraciones_usuario.php', body: {
+          await http.post('${constantes.urlApp}/obtener_configuraciones_usuario.php', body: {
         'id': idUsuario,
         'tipoConfig': tipoConfig.toString(),
       });

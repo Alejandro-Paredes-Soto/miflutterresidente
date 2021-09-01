@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
+import 'constantes_provider.dart' as constantes;
+
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -13,7 +15,6 @@ class LoginValidator {
   LoginValidator._internal();
 
   final _prefs = new PreferenciasUsuario();
-  final String _url = 'https://dostop.mx/dostop/WebService';
 
   final _sesionStreamController = StreamController<int>.broadcast();
   Stream<int> get sesion => _sesionStreamController.stream;
@@ -36,7 +37,7 @@ class LoginValidator {
           DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString()
     };
     try {
-      final resp = await http.post('$_url/validar_sesion2.php', body: authData);
+      final resp = await http.post('${constantes.urlApp}/validar_sesion2.php', body: authData);
       mapResp = json.decode(resp.body);
       //decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
       if (resp.statusCode != 404 || resp.statusCode != 500) {
