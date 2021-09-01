@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dostop_v2/src/models/visita_model.dart';
-import 'package:dostop_v2/src/providers/login_validator.dart';
+import 'login_validator.dart';
 export 'package:dostop_v2/src/models/visita_model.dart';
+import 'constantes_provider.dart' as constantes;
+
 import 'package:http/http.dart' as http;
 
 class VisitasProvider {
   
-  final String url = 'https://dostop.mx/dostop';
   final validaSesion  = LoginValidator();
 
   Future<List<VisitaModel>> buscarVisitasXFecha(
@@ -17,7 +18,7 @@ class VisitasProvider {
       validaSesion.verificaSesion();
     try {
       final resp =
-          await http.post('$url/WebService/buscador_visitas2.php', body: {
+          await http.post('${constantes.urlApp}/buscador_visitas2.php', body: {
         'id': idUsuario,
         'fecha_ini': fechaInicio,
         'fecha_fin': fechaFin,
@@ -49,7 +50,7 @@ class VisitasProvider {
 
   Future<List<VisitaModel>> obtenerUltimasVisitas(String idUsuario) async {
     try {
-      final resp = await http.post('$url/WebService/ultimas_visitas3.php',
+      final resp = await http.post('${constantes.urlApp}/ultimas_visitas3.php',
           body: {'id': idUsuario});
       List decodeResp = json.decode(resp.body);
       final List<VisitaModel> visitas = new List();

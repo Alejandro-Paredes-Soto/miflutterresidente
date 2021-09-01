@@ -3,21 +3,21 @@ import 'dart:convert';
 import 'package:dostop_v2/src/models/area_comun_model.dart';
 export 'package:dostop_v2/src/models/area_comun_model.dart';
 import 'package:dostop_v2/src/models/area_reservada_model.dart';
-import 'package:dostop_v2/src/providers/login_validator.dart';
+import 'login_validator.dart';
+import 'constantes_provider.dart' as constantes;
 
 export 'package:dostop_v2/src/models/area_reservada_model.dart';
 
 import 'package:http/http.dart' as http;
 
 class AreasComunesProvider {
-  final String url = 'https://dostop.mx/dostop/WebService';
   final validaSesion = LoginValidator();
 
   Future<List<AreaComunModel>> obtenerListadoAreas(String idUsuario) async {
     validaSesion.verificaSesion();
     try {
       final resp = await http
-          .post('$url/obtener_areas_comunes.php', body: {'id': idUsuario});
+          .post('${constantes.urlApp}/obtener_areas_comunes.php', body: {'id': idUsuario});
       List decodeResp = json.decode(resp.body);
       final List<AreaComunModel> areas = new List();
       if (decodeResp == null) return [];
@@ -38,7 +38,7 @@ class AreasComunesProvider {
     validaSesion.verificaSesion();
     try {
       final resp = await http
-          .post('$url/obtener_mis_reservas.php', body: {'id': idUsuario});
+          .post('${constantes.urlApp}/obtener_mis_reservas.php', body: {'id': idUsuario});
       List decodeResp = json.decode(resp.body);
       final List<AreaReservadaModel> reservas = new List();
       if (decodeResp == null) return [];
@@ -59,7 +59,7 @@ class AreasComunesProvider {
       String idUsuario, String idAreaComun) async {
       validaSesion.verificaSesion();
     try {
-      final resp = await http.post('$url/obtener_areas_reservadas.php',
+      final resp = await http.post('${constantes.urlApp}/obtener_areas_reservadas.php',
           body: {'id': idUsuario, 'idArea': idAreaComun});
       List decodeResp = json.decode(resp.body);
       final List<String> reservasCalendario = new List();
@@ -81,7 +81,7 @@ class AreasComunesProvider {
       String idUsuario, String fecha, String idArea) async {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
     try {
-      final resp = await http.post('$url/confirmar_reserva_area.php',
+      final resp = await http.post('${constantes.urlApp}/confirmar_reserva_area.php',
           body: {'id': idUsuario, 'fecha': fecha, 'idArea': idArea});
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((k, v) {
