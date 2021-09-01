@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:intl/intl.dart';
-
 VisitanteFreqModel visitanteFreqModelFromJson(String str) =>
     VisitanteFreqModel.fromJson(json.decode(str));
 
