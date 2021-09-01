@@ -3,8 +3,6 @@ import 'dart:convert';
 
 AccesoModel accesoModelFromJson(String str) => AccesoModel.fromJson(json.decode(str));
 
-String accesoModelToJson(AccesoModel data) => json.encode(data.toJson());
-
 class AccesoModel {
     AccesoModel({
         this.idEntradaSalida,
@@ -16,6 +14,8 @@ class AccesoModel {
         this.accionNombre,
         this.fechaAcceso,
         this.horaAcceso,
+        this.tipoAcceso,
+        this.nombreAcceso
     });
 
     String idEntradaSalida;
@@ -27,6 +27,8 @@ class AccesoModel {
     String accionNombre;
     DateTime fechaAcceso;
     String horaAcceso;
+    String tipoAcceso;
+    String nombreAcceso;
 
     factory AccesoModel.fromJson(Map<String, dynamic> json) => AccesoModel(
         idEntradaSalida: json["idEntradaSalida"],
@@ -38,17 +40,7 @@ class AccesoModel {
         accionNombre: json["accion_nombre"],
         fechaAcceso: DateTime.parse(json["fecha_acceso"]),
         horaAcceso: json["hora_acceso"],
+        tipoAcceso: json["tipo_acceso"]??"",
+        nombreAcceso: json["nombre_acceso"]??""
     );
-
-    Map<String, dynamic> toJson() => {
-        "idEntradaSalida": idEntradaSalida,
-        "placas": placas,
-        "marca": marca,
-        "modelo": modelo,
-        "color": color,
-        "accion": accion,
-        "accion_nombre": accionNombre,
-        "fecha_acceso": "${fechaAcceso.year.toString().padLeft(4, '0')}-${fechaAcceso.month.toString().padLeft(2, '0')}-${fechaAcceso.day.toString().padLeft(2, '0')}",
-        "hora_acceso": horaAcceso,
-    };
 }

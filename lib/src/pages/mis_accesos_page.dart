@@ -147,12 +147,27 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Vehiculo', style: utils.estiloTituloTarjeta(14)),
-                  Text('${acceso.marca} ${acceso.modelo} ${acceso.color}',
+                  Text(acceso.tipoAcceso == '2' ? 'Persona' : 'Vehiculo',
+                      style: utils.estiloTituloTarjeta(14)),
+                  Text(
+                      acceso.tipoAcceso == '2'
+                          ? acceso.nombreAcceso
+                          : '${acceso.marca} ${acceso.modelo} ${acceso.color}',
                       style: utils.estiloSubtituloTarjeta(17)),
-                  Text('Placas', style: utils.estiloTituloTarjeta(14)),
-                  Text('${acceso.placas}',
-                      style: utils.estiloSubtituloTarjeta(17)),
+                  Visibility(
+                      visible: acceso.tipoAcceso != '2',
+                      child:
+                          Text('Placas', style: utils.estiloTituloTarjeta(14))),
+                  Visibility(
+                      visible: acceso.tipoAcceso != '2',
+                      child: Text('${acceso.placas}',
+                          style: utils.estiloSubtituloTarjeta(17))),
+                  SizedBox(height: 5),
+                  Text(
+                      acceso.tipoAcceso == '2'
+                          ? 'Acceso con rostro'
+                          : 'Acceso con tag',
+                      style: utils.estiloTituloTarjeta(14)),
                   Padding(
                     padding: EdgeInsets.only(right: 15.0),
                     child: Text(
