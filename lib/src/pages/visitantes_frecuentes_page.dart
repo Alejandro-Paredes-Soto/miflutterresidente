@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -16,6 +15,7 @@ import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
+import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
@@ -315,9 +315,15 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                       ],
                     ),
                     SizedBox(height: 10),
-                    Text('Fecha de registro', style: estiloTituloTarjeta(11)),
-                    Text(visitante.fechaAlta.toString(),
-                        style: estiloSubtituloTarjeta(17)),
+                    Visibility(
+                      visible: visitante.estatusDispositivo == '0' ||
+                          visitante.activo == '0',
+                      child: Text(
+                          !visitante.expiroTolerancia
+                              ? 'Esto puede tomar alrededor de 30 segundos.'
+                              : 'El tiempo de espera está tomando mas de lo normal. Puede que en caseta ocurra una falla de internet.',
+                          style: estiloTituloTarjeta(11)),
+                    ),
                   ],
                 ),
               ),
