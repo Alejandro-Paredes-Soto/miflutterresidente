@@ -7,7 +7,9 @@ import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart' as picker;
+import 'package:image/image.dart' as imgTools;
 
 class NuevoVisitanteRostroPage extends StatefulWidget {
   @override
@@ -229,23 +231,53 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   void obtenerImagen(picker.ImageSource source) async {
-    var imgFile = await picker.ImagePicker.pickImage(
-        source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
-    if (imgFile != null) {
-      var img = await decodeImageFromList(imgFile.readAsBytesSync());
-      if (img.height > img.width) {
-        _imgRostro = imgFile;
-        setState(() {
-          _imagenLista = true;
-        });
-      } else {
-        _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-            Icon(Icons.error),
-            'La imagen no está en formato vertical',
-            2));
+    try {
+      if (Platform.isAndroid) {
+        if (!await utils.obtenerPermisosAndroid()) throw 'photo_access_deined';
       }
-      print(await imgFile.length());
+      var imgFile = await picker.ImagePicker.pickImage(
+          source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
+      if (imgFile != null) {
+        var fixedImg = await fixExifRotation(imgFile.path);
+        var img = await decodeImageFromList(fixedImg.readAsBytesSync());
+        if (img.height > img.width) {
+          _imgRostro = fixedImg;
+          setState(() {
+            _imagenLista = true;
+          });
+        } else {
+          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.error), 'La imagen no está en formato vertical', 2));
+        }
+        print(await imgFile.length());
+      }
+    } on PlatformException catch (e) {
+      //buscamos el error. Si contiene el texto photo_access_deined de los permisos de android
+      // o directamente de la plataforma ios cambiamos el mensaje.
+      String mensajeError = '';
+      if (e.code.toString().contains('photo_access_denied'))
+        mensajeError = 'Otorga el permiso de almacenamiento por favor';
+      else if (e.code.toString().contains('camera_access_denied'))
+        mensajeError = 'Otorga el permiso de la cámara por favor';
+      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+          Icon(Icons.error),
+          'Ocurrió un error al procesar la imagen. $mensajeError',
+          2));
+    } catch (e) {
+      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+          Icon(Icons.error), 'Ocurrió un error al procesar la imagen. $e', 2));
     }
+  }
+
+  Future<File> fixExifRotation(String imagePath) async {
+    final originalFile = File(imagePath);
+    final imgTools.Image capturedImage =
+        imgTools.decodeImage(await originalFile.readAsBytes());
+    final imgTools.Image orientedImage =
+        imgTools.bakeOrientation(capturedImage);
+    await originalFile
+        .writeAsBytes(imgTools.encodeJpg(orientedImage, quality: 50));
+    return originalFile;
   }
 
   Widget _creaTextoErrorImg() {

@@ -181,21 +181,24 @@ void creaDialogYesNoAlt(
   showCupertinoDialog(
       context: context,
       builder: (ctx) {
-        return CupertinoAlertDialog(
-          title: new Text(titulo),
-          content: new Text(contenido),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              isDestructiveAction: true,
-              child: Text(textOpcionPos),
-              onPressed: funcionPos,
-            ),
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              child: Text(textOpcionNeg),
-              onPressed: funcionNeg,
-            )
-          ],
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: CupertinoAlertDialog(
+            title: new Text(titulo),
+            content: new Text(contenido),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                isDestructiveAction: true,
+                child: Text(textOpcionPos),
+                onPressed: funcionPos,
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                child: Text(textOpcionNeg),
+                onPressed: funcionNeg,
+              )
+            ],
+          ),
         );
       });
 }

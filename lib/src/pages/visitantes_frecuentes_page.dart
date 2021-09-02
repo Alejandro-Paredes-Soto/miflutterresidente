@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -32,6 +34,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   int _tabIndex = 0;
   int _obteniendoConfig = 0;
   String _tipoServicio = '';
+  Timer timer;
+  bool _dialogAbierto = false;
 
   @override
   void initState() {
@@ -44,6 +48,10 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         _obteniendoConfig = resultado['OK'];
         _tipoServicio = resultado['valor'];
       });
+    });
+    timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+      if (!_dialogAbierto && _tabIndex > 0)
+        setState(() => print("actualizar info"));
     });
   }
 
@@ -414,6 +422,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
 
   void _eliminaVisitanteFreq(
       BuildContext context, VisitanteFreqModel visitante) {
+    _dialogAbierto = true;
     creaDialogYesNoAlt(
         context,
         'Confirmar',
@@ -430,42 +439,21 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
               creaSnackBarIcon(Icon(Icons.delete), 'Visitante eliminado', 5));
           break;
         case 2:
+          _dialogAbierto = false;
           Scaffold.of(context).showSnackBar(creaSnackBarIcon(
               Icon(Icons.error), 'No se pudo eliminar al visitante', 5));
           break;
       }
+      _dialogAbierto = false;
     }, () {
       Navigator.pop(context);
+      _dialogAbierto = false;
     });
   }
 
   Widget _cargaFAB() {
     return _creaFABMultiple(context, _tipoServicio);
   }
-
-  // Widget _cargaFAB() {
-  //   return FutureBuilder(
-  //     future:
-  //         _configUsuarioProvider.obtenerEstadoConfig(_prefs.usuarioLogged, 4),
-  //     builder:
-  //         (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-  //       if (snapshot.hasData) {
-  //         if (snapshot.data['OK'] == 1) {
-  //           String valor = snapshot.data['valor'];
-  //           return _creaFABMultiple(context, valor);
-  //         } else {
-  //           return Container();
-  //         }
-  //       } else {
-  //         return FloatingActionButton(
-  //             child: CircularProgressIndicator(
-  //                 valueColor:
-  //                     AlwaysStoppedAnimation<Color>(utils.colorPrincipal)),
-  //             onPressed: null);
-  //       }
-  //     },
-  //   );
-  // }
 
   Widget _creaFABMultiple(BuildContext context, String valor) {
     return _obteniendoConfig == 0
@@ -543,9 +531,15 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         Scaffold.of(context).showSnackBar(creaSnackBarIcon(
             SvgPicture.asset(rutaIconoVisitantesFrecuentes,
                 height: tamanoIcoSnackbar, color: Colors.white),
-            'Visitante frecuente creado',
+            tipoRostro==1?'Acceso colono creado':'Visitante frecuente creado',
             5));
       });
     }
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 }
