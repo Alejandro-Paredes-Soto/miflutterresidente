@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-         Image.asset(utils.rutaLogoLetrasDostopPng, height: 90,),
+         Image.asset(utils.rutaLogoLetrasDostopPng, height: 50,),
           Expanded(
             child: Container(
               alignment: Alignment.center,
@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 40.0),
                     Text(
                       'Inicio de sesión',
-                      style: utils.estiloBotones(30),
+                      style: utils.estiloBotones(25),
                     ),
                     SizedBox(height: 40.0),
                     _crearTextUsuario('Usuario', 'mail@ejemplo.com'),
@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
               fit: FlexFit.loose,
               child: Text(
                 _iniciando ? 'Iniciando Sesión...' : 'Iniciar Sesión',
-                style: utils.estiloBotones(18),
+                style: utils.estiloBotones(15),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -238,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Align(
           child: Text(
             'Olvidé mi contraseña',
-            style: utils.estiloBotones(18),
+            style: utils.estiloBotones(15),
           ),
           alignment: Alignment.centerLeft,
         ),
