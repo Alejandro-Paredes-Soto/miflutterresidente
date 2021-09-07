@@ -92,9 +92,23 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Play
-      fonts:
-        - asset: fonts/Play/Play-Bold.ttf
+  - family: PlusJakarta
+    fonts:
+      - asset: fonts/PlusJakarta/PlusJakartaSans-Light.ttf
+        weight: 300      
+      - asset: fonts/PlusJakarta/PlusJakartaSans-Regular.ttf
+        weight: 400
+      - asset: fonts/PlusJakarta/PlusJakartaSans-Medium.ttf
+        weight: 500
+      - asset: fonts/PlusJakarta/PlusJakartaSans-Bold.ttf
+        weight: 700
+      - asset: fonts/PlusJakarta/PlusJakartaSans-ExtraBold.ttf
+        weight: 900
+      - asset: fonts/PlusJakarta/PlusJakartaSans-Italic.ttf
+        style: italic
+    # - family: Play
+    #   fonts:
+    #     - asset: fonts/Play/Play-Bold.ttf
     # - family: Roboto
     #   fonts:
     #     - asset: fonts/Roboto/Roboto-Regular.ttf
@@ -102,13 +116,13 @@ flutter:
     #       weight: 700 
     #     - asset: fonts/Roboto/Roboto-Italic.ttf
     #       style: italic
-    - family: Poppins
-      fonts:
-        - asset: fonts/Poppins/Poppins-Regular.ttf
-        - asset: fonts/Poppins/Poppins-Bold.ttf
-          weight: 700 
-        - asset: fonts/Poppins/Poppins-Italic.ttf
-          style: italic
+    # - family: Poppins
+    #   fonts:
+    #     - asset: fonts/Poppins/Poppins-Regular.ttf
+    #     - asset: fonts/Poppins/Poppins-Bold.ttf
+    #       weight: 700 
+    #     - asset: fonts/Poppins/Poppins-Italic.ttf
+    #       style: italic
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #       - asset: fonts/TrajanPro_Bold.ttf

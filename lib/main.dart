@@ -1,15 +1,23 @@
+import 'package:dostop_v2/src/pages/areas_comunes_page.dart';
 import 'package:dostop_v2/src/pages/aviso_detalle_page.dart';
+import 'package:dostop_v2/src/pages/avisos_page.dart';
+import 'package:dostop_v2/src/pages/emergencia_page.dart';
+import 'package:dostop_v2/src/pages/estado_de_cuenta_page.dart';
+import 'package:dostop_v2/src/pages/mi_casa_page.dart';
 import 'package:dostop_v2/src/pages/mis_accesos_page.dart';
 import 'package:dostop_v2/src/pages/nuevo_visitante_freq_page.dart';
 import 'package:dostop_v2/src/pages/nuevo_visitante_rostro_page.dart';
 import 'package:dostop_v2/src/pages/promocion_detalle_page.dart';
 import 'package:dostop_v2/src/pages/login_page.dart';
 import 'package:dostop_v2/src/pages/main_page.dart';
+import 'package:dostop_v2/src/pages/promociones_page.dart';
 import 'package:dostop_v2/src/pages/restablecer_usuario_page.dart';
 import 'package:dostop_v2/src/pages/seguimiento_reporte_page.dart';
 import 'package:dostop_v2/src/pages/visita_detalle_page.dart';
 import 'package:dostop_v2/src/pages/reportar_incidente_page.dart';
 import 'package:dostop_v2/src/pages/visita_notificacion_page.dart';
+import 'package:dostop_v2/src/pages/visitantes_frecuentes_page.dart';
+import 'package:dostop_v2/src/pages/visitas_page.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
@@ -66,8 +74,7 @@ class _MyAppState extends State<MyApp> {
         reverseCurve: Curves.fastOutSlowIn,
         toastPositions:
             StyledToastPosition(align: Alignment.bottomCenter, offset: 80),
-        child:
-            MaterialApp(
+        child: MaterialApp(
           // /*BLOQUE DE CODIGO QUE PREVIENE EL ESCALADO DE TEXTO CON EL SISTEMA*/
           // builder: (BuildContext context, Widget child) {
           //   return MediaQuery(
@@ -89,9 +96,18 @@ class _MyAppState extends State<MyApp> {
           title: 'Dostop',
           initialRoute: prefs.usuarioLogged == '' ? 'login' : 'main',
           routes: {
+
             'login': (BuildContext context) => LoginPage(),
-            'main': (BuildContext context) => MainPage(),
             'resetUser': (BuildContext context) => RestablecerUsuarioPage(),
+            'main': (BuildContext context) => MainPage(),
+            'visitas': (BuildContext context) => VisitasPage(),
+            'emergencias': (BuildContext context) => EmergenciasPage(),
+            'avisos': (BuildContext context) => AvisosPage(),
+            'visitantesFreq': (BuildContext context) => VisitantesFrecuentesPage(),
+            'estadosCuenta': (BuildContext context) => EstadoDeCuentaPage(),
+            'areasComunes': (BuildContext context) => AreasComunesPage(),
+            'miCasa': (BuildContext context) => MiCasaPage(),
+            'promociones': (BuildContext context) => PromocionesPage(),
             'AvisoDetalle': (BuildContext context) => AvisoDetallePage(),
             'VisitaDetalle': (BuildContext context) => VisitaDetallePage(),
             'VisitaNotif': (BuildContext context) => VisitaNofificacionPage(),
@@ -101,13 +117,15 @@ class _MyAppState extends State<MyApp> {
             'NuevoVisitRostro': (BuildContext context) =>
                 NuevoVisitanteRostroPage(),
             'Incidente': (BuildContext context) => ReportarIncidentePage(),
-            'SeguimientoInc': (BuildContext context) => SeguimientoIncidentePage(),
+            'SeguimientoInc': (BuildContext context) =>
+                SeguimientoIncidentePage(),
             'MisAccesos': (BuildContext context) => MisAccesosPage(),
           },
+          themeMode: ThemeMode.dark,
           theme: ThemeData(
               snackBarTheme: SnackBarThemeData(actionTextColor: Colors.white),
               iconTheme: IconThemeData(color: utils.colorIconos),
-              fontFamily: 'Poppins',
+              fontFamily: 'PlusJakarta',
               primaryColor: utils.colorPrincipal,
               primarySwatch: utils.colorCalendario,
               accentColor: utils.colorSecundario,
@@ -129,40 +147,39 @@ class _MyAppState extends State<MyApp> {
               scaffoldBackgroundColor: Colors.white),
           // CONFIGURACIONES DEL DARK MODE THEME
           darkTheme: ThemeData(
-            inputDecorationTheme: InputDecorationTheme(
-                labelStyle: TextStyle(
-                  color: utils.colorSecundario,
-                ),
-                hintStyle: TextStyle(color: utils.colorSecundario)),
-            iconTheme: IconThemeData(color: utils.colorTextoPrincipalDark),
-            snackBarTheme: SnackBarThemeData(
-                actionTextColor: utils.colorFondoPrincipalDark),
-            textTheme: TextTheme(
-                bodyText2: TextStyle(color: utils.colorTextoPrincipalDark)),
-            fontFamily: 'Poppins',
-            brightness: Brightness.dark,
-            primaryColor: utils.colorPrincipal,
-            accentColor: Colors.grey,
-            cursorColor: Colors.red,
-            backgroundColor: utils.colorFondoPrincipalDark,
-            textSelectionColor: Colors.grey,
-            textSelectionHandleColor: Colors.grey,
-            buttonTheme: ButtonThemeData(
-                buttonColor: utils.colorPrincipal,
-                disabledColor: utils.colorSecundario),
-            appBarTheme: AppBarTheme(
-                textTheme: TextTheme(
-                    headline6: TextStyle(color: utils.colorTextoPrincipalDark)),
-                iconTheme: IconThemeData(color: utils.colorTextoPrincipalDark),
-                actionsIconTheme:
-                    IconThemeData(color: utils.colorFondoPrincipalDark),
-                brightness: Brightness.dark,
-                elevation: 0,
-                color: utils.colorFondoPrincipalDark),
-            canvasColor: utils.colorFondoPrincipalDark,
-            floatingActionButtonTheme:
-                FloatingActionButtonThemeData(foregroundColor: Colors.white),
-          ),
+              inputDecorationTheme: InputDecorationTheme(
+                  labelStyle: TextStyle(color: utils.colorTextoPrincipalDark),
+                  hintStyle: TextStyle(color: utils.colorTextoPrincipalDark)),
+              iconTheme: IconThemeData(color: Colors.white,),
+              snackBarTheme: SnackBarThemeData(
+                  actionTextColor: utils.colorFondoPrincipalDark),
+              textTheme: TextTheme(bodyText2: TextStyle(color: Colors.white)),
+              fontFamily: 'PlusJakarta',
+              brightness: Brightness.dark,
+              primaryColor: utils.colorPrincipal,
+              accentColor: utils.colorPrincipal,
+              cursorColor: utils.colorPrincipal,
+              backgroundColor: utils.colorFondoPrincipalDark,
+              textSelectionColor: Colors.grey,
+              textSelectionHandleColor: Colors.grey,
+              cardColor: utils.colorFondoTarjetaDark,
+              buttonTheme: ButtonThemeData(
+                  buttonColor: utils.colorPrincipal,
+                  disabledColor: utils.colorSecundario),
+              appBarTheme: AppBarTheme(
+                  textTheme:
+                      TextTheme(headline6: TextStyle(color: Colors.white)),
+                  iconTheme:
+                      IconThemeData(color: Colors.white),
+                  actionsIconTheme:
+                      IconThemeData(color: Colors.white),
+                  brightness: Brightness.dark,
+                  elevation: 0,
+                  color: utils.colorFondoPrincipalDark),
+              //canvasColor: utils.colorFondoPrincipalDark,
+              floatingActionButtonTheme:
+                  FloatingActionButtonThemeData(foregroundColor: Colors.white),
+              scaffoldBackgroundColor: utils.colorFondoPrincipalDark),
         ));
   }
 }

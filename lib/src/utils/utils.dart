@@ -10,7 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 bool isDebug = !kReleaseMode;
 
-Color colorFondoPrincipalDark = Color.fromRGBO(18, 18, 18, 1.0);
+Color colorFondoPrincipalDark = Color.fromRGBO(22, 29, 40, 1.0);
 Color colorTextoPrincipalDark = Color.fromRGBO(184, 184, 184, 1.0);
 Color colorIconos = Color.fromRGBO(65, 64, 64, 1.0);
 Color colorPrincipal = Color.fromRGBO(2, 69, 232, 1.0);
@@ -25,33 +25,39 @@ Color colorTextLoginSemi = Color.fromRGBO(0, 0, 0, 0.60);
 Color colorSecundarioToggle = Color.fromRGBO(102, 106, 106, 0.2);
 Color colorIndicadorSwiper = Color.fromRGBO(128, 128, 128, 0.8);
 Color colorFondoTarjeta = Color.fromRGBO(244, 244, 244, 1.0);
+Color colorFondoTarjetaDark = Color.fromRGBO(32, 45, 61, 1.0);
 Color colorFondoTarjetaFreq = Color.fromRGBO(226, 226, 226, 1.0);
 Color colorContenedorSaldo = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastAceptada = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastRechazada = Color.fromRGBO(233, 55, 54, 1.0);
 MaterialColor colorCalendario = MaterialColor(0xFFDF3736, _colorCalendario);
 const Map<int, Color> _colorCalendario = {
-  50: const Color(0xFFDF3736),
-  100: const Color(0xFFDF3736),
-  200: const Color(0xFFDF3736),
-  300: const Color(0xFFDF3736),
-  400: const Color(0xFFDF3736),
-  500: const Color(0xFFDF3736),
-  600: const Color(0xFFDF3736),
-  700: const Color(0xFFDF3736),
-  800: const Color(0xFFDF3736),
-  900: const Color(0xFFDF3736)
+  50: const Color(0xFF0245E8),
+  100: const Color(0xFF0245E8),
+  200: const Color(0xFF0245E8),
+  300: const Color(0xFF0245E8),
+  400: const Color(0xFF0245E8),
+  500: const Color(0xFF003CCE),
+  600: const Color(0xFF003CCE),
+  700: const Color(0xFF003CCE),
+  800: const Color(0xFF003CCE),
+  900: const Color(0xFF003CCE)
 };
-LinearGradient colorGradientePrincipal =
-    LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter ,colors: [colorPrincipal, colorPrincipal2]);
-LinearGradient colorGradienteSecundario =
-    LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter ,colors: [colorSecundario, colorSecundario2]);
-
+LinearGradient colorGradientePrincipal = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [colorPrincipal, colorPrincipal2]);
+LinearGradient colorGradienteSecundario = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [colorSecundario, colorSecundario2]);
 
 double tamanoIcoNavBar = 28;
 double tamanoIcoModal = 20;
 double tamanoIcoSnackbar = 18;
 String rutaLogoDostopD = 'assets/LogoDostopD.svg';
+String rutaLogoLetrasDostop = 'assets/LogoLetrasDostop.svg';
+String rutaLogoLetrasDostopPng = 'assets/LogoLetrasDostop.png';
 String rutaIconoInicio = 'assets/IconoInicio.svg';
 String rutaIconoVisitas = 'assets/IconoVisitas.svg';
 String rutaIconoEmergencia = 'assets/IconoEmergencia.svg';
@@ -68,7 +74,6 @@ String rutaGifLoadBanner = 'assets/loading-banner.gif';
 String rutaIconoWhastApp = 'assets/whatsapp.svg';
 String rutaFondoLogin = 'assets/fondo-login-main.jpg';
 String rutaIconoEntradasTags = 'assets/IconoEntradasTags.svg';
-// String rutaLogoDostopPNG = 'assets/logo_dostop_d.png';
 
 AppBar appBarLogo({@required String titulo}) {
   return AppBar(
@@ -124,12 +129,11 @@ AppBar appBarLogoD(
 
 Text dostopLogo() {
   return Text(
-    'Dostop',
+    'dostop',
     textScaleFactor: 0.85,
     style: TextStyle(
-      fontFamily: 'Play',
-      color: colorPrincipal,
       fontSize: 22,
+      fontWeight: FontWeight.w700
     ),
   );
 }
@@ -148,7 +152,7 @@ TextStyle estiloTextoAppBar(double fontSize) {
 
 TextStyle estiloBotones(double fontSize) {
   return TextStyle(
-      color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.bold);
+      color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.w900);
 }
 
 TextStyle estiloTituloTarjeta(double fontSize) {
