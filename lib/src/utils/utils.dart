@@ -13,12 +13,15 @@ bool isDebug = !kReleaseMode;
 Color colorFondoPrincipalDark = Color.fromRGBO(18, 18, 18, 1.0);
 Color colorTextoPrincipalDark = Color.fromRGBO(184, 184, 184, 1.0);
 Color colorIconos = Color.fromRGBO(65, 64, 64, 1.0);
-Color colorPrincipal = Color.fromRGBO(233, 55, 54, 1.0);
+Color colorPrincipal = Color.fromRGBO(2, 69, 232, 1.0);
+Color colorPrincipal2 = Color.fromRGBO(0, 60, 206, 1.0);
+Color colorAcentuado = Color.fromRGBO(2, 183, 84, 1.0);
 Color colorSecundario = Color.fromRGBO(102, 106, 106, 1.0);
+Color colorSecundario2 = Color.fromRGBO(96, 96, 96, 1.0);
 Color colorSecundarioSemi = Color.fromRGBO(102, 106, 106, 0.5);
 Color colorSecundarioSemi08 = Color.fromRGBO(102, 106, 106, 0.8);
-Color colorFondoLoginSemi = Color.fromRGBO(0, 0, 0, 0.75);
-Color colorTextLoginSemi = Color.fromRGBO(255, 255, 255, 0.75);
+Color colorFondoLoginSemi = Color.fromRGBO(0, 0, 0, 0.50);
+Color colorTextLoginSemi = Color.fromRGBO(0, 0, 0, 0.60);
 Color colorSecundarioToggle = Color.fromRGBO(102, 106, 106, 0.2);
 Color colorIndicadorSwiper = Color.fromRGBO(128, 128, 128, 0.8);
 Color colorFondoTarjeta = Color.fromRGBO(244, 244, 244, 1.0);
@@ -39,6 +42,11 @@ const Map<int, Color> _colorCalendario = {
   800: const Color(0xFFDF3736),
   900: const Color(0xFFDF3736)
 };
+LinearGradient colorGradientePrincipal =
+    LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter ,colors: [colorPrincipal, colorPrincipal2]);
+LinearGradient colorGradienteSecundario =
+    LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter ,colors: [colorSecundario, colorSecundario2]);
+
 
 double tamanoIcoNavBar = 28;
 double tamanoIcoModal = 20;
@@ -58,7 +66,7 @@ String rutaIconoMenu = 'assets/IconoMenu.svg';
 String rutaGifLoadRed = 'assets/loading-red.gif';
 String rutaGifLoadBanner = 'assets/loading-banner.gif';
 String rutaIconoWhastApp = 'assets/whatsapp.svg';
-String rutaFondoLogin = 'assets/fondo-login.jpg';
+String rutaFondoLogin = 'assets/fondo-login-main.jpg';
 String rutaIconoEntradasTags = 'assets/IconoEntradasTags.svg';
 // String rutaLogoDostopPNG = 'assets/logo_dostop_d.png';
 
