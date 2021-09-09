@@ -76,10 +76,10 @@ class _MyAppState extends State<MyApp> {
             StyledToastPosition(align: Alignment.bottomCenter, offset: 80),
         child: MaterialApp(
           // /*BLOQUE DE CODIGO QUE PREVIENE EL ESCALADO DE TEXTO CON EL SISTEMA*/
-          // builder: (BuildContext context, Widget child) {
-          //   return MediaQuery(
-          //   data: MediaQuery.of(context).copyWith(textScaleFactor: 1.2),
-          //   child: child,);},
+          builder: (BuildContext context, Widget child) {
+            return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            child: child,);},
           // /*FIN DEL BLOQUE*/
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
