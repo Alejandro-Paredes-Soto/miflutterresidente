@@ -112,9 +112,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaBody() {
     return Scrollbar(
-      child: Container(
-        padding: EdgeInsets.all(15.0),
-        child: SingleChildScrollView(
+      child: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(15.0),
           child: Column(
             children: [
               _creaPrimerFila(),
@@ -220,13 +220,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         children: [
           Expanded(
               flex: 2,
-              child: Container(
-                  margin: EdgeInsets.only(right: 8.0),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15.0),
-                      color: Theme.of(context).cardColor),
-                  child: _creaSwitchNoMolestar())),
+              child: Material(
+                borderRadius: BorderRadius.circular(15.0),
+                color: Theme.of(context).cardColor,
+                elevation: 8,
+                child: Container(
+                    margin: EdgeInsets.only(right: 8.0),
+                    alignment: Alignment.center,
+                    //borderRadius: BorderRadius.circular(15.0),
+
+                    child: _creaSwitchNoMolestar()),
+              )),
           Expanded(
             flex: 1,
             child: Padding(
@@ -281,9 +285,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     String ruta,
   }) {
     return RaisedButton(
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       color: Theme.of(context).cardColor,
+      elevation: 8,
       padding: EdgeInsets.zero,
       child: Padding(
         padding: EdgeInsets.all(10.0),
@@ -546,13 +550,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   title: AutoSizeText('No molestar',
                       maxLines: 1,
                       textAlign: TextAlign.left,
-                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
-                  subtitle: AutoSizeText(_noMolestar ? 'Activado' : 'Desactivado',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+                  subtitle: AutoSizeText(
+                      _noMolestar ? 'Activado' : 'Desactivado',
                       maxLines: 1,
                       textAlign: TextAlign.left,
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
                           color: _noMolestar
                               ? utils.colorToastRechazada
                               : utils.colorAcentuado)),
@@ -590,12 +596,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             }
           } else {
             return ListTile(
-              title: Text(
+              title: AutoSizeText(
                 'No molestar',
+                maxLines: 1,
                 textAlign: TextAlign.left,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Text('Cargando...', textAlign: TextAlign.left),
+              subtitle: AutoSizeText('Cargando...',
+                  maxLines: 1, textAlign: TextAlign.left),
               trailing: CupertinoSwitch(value: false, onChanged: null),
             );
           }
