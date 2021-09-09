@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
 import 'package:dostop_v2/src/widgets/gradient_button.dart';
@@ -84,7 +85,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 60,
         centerTitle: false,
         title: Image.asset(
           utils.rutaLogoDostopDPng,
@@ -100,7 +100,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   size: 35,
                   semanticLabel: 'Ayuda',
                 ),
-                Text('Ayuda')
+                AutoSizeText('Ayuda', maxLines: 1),
               ],
             ),
           ),
@@ -111,16 +111,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _creaBody() {
-    return Container(
-      padding: EdgeInsets.all(15.0),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _creaPrimerFila(),
-            _creaBtnFrecuentes(),
-            _creaTerceraFila(),
-            _creaCuartaFila(),
-          ],
+    return Scrollbar(
+      child: Container(
+        padding: EdgeInsets.all(15.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _creaPrimerFila(),
+              _creaBtnFrecuentes(),
+              _creaTerceraFila(),
+              _creaCuartaFila(),
+            ],
+          ),
         ),
       ),
     );
@@ -140,8 +142,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   child: _creaBtnIcono(
                       rutaIcono: utils.rutaIconoAvisos,
                       titulo: 'Avisos',
-                      ruta: 'avisos',
-                      iconoIzquierda: true),
+                      ruta: 'avisos'),
                 ),
                 SizedBox(height: 20),
                 Expanded(
@@ -149,8 +150,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       rutaIcono: utils.rutaIconoEmergencia,
                       titulo: 'SOS',
                       subtitulo: 'Emergencias',
-                      ruta: 'emergencias',
-                      iconoIzquierda: true),
+                      ruta: 'emergencias'),
                 ),
               ],
             ))
@@ -160,14 +160,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaBtnVisitas() {
     return RaisedGradientButton(
-      padding: EdgeInsets.all(15.0),
+      padding: EdgeInsets.all(10.0),
       gradient: utils.colorGradientePrincipal,
       borderRadius: BorderRadius.circular(15.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Historial de visitas',
-              textAlign: TextAlign.center, style: utils.estiloBotones(28)),
+          AutoSizeText('Historial de visitas',
+              maxLines: 3,
+              wrapWords: false,
+              textAlign: TextAlign.center,
+              style: utils.estiloBotones(28)),
           SizedBox(height: 10),
           SvgPicture.asset(
             utils.rutaIconoVisitas,
@@ -181,7 +184,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _creaTerceraFila() {
-    return Padding(
+    return Container(
+      height: 130,
       padding: EdgeInsets.only(top: 20.0),
       child: Row(
         children: [
@@ -209,23 +213,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaCuartaFila() {
     return Container(
-      height: 120,
+      height: 130,
       padding: EdgeInsets.only(top: 20.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            flex: 2,
-            child: Container(
-              margin: EdgeInsets.only(right:8.0),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(15.0),
-              color: Theme.of(context).cardColor),
-              child: _creaSwitchNoMolestar())),
+              flex: 2,
+              child: Container(
+                  margin: EdgeInsets.only(right: 8.0),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15.0),
+                      color: Theme.of(context).cardColor),
+                  child: _creaSwitchNoMolestar())),
           Expanded(
             flex: 1,
             child: Padding(
-              padding: EdgeInsets.only(left:14.0),
+              padding: EdgeInsets.only(left: 14.0),
               child: _creaBtnIconoMini(
                 rutaIcono: utils.rutaIconoPromociones,
                 titulo: 'Promos',
@@ -239,12 +244,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _creaBtnIcono(
-      {String rutaIcono,
-      String titulo,
-      String subtitulo,
-      String ruta,
-      bool iconoIzquierda = false}) {
+      {String rutaIcono, String titulo, String subtitulo, String ruta}) {
     return RaisedButton(
+        padding: EdgeInsets.symmetric(horizontal: 10),
         elevation: 8,
         color: Theme.of(context).cardColor,
         shape:
@@ -252,36 +254,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            iconoIzquierda
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                        SvgPicture.asset(
-                          rutaIcono,
-                          height: 25,
-                          color: Colors.white,
-                        ),
-                        Flexible(
-                          child: Text(
-                            titulo,
-                            style: utils.estiloBotones(30),
-                          ),
-                        ),
-                      ])
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      SvgPicture.asset(
-                        rutaIcono,
-                        height: 25,
-                        color: Colors.white,
-                      ),
-                      Text(
-                        titulo,
-                        style: utils.estiloBotones(30),
-                      ),
-                    ],
-                  ),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              SvgPicture.asset(
+                rutaIcono,
+                height: 25,
+                color: Colors.white,
+              ),
+              SizedBox(width: 10),
+              Flexible(
+                child: AutoSizeText(
+                  titulo,
+                  wrapWords: false,
+                  style: utils.estiloBotones(30),
+                ),
+              ),
+            ]),
             Visibility(visible: subtitulo != null, child: Text(subtitulo ?? ''))
           ],
         ),
@@ -293,34 +280,37 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     String titulo,
     String ruta,
   }) {
-    return Container(
-      height: 100,
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-        color: Theme.of(context).cardColor,
-        padding: EdgeInsets.zero,
-        child: Padding(
-          padding: EdgeInsets.all(15.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                rutaIcono,
-                height: 25,
-                color: Colors.white,
-              ),
-              SizedBox(height: 5),
-              Text(
+    return RaisedButton(
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+      color: Theme.of(context).cardColor,
+      padding: EdgeInsets.zero,
+      child: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              rutaIcono,
+              height: 25,
+              color: Colors.white,
+            ),
+            SizedBox(height: 10),
+            Flexible(
+              child: AutoSizeText(
                 titulo,
                 textAlign: TextAlign.center,
+                overflow: TextOverflow.fade,
+                maxLines: 2,
+                wrapWords: false,
                 style: utils.estiloBotones(16),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        onPressed: () => Navigator.pushNamed(context, ruta),
       ),
+      onPressed: () => Navigator.pushNamed(context, ruta),
     );
   }
 
@@ -333,24 +323,37 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: FlatButton(
             padding: EdgeInsets.all(0.0),
             color: utils.colorAcentuado,
-            child: ListTile(
-              tileColor: Colors.transparent,
-              title: Text('Visitas frecuentes',
-                  style: TextStyle(
-                      fontSize: 32,
-                      color: Colors.black,
-                      letterSpacing: -0.5,
-                      fontWeight: FontWeight.w900)),
-              subtitle: Padding(
-                padding: EdgeInsets.only(top: 5.0),
-                child: Text('Envía códigos de acceso',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500)),
-              ),
-              trailing: SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
-                  height: 40, color: Colors.black),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AutoSizeText('Visitas frecuentes',
+                          maxLines: 1,
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Colors.black,
+                              letterSpacing: -0.5,
+                              fontWeight: FontWeight.w900)),
+                      Text('Envía códigos de acceso',
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  flex: 1,
+                  child: SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
+                      height: 40, width: 20, color: Colors.black),
+                ),
+              ],
             ),
             onPressed: () => Navigator.pushNamed(context, 'visitantesFreq')),
       ),
@@ -539,14 +542,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               _noMolestar = snapshot.data['valor'] == '1' ? true : false;
               return Container(
                 child: ListTile(
-                  title: Text('Modo no molestar',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(_noMolestar ? 'Activado' : 'Desactivado',
-                      textAlign: TextAlign.right),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
+                  title: AutoSizeText('No molestar',
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+                  subtitle: AutoSizeText(_noMolestar ? 'Activado' : 'Desactivado',
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                          color: _noMolestar
+                              ? utils.colorToastRechazada
+                              : utils.colorAcentuado)),
                   trailing: CupertinoSwitch(
-                      activeColor: utils.colorPrincipal,
-                      trackColor: utils.colorContenedorSaldo,
+                      activeColor: utils.colorToastRechazada,
+                      trackColor: utils.colorAcentuado,
                       value: _noMolestar,
                       onChanged: (valor) {
                         if (valor)
@@ -574,17 +586,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ),
               );
             } else {
-              return Container(
-              );
+              return Container();
             }
           } else {
             return ListTile(
               title: Text(
-                'Modo no molestar',
-                textAlign: TextAlign.right,
+                'No molestar',
+                textAlign: TextAlign.left,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Text('Cargando...', textAlign: TextAlign.right),
+              subtitle: Text('Cargando...', textAlign: TextAlign.left),
               trailing: CupertinoSwitch(value: false, onChanged: null),
             );
           }
