@@ -30,6 +30,7 @@ Color colorFondoTarjetaFreq = Color.fromRGBO(226, 226, 226, 1.0);
 Color colorContenedorSaldo = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastAceptada = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastRechazada = Color.fromRGBO(233, 55, 54, 1.0);
+Color colorFechaAviso = Color.fromRGBO(146, 152, 160, 1.0);
 MaterialColor colorCalendario = MaterialColor(0xFFDF3736, _colorCalendario);
 const Map<int, Color> _colorCalendario = {
   50: const Color(0xFF0245E8),

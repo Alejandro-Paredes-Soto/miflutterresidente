@@ -31,11 +31,14 @@ class _AvisosPageState extends State<AvisosPage> {
             return Container(
               child: RefreshIndicator(
                 onRefresh: _obtenerUltimosAvisos,
-                child: ListView.builder(
-                  padding: EdgeInsets.all(10),
+                child: ListView.separated(
+
+                    padding: EdgeInsets.all(15),
                     itemCount: snapshot.data.length,
                     itemBuilder: (context, index) =>
-                        _crearItem(context, snapshot.data[index], index)),
+                        _crearItem(context, snapshot.data[index]),
+                    separatorBuilder: (context, index) => SizedBox(height: 5.0),),
+
               ),
             );
           } else {
@@ -53,51 +56,45 @@ class _AvisosPageState extends State<AvisosPage> {
     );
   }
 
-  Widget _crearItem(BuildContext context, AvisoModel aviso, int) {
-    return Column(
-      children: <Widget>[
-        Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          elevation: 4,
-          child: Column(
-            children: <Widget>[
-              FlatButton(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-                child: Container(
-                  width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    height: 200,
-                    child: Text(
-                      '${aviso.descripcion}',
-                      overflow: TextOverflow.fade,
-                      style: TextStyle(fontSize: 15),
-                    )),
+  Widget _crearItem(BuildContext context, AvisoModel aviso) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+      child: Container(
+          height: 120.0,
+          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                        flex: 1,
+                        child: Text(
+                          '${utils.fechaCompleta(DateTime.tryParse(aviso.fecha))}',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: utils.colorFechaAviso),
+                        )),
+                    Flexible(
+                        flex: 4,
+                        child: Text(
+                          '${aviso.descripcion}',
+                          overflow: TextOverflow.fade,
+                        ))
+                  ],
+                )),
+            Expanded(
+              flex: 1,
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0)),
+                child: Text('Ver más', style: utils.estiloBotones(12),),
                 onPressed: () => _abrirAvisoDetalle(aviso, context),
               ),
-              Container(
-                  padding: EdgeInsets.only(right: 15),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
-                      color: utils.colorPrincipal),
-                  width: double.infinity,
-                  height: 25,
-                  child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Text(
-                          '${utils.fechaCompleta(DateTime.tryParse(aviso.fecha))}',
-                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.fade,
-                        )
-                      ]))
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        )
-      ],
+            )
+          ])),
     );
   }
 
@@ -106,8 +103,8 @@ class _AvisosPageState extends State<AvisosPage> {
   }
 
   Future<void> _obtenerUltimosAvisos() async {
-    return Future.delayed(Duration(seconds: 1),(){
-    setState(() {});
+    return Future.delayed(Duration(seconds: 1), () {
+      setState(() {});
     });
   }
 }
