@@ -78,8 +78,10 @@ class _MyAppState extends State<MyApp> {
           // /*BLOQUE DE CODIGO QUE PREVIENE EL ESCALADO DE TEXTO CON EL SISTEMA*/
           builder: (BuildContext context, Widget child) {
             return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-            child: child,);},
+              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              child: child,
+            );
+          },
           // /*FIN DEL BLOQUE*/
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
@@ -96,14 +98,14 @@ class _MyAppState extends State<MyApp> {
           title: 'Dostop',
           initialRoute: prefs.usuarioLogged == '' ? 'login' : 'main',
           routes: {
-
             'login': (BuildContext context) => LoginPage(),
             'resetUser': (BuildContext context) => RestablecerUsuarioPage(),
             'main': (BuildContext context) => MainPage(),
             'visitas': (BuildContext context) => VisitasPage(),
             'emergencias': (BuildContext context) => EmergenciasPage(),
             'avisos': (BuildContext context) => AvisosPage(),
-            'visitantesFreq': (BuildContext context) => VisitantesFrecuentesPage(),
+            'visitantesFreq': (BuildContext context) =>
+                VisitantesFrecuentesPage(),
             'estadosCuenta': (BuildContext context) => EstadoDeCuentaPage(),
             'areasComunes': (BuildContext context) => AreasComunesPage(),
             'miCasa': (BuildContext context) => MiCasaPage(),
@@ -150,7 +152,7 @@ class _MyAppState extends State<MyApp> {
               inputDecorationTheme: InputDecorationTheme(
                   labelStyle: TextStyle(color: utils.colorTextoPrincipalDark),
                   hintStyle: TextStyle(color: utils.colorTextoPrincipalDark)),
-              iconTheme: IconThemeData(color: Colors.white,),
+              iconTheme: IconThemeData(color: Colors.white),
               snackBarTheme: SnackBarThemeData(
                   actionTextColor: utils.colorFondoPrincipalDark),
               textTheme: TextTheme(bodyText2: TextStyle(color: Colors.white)),
@@ -169,10 +171,8 @@ class _MyAppState extends State<MyApp> {
               appBarTheme: AppBarTheme(
                   textTheme:
                       TextTheme(headline6: TextStyle(color: Colors.white)),
-                  iconTheme:
-                      IconThemeData(color: Colors.white),
-                  actionsIconTheme:
-                      IconThemeData(color: Colors.white),
+                  iconTheme: IconThemeData(color: Colors.white),
+                  actionsIconTheme: IconThemeData(color: Colors.white),
                   brightness: Brightness.dark,
                   elevation: 0,
                   color: utils.colorFondoPrincipalDark),
