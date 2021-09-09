@@ -80,7 +80,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       width: double.infinity,
       child: Text(
         _tipoRostro == 1
-            ? 'Nuevo colono con rotro'
+            ? 'Nuevo colono con rostro'
             : 'Nuevo visitante con rostro',
         textAlign: TextAlign.left,
         style: utils.estiloTextoAppBar(24),
