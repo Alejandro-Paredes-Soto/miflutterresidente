@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/providers/login_provider.dart';
+import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final avisosProvider = AvisosProvider();
   final visitasProvider = VisitasProvider();
   final configUsuarioProvider = ConfigUsuarioProvider();
+  final _loginProvider = LoginProvider();
   final _prefs = PreferenciasUsuario();
   Map _resultados;
   bool _nuevaEncuesta = false,
@@ -82,9 +83,277 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: utils.appBarLogo(titulo: 'Inicio'),
+      appBar: AppBar(
+        toolbarHeight: 60,
+        centerTitle: false,
+        title: Image.asset(
+          utils.rutaLogoDostopDPng,
+          height: 38,
+        ),
+        actions: [
+          FlatButton(
+            onPressed: _cerrarSesion,
+            child: Column(
+              children: [
+                Icon(
+                  Icons.info,
+                  size: 35,
+                  semanticLabel: 'Ayuda',
+                ),
+                Text('Ayuda')
+              ],
+            ),
+          ),
+        ],
+      ),
       body: _creaBody(),
-      floatingActionButton: _creaItemsFAB(),
+    );
+  }
+
+  Widget _creaBody() {
+    return Container(
+      padding: EdgeInsets.all(15.0),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _creaPrimerFila(),
+            _creaBtnFrecuentes(),
+            _creaTerceraFila(),
+            _creaCuartaFila(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _creaPrimerFila() {
+    return Container(
+        height: 250,
+        child: Row(
+          children: [
+            Flexible(child: _creaBtnVisitas()),
+            SizedBox(width: 20),
+            Flexible(
+                child: Column(
+              children: [
+                Expanded(
+                  child: _creaBtnIcono(
+                      rutaIcono: utils.rutaIconoAvisos,
+                      titulo: 'Avisos',
+                      ruta: 'avisos',
+                      iconoIzquierda: true),
+                ),
+                SizedBox(height: 20),
+                Expanded(
+                  child: _creaBtnIcono(
+                      rutaIcono: utils.rutaIconoEmergencia,
+                      titulo: 'SOS',
+                      subtitulo: 'Emergencias',
+                      ruta: 'emergencias',
+                      iconoIzquierda: true),
+                ),
+              ],
+            ))
+          ],
+        ));
+  }
+
+  Widget _creaBtnVisitas() {
+    return RaisedGradientButton(
+      padding: EdgeInsets.all(15.0),
+      gradient: utils.colorGradientePrincipal,
+      borderRadius: BorderRadius.circular(15.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Historial de visitas',
+              textAlign: TextAlign.center, style: utils.estiloBotones(28)),
+          SizedBox(height: 10),
+          SvgPicture.asset(
+            utils.rutaIconoVisitas,
+            height: 38,
+            color: Colors.white,
+          )
+        ],
+      ),
+      onPressed: () => Navigator.pushNamed(context, 'visitas'),
+    );
+  }
+
+  Widget _creaTerceraFila() {
+    return Padding(
+      padding: EdgeInsets.only(top: 20.0),
+      child: Row(
+        children: [
+          Expanded(
+              child: _creaBtnIconoMini(
+                  rutaIcono: utils.rutaIconoEstadoDeCuenta,
+                  titulo: 'Estados de cuenta',
+                  ruta: 'estadosCuenta')),
+          SizedBox(width: 20),
+          Expanded(
+              child: _creaBtnIconoMini(
+                  rutaIcono: utils.rutaIconoAreasComunes,
+                  titulo: 'Áreas comunes',
+                  ruta: 'areasComunes')),
+          SizedBox(width: 20),
+          Expanded(
+              child: _creaBtnIconoMini(
+                  rutaIcono: utils.rutaIconoMiCasa,
+                  titulo: 'Mi casa',
+                  ruta: 'miCasa'))
+        ],
+      ),
+    );
+  }
+
+  Widget _creaCuartaFila() {
+    return Container(
+      height: 120,
+      padding: EdgeInsets.only(top: 20.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+              margin: EdgeInsets.only(right:8.0),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(15.0),
+              color: Theme.of(context).cardColor),
+              child: _creaSwitchNoMolestar())),
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: EdgeInsets.only(left:14.0),
+              child: _creaBtnIconoMini(
+                rutaIcono: utils.rutaIconoPromociones,
+                titulo: 'Promos',
+                ruta: 'promociones',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _creaBtnIcono(
+      {String rutaIcono,
+      String titulo,
+      String subtitulo,
+      String ruta,
+      bool iconoIzquierda = false}) {
+    return RaisedButton(
+        elevation: 8,
+        color: Theme.of(context).cardColor,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            iconoIzquierda
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                        SvgPicture.asset(
+                          rutaIcono,
+                          height: 25,
+                          color: Colors.white,
+                        ),
+                        Flexible(
+                          child: Text(
+                            titulo,
+                            style: utils.estiloBotones(30),
+                          ),
+                        ),
+                      ])
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SvgPicture.asset(
+                        rutaIcono,
+                        height: 25,
+                        color: Colors.white,
+                      ),
+                      Text(
+                        titulo,
+                        style: utils.estiloBotones(30),
+                      ),
+                    ],
+                  ),
+            Visibility(visible: subtitulo != null, child: Text(subtitulo ?? ''))
+          ],
+        ),
+        onPressed: () => Navigator.pushNamed(context, ruta));
+  }
+
+  Widget _creaBtnIconoMini({
+    String rutaIcono,
+    String titulo,
+    String ruta,
+  }) {
+    return Container(
+      height: 100,
+      child: RaisedButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        color: Theme.of(context).cardColor,
+        padding: EdgeInsets.zero,
+        child: Padding(
+          padding: EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                rutaIcono,
+                height: 25,
+                color: Colors.white,
+              ),
+              SizedBox(height: 5),
+              Text(
+                titulo,
+                textAlign: TextAlign.center,
+                style: utils.estiloBotones(16),
+              ),
+            ],
+          ),
+        ),
+        onPressed: () => Navigator.pushNamed(context, ruta),
+      ),
+    );
+  }
+
+  Widget _creaBtnFrecuentes() {
+    return Container(
+      height: 130,
+      padding: EdgeInsets.only(top: 20.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15.0),
+        child: FlatButton(
+            padding: EdgeInsets.all(0.0),
+            color: utils.colorAcentuado,
+            child: ListTile(
+              tileColor: Colors.transparent,
+              title: Text('Visitas frecuentes',
+                  style: TextStyle(
+                      fontSize: 32,
+                      color: Colors.black,
+                      letterSpacing: -0.5,
+                      fontWeight: FontWeight.w900)),
+              subtitle: Padding(
+                padding: EdgeInsets.only(top: 5.0),
+                child: Text('Envía códigos de acceso',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500)),
+              ),
+              trailing: SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
+                  height: 40, color: Colors.black),
+            ),
+            onPressed: () => Navigator.pushNamed(context, 'visitantesFreq')),
+      ),
     );
   }
 
@@ -157,9 +426,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   _responderEncuesta({String pregunta, List<Respuesta> respuestas}) {
     List<CupertinoActionSheetAction> actions = respuestas
         .map((element) => CupertinoActionSheetAction(
-            child: Text(element.respuestaEncuesta,
-                style: TextStyle(
-                    fontSize: 20.0, color: Theme.of(context).iconTheme.color), textScaleFactor: 1.0,),
+            child: Text(
+              element.respuestaEncuesta,
+              style: TextStyle(
+                  fontSize: 20.0, color: Theme.of(context).iconTheme.color),
+              textScaleFactor: 1.0,
+            ),
             onPressed: () => _enviarRespuesta(
                   int.tryParse(element.idRespuestaEncuesta),
                 )))
@@ -168,19 +440,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     showCupertinoModalPopup(
         context: context,
         builder: (_) => CupertinoActionSheet(
-              title: Text(pregunta,
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.bodyText2.color,
-                  ),
-                  textScaleFactor: 0.9,),
+              title: Text(
+                pregunta,
+                style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyText2.color,
+                ),
+                textScaleFactor: 0.9,
+              ),
               actions: actions,
               cancelButton: CupertinoActionSheetAction(
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(
                   'Cancelar',
-                  style: TextStyle(fontWeight: FontWeight.bold,),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                   textScaleFactor: 1.0,
                 ),
               ),
@@ -235,65 +511,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         'Aceptar',
         () => Navigator.pop(context));
-  }
-
-  _creaBody() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          _cargaEncuesta(),
-          Container(
-              padding: EdgeInsets.only(left: 15, right: 15),
-              child:
-                  Text('Últimas Visitas', style: utils.estiloTextoAppBar(18))),
-          _cargaUltimasVisitas(),
-          Container(
-            height: 40,
-            child: FlatButton(
-              child: Text(
-                'Ver todas las visitas',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                widget.pageController.jumpToPage(1);
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Flexible(
-                flex: 2,
-                child: _creaBtnTags(),
-              ),
-              Expanded(
-                flex: 4,
-                child: _creaSwitchNoMolestar(),
-              )
-            ],
-          ),
-          Container(
-              padding: EdgeInsets.only(left: 15, right: 15),
-              child:
-                  Text('Últimos Avisos', style: utils.estiloTextoAppBar(18))),
-          _cargaUltimosAvisos(),
-          Container(
-            height: 40,
-            child: FlatButton(
-              child: Text(
-                'Ver todos los avisos',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                widget.pageController.jumpToPage(3);
-              },
-            ),
-          )
-        ],
-      ),
-    );
   }
 
   Widget _creaBtnTags() {
@@ -358,7 +575,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               );
             } else {
               return Container(
-                height: 30,
               );
             }
           } else {
@@ -387,272 +603,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           resultado['message'],
           5));
     });
-  }
-
-  _cargaUltimasVisitas() {
-    return FutureBuilder(
-      future: visitasProvider.obtenerUltimasVisitas(_prefs.usuarioLogged),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<VisitaModel>> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.length > 0) {
-            return Container(
-                height: 240, child: _crearItemVisita(context, snapshot.data));
-          } else {
-            return Container(
-              height: 240,
-              child: Center(
-                child: Text('No tienes visitas por ahora',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center),
-              ),
-            );
-          }
-        } else {
-          return Container(
-            height: 240,
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              elevation: 4,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  _crearItemVisita(BuildContext context, List<VisitaModel> visitas) {
-    return Swiper(
-      containerHeight: 240,
-      loop: false,
-      itemCount: visitas.length,
-      viewportFraction: 1,
-      scale: 0.95,
-      control: SwiperControl(
-          iconPrevious: Icons.arrow_back_ios,
-          iconNext: Icons.arrow_forward_ios,
-          color: utils.colorIndicadorSwiper,
-          disableColor: Colors.transparent),
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              GestureDetector(
-                child: Card(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Stack(
-                        alignment: Alignment.bottomLeft,
-                        children: <Widget>[
-                          _cargaImagenesVisita(utils.validaImagenes([
-                            visitas[index].imgRostro,
-                            visitas[index].imgId,
-                            visitas[index].imgPlaca
-                          ])),
-                          Container(
-                              padding: EdgeInsets.only(left: 10, bottom: 10),
-                              child: Text(
-                                '${visitas[index].visitante}',
-                                style: utils.estiloTextoBlancoSombreado(18),
-                                overflow: TextOverflow.fade,
-                              )),
-                        ],
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(right: 15),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20)),
-                            color: utils.colorPrincipal),
-                        width: double.infinity,
-                        height: 25,
-                        child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                '${utils.fechaCompleta(DateTime.tryParse(visitas[index].fechaEntrada))} ${visitas[index].horaEntrada}',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold),
-                                overflow: TextOverflow.fade,
-                              )
-                            ]),
-                      )
-                    ],
-                  ),
-                ),
-                onTap: () => _abrirVisitaDetalle(visitas[index], context),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _cargaImagenesVisita(List<String> imagenes) {
-    if (imagenes.length == 0) {
-      return Container(
-        height: 200,
-        child: Center(child: Icon(Icons.broken_image)),
-      );
-    } else {
-      return Container(
-          height: 200,
-          child: ClipRRect(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-            child: Swiper(
-              loop: imagenes.length > 1 ? true : false,
-              scrollDirection: Axis.vertical,
-              containerHeight: 130,
-              pagination: SwiperPagination(
-                  margin: EdgeInsets.only(right: 10, top: 10),
-                  alignment: Alignment.topRight),
-              itemCount: imagenes.length,
-              itemBuilder: (BuildContext context, int index) {
-                return CachedNetworkImage(
-                  placeholder: (context, url) =>
-                      Image.asset(utils.rutaGifLoadRed),
-                  errorWidget: (context, url, error) => Container(
-                      height: 200,
-                      child: Center(child: Icon(Icons.broken_image))),
-                  imageUrl: imagenes[index],
-                  fit: BoxFit.cover,
-                  fadeInDuration: Duration(milliseconds: 300),
-                );
-              },
-            ),
-          ));
-    }
-  }
-
-  _abrirVisitaDetalle(VisitaModel visita, BuildContext context) {
-    Navigator.of(context).pushNamed('VisitaDetalle', arguments: visita);
-  }
-
-  _cargaUltimosAvisos() {
-    return FutureBuilder(
-      future: avisosProvider.obtenerUltimosAvisos(_prefs.usuarioLogged),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<AvisoModel>> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.length > 0) {
-            return Container(
-                height: 240, child: _crearItemAviso(context, snapshot.data));
-          } else {
-            return Container(
-              height: 240,
-              child: Center(
-                child: Text('No tienes avisos por ahora',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center),
-              ),
-            );
-          }
-        } else {
-          return Container(
-            height: 240,
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  _crearItemAviso(BuildContext context, List<AvisoModel> avisos) {
-    return Swiper(
-      containerHeight: 200,
-      loop: false,
-      itemCount: avisos.length,
-      control: SwiperControl(
-          iconPrevious: Icons.arrow_back_ios,
-          iconNext: Icons.arrow_forward_ios,
-          color: utils.colorIndicadorSwiper,
-          disableColor: Colors.transparent),
-      scale: 0.9,
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                child: Column(
-                  children: <Widget>[
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20))),
-                      child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          height: 200,
-                          child: Text(
-                            '${avisos[index].descripcion}',
-                            overflow: TextOverflow.fade,
-                            style: TextStyle(fontSize: 15),
-                          )),
-                      onPressed: () =>
-                          _abrirAvisoDetalle(avisos[index], context),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(right: 15),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20)),
-                          color: utils.colorPrincipal),
-                      width: double.infinity,
-                      height: 25,
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Text(
-                              '${utils.fechaCompleta(DateTime.tryParse(avisos[index].fecha))}',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold),
-                              overflow: TextOverflow.fade,
-                            )
-                          ]),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  _abrirAvisoDetalle(AvisoModel aviso, BuildContext context) {
-    Navigator.of(context).pushNamed('AvisoDetalle', arguments: aviso);
   }
 
   _creaItemsFAB() {
@@ -744,6 +694,34 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     // Use either Dart's string interpolation or the toString() method.
     // The "launch" method is part of "url_launcher".
     await launch('$link');
+  }
+
+  _cerrarSesion() {
+    creaDialogYesNoAlt(
+        context,
+        'Confirmar',
+        '¿Estás seguro de que deseas cerrar sesión?\n\nDejarás de recibir notificaciones de tus visitas.',
+        'Cerrar sesión',
+        'Cancelar', () {
+      Navigator.pop(context);
+      creaDialogProgress(context, 'Cerrando Sesión...');
+      _loginProvider.logout().then((logout) {
+        Navigator.pop(context);
+        if (logout) {
+          _prefs.borraPrefs();
+          print('${_prefs.usuarioLogged}');
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              'login', (Route<dynamic> route) => false);
+        } else {
+          creaDialogSimple(
+              context,
+              '¡Ups! algo salió mal',
+              'No se pudo cerrar tu sesión, verifica tu conexión a internet',
+              'Aceptar',
+              () => Navigator.pop(context));
+        }
+      });
+    }, () => Navigator.pop(context));
   }
 
   @override
