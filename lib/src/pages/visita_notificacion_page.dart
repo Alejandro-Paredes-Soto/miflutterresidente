@@ -43,7 +43,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        appBar: utils.appBarLogoD(
+        appBar: utils.appBarLogo(
             titulo: visita.tipoVisita != 3 ? 'Visita' : 'V. Sin Respuesta',
             backbtn: null),
         body: _creaBody(visita),

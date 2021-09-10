@@ -40,7 +40,7 @@ class _NuevoVisitanteFrecuentePageState
   Widget build(BuildContext context) {
     _validaSesion.verificaSesion();
     return Scaffold(
-      appBar: utils.appBarLogoD(titulo: 'Agregar', backbtn: BackButton(
+      appBar: utils.appBarLogo(titulo: 'Agregar', backbtn: BackButton(
         onPressed: () {
           if(!_registrando){
             if(_visitanteRegistrado)

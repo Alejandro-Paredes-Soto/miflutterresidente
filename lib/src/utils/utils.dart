@@ -80,6 +80,7 @@ String rutaIconoEntradasTags = 'assets/IconoEntradasTags.svg';
 AppBar appBarLogo(
     {@required String titulo, BackButton backbtn = const BackButton()}) {
   return AppBar(
+    automaticallyImplyLeading: false,
     centerTitle: false,
     elevation: 0.0,
     leading: backbtn,
@@ -102,32 +103,6 @@ AppBar appBarLogo(
         dostopLogo(),
       ],
     ),
-  );
-}
-
-AppBar appBarLogoD(
-    {@required String titulo, BackButton backbtn = const BackButton()}) {
-  return AppBar(
-    automaticallyImplyLeading: false,
-    leading: backbtn,
-    title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(
-        titulo,
-        style: TextStyle(
-            fontFamily: 'Poppins',
-            color: colorPrincipal,
-            fontSize: 28,
-            fontWeight: FontWeight.bold),
-      ),
-      SizedBox(),
-      SvgPicture.asset(
-        rutaLogoDostopD,
-        fit: BoxFit.cover,
-        height: 32,
-      )
-    ]),
-    centerTitle: false,
-    elevation: 0,
   );
 }
 

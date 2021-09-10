@@ -37,7 +37,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
     _tipoRostro = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       key: _scaffoldKey,
-      appBar: utils.appBarLogoD(
+      appBar: utils.appBarLogo(
           titulo: 'Agregar',
           backbtn: BackButton(
             onPressed: () {

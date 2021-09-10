@@ -12,7 +12,7 @@ class PromocionDetallePage extends StatelessWidget {
     final query = MediaQuery.of(context).size;
     final promo = ModalRoute.of(context).settings.arguments;
     return Scaffold(
-      appBar: utils.appBarLogoD(titulo: 'Promoción'),
+      appBar: utils.appBarLogo(titulo: 'Promoción'),
       body: _creaBody(promo, query),
     );
   }

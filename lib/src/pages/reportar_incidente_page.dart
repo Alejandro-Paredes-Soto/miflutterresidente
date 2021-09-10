@@ -28,7 +28,7 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
     final List<String> _datosVisita = ModalRoute.of(context).settings.arguments;
     _idVisita=_datosVisita[0];
     return Scaffold(
-      appBar: utils.appBarLogoD(titulo: 'Reportar'),
+      appBar: utils.appBarLogo(titulo: 'Reportar'),
       body: _creaBody(context, _datosVisita[1]),
     );
   }

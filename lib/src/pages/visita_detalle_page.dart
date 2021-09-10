@@ -28,7 +28,7 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
   Widget build(BuildContext context) {
     final VisitaModel _visita = ModalRoute.of(context).settings.arguments;
     return Scaffold(
-      appBar: utils.appBarLogoD(titulo: 'Visita'),
+      appBar: utils.appBarLogo(titulo: 'Visita'),
       body: _creaBody(_visita, context),
       floatingActionButton:
           _cargaFABIncidente(context, [_visita.idVisitas, _visita.visitante]),
