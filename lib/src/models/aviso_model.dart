@@ -2,25 +2,19 @@ import 'dart:convert';
 
 AvisoModel avisoModelFromJson(String str) => AvisoModel.fromJson(json.decode(str));
 
-String avisoModelToJson(AvisoModel data) => json.encode(data.toJson());
-
 class AvisoModel {
     String descripcion;
     String fecha;
-    String tag;
+    String idAviso;
     AvisoModel({
         this.descripcion='',
         this.fecha='',
-        this.tag='',
+        this.idAviso='',
     });
 
     factory AvisoModel.fromJson(Map<String, dynamic> json) => AvisoModel(
         descripcion: json["descripcion"],
         fecha: json["fecha"],
+        idAviso: json["idAvisos"]
     );
-
-    Map<String, dynamic> toJson() => {
-        "descripcion": descripcion,
-        "fecha": fecha,
-    };
 }

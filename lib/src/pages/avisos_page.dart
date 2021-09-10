@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dostop_v2/src/providers/avisos_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
@@ -32,13 +33,12 @@ class _AvisosPageState extends State<AvisosPage> {
               child: RefreshIndicator(
                 onRefresh: _obtenerUltimosAvisos,
                 child: ListView.separated(
-
-                    padding: EdgeInsets.all(15),
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index) =>
-                        _crearItem(context, snapshot.data[index]),
-                    separatorBuilder: (context, index) => SizedBox(height: 5.0),),
-
+                  padding: EdgeInsets.all(15),
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (context, index) =>
+                      _crearItem(context, snapshot.data[index]),
+                  separatorBuilder: (context, index) => SizedBox(height: 5.0),
+                ),
               ),
             );
           } else {
@@ -57,44 +57,48 @@ class _AvisosPageState extends State<AvisosPage> {
   }
 
   Widget _crearItem(BuildContext context, AvisoModel aviso) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-      child: Container(
-          height: 120.0,
-          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                        flex: 1,
-                        child: Text(
-                          '${utils.fechaCompleta(DateTime.tryParse(aviso.fecha))}',
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: utils.colorFechaAviso),
-                        )),
-                    Flexible(
-                        flex: 4,
-                        child: Text(
-                          '${aviso.descripcion}',
-                          overflow: TextOverflow.fade,
-                        ))
-                  ],
-                )),
-            Expanded(
-              flex: 1,
-              child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0)),
-                child: Text('Ver más', style: utils.estiloBotones(12),),
-                onPressed: () => _abrirAvisoDetalle(aviso, context),
-              ),
-            )
-          ])),
+    return Hero(
+      tag: aviso.idAviso,
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        child: Container(
+            height: 120.0,
+            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Expanded(
+                  flex: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
+                          flex: 1,
+                          child: Text(
+                            '${utils.fechaCompleta(DateTime.tryParse(aviso.fecha))}',
+                            style: utils.estiloFechaAviso(12),
+                          )),
+                      SizedBox(height:5),
+                      Flexible(
+                          flex: 4,
+                          child: Text(
+                            '${aviso.descripcion}',
+                            overflow: TextOverflow.fade,
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ))
+                    ],
+                  )),
+              Expanded(
+                flex: 1,
+                child: RaisedButton(
+                  padding: EdgeInsets.all(10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0)),
+                  child: AutoSizeText('Ver más',
+                      maxLines: 1, style: utils.estiloBotones(12)),
+                  onPressed: () => _abrirAvisoDetalle(aviso, context),
+                ),
+              )
+            ])),
+      ),
     );
   }
 

@@ -77,10 +77,12 @@ String rutaIconoWhastApp = 'assets/whatsapp.svg';
 String rutaFondoLogin = 'assets/fondo-login-main.jpg';
 String rutaIconoEntradasTags = 'assets/IconoEntradasTags.svg';
 
-AppBar appBarLogo({@required String titulo}) {
+AppBar appBarLogo(
+    {@required String titulo, BackButton backbtn = const BackButton()}) {
   return AppBar(
     centerTitle: false,
     elevation: 0.0,
+    leading: backbtn,
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -134,17 +136,13 @@ Text dostopLogo() {
     'dostop',
     textScaleFactor: 0.85,
     style: TextStyle(
-      fontSize: 22,
-      fontWeight: FontWeight.w700
-    ),
+        fontFamily: 'Poppins', fontSize: 22, fontWeight: FontWeight.w700),
   );
 }
 
-TextStyle estiloItemsModal(double fontSize) {
+TextStyle estiloFechaAviso(double fontSize) {
   return TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: fontSize,
-  );
+      fontSize: fontSize, fontWeight: FontWeight.w500, color: colorFechaAviso);
 }
 
 TextStyle estiloTextoAppBar(double fontSize) {
