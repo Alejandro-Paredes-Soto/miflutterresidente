@@ -93,7 +93,7 @@ class _AvisosPageState extends State<AvisosPage> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0)),
                   child: AutoSizeText('Ver más',
-                      maxLines: 1, style: utils.estiloBotones(12)),
+                      maxLines: 2, style: utils.estiloBotones(12)),
                   onPressed: () => _abrirAvisoDetalle(aviso, context),
                 ),
               )
