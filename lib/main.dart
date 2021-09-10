@@ -176,7 +176,7 @@ class _MyAppState extends State<MyApp> {
                   brightness: Brightness.dark,
                   elevation: 0,
                   color: utils.colorFondoPrincipalDark),
-              //canvasColor: utils.colorFondoPrincipalDark,
+              canvasColor: utils.colorFondoTarjetaDark,
               floatingActionButtonTheme:
                   FloatingActionButtonThemeData(foregroundColor: Colors.white),
               scaffoldBackgroundColor: utils.colorFondoPrincipalDark),

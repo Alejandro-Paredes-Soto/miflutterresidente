@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:url_launcher/url_launcher.dart';

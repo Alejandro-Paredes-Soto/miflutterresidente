@@ -23,6 +23,7 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
   Future<List<AreaReservadaModel>> _areasResevadasFuture;
   Future<List<AreaComunModel>> _areasComunesFuture;
   final _scrollController = ScrollController();
+   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -37,7 +38,9 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
 
   @override
   Widget build(BuildContext context) {
+  
     return Scaffold(
+      key:_scaffoldKey,
       appBar: utils.appBarLogo(titulo: 'Áreas Comunes'),
       body: _creaBody(),
     );
@@ -62,14 +65,12 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
   Widget _creaListadoAreas() {
     return FutureBuilder(
       future: _areasComunesFuture,
-      //initialData: ,
       builder:
           (BuildContext context, AsyncSnapshot<List<AreaComunModel>> snapshot) {
         if (snapshot.hasData) {
           if (snapshot.data.length > 0) {
             return DropdownButton<AreaComunModel>(
               hint: Text('Seleccione'),
-              // focusNode: FocusNode(), NO OLVIDAR REMOVER EL COMENTARIO - ESTA DISPONIBLE EN NUEVAS VERSIONES DE SDK DE FLUTTER >= 1.12.13H5
               isExpanded: true,
               items: getOpcionesDropdown(snapshot.data),
               value: _seleccionArea,
@@ -117,12 +118,16 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
   Widget _creaCalendario() {
     return Container(
       child: TableCalendar(
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
+          weekendStyle: TextStyle(color: Theme.of(context).textTheme.bodyText2.color)),
         availableCalendarFormats: {CalendarFormat.month: 'mes'},
         calendarController: _calendarController,
         locale: 'es-MX',
         startDay: DateTime.now(),
         endDay: DateTime.now().add(Duration(days: 182)),
         calendarStyle: CalendarStyle(
+          weekendStyle: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
           selectedColor: utils.colorPrincipal,
           todayColor: utils.colorSecundarioSemi,
           outsideDaysVisible: false,
@@ -147,7 +152,7 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
               .contains(DateFormat('yyyy-MM-dd').format(date));
         },
         onUnavailableDaySelected: () {
-          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.sentiment_dissatisfied), 'Fecha no disponible', 1));
         },
       ),
@@ -208,7 +213,7 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
     Navigator.pop(context);
     setState(() {
       _reservando = false;
-      Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
           Icon(resultado['OK'] ? Icons.send : Icons.error),
           resultado['message'],
           5));
@@ -229,7 +234,7 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
         ),
         SizedBox(height: 10),
         Container(
-          height: 200,
+          height: 300,
           child: _listadoReservas(),
         ),
       ],
@@ -301,7 +306,7 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
       case 'Rechazada':
         return Colors.red;
       case 'Confirmada':
-        return Colors.green;
+        return utils.colorAcentuado;
       default:
         return Colors.grey;
     }
@@ -311,6 +316,7 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
   void dispose() {
     super.dispose();
     _calendarController.dispose();
+    _scrollController.dispose();
     _fechasNoDispsList.clear();
   }
 }

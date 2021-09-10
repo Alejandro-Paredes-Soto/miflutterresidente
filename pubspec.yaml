@@ -40,7 +40,7 @@ dependencies:
   cached_network_image: ^2.0.0
   # image_downloader: ^0.19.0
   image_gallery_saver: ^1.2.2
-  table_calendar: ^2.2.2
+  table_calendar: ^2.3.3
   pie_chart:
   flushbar: ^1.10.4
   # Este plugin solo trabaja con permisos para android
@@ -116,9 +116,9 @@ flutter:
     #       weight: 700 
     #     - asset: fonts/Roboto/Roboto-Italic.ttf
     #       style: italic
-    # - family: Poppins
-    #   fonts:
-    #     - asset: fonts/Poppins/Poppins-Regular.ttf
+  - family: Poppins
+    fonts:
+      - asset: fonts/Poppins/Poppins-SemiBold.ttf
     #     - asset: fonts/Poppins/Poppins-Bold.ttf
     #       weight: 700 
     #     - asset: fonts/Poppins/Poppins-Italic.ttf
