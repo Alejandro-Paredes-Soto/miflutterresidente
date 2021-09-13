@@ -123,7 +123,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       height: 50,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
-        color: Colors.grey[400],
+        color: utils.colorFondoTabs,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -152,7 +152,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       child: RaisedButton(
           elevation: _tabIndex == index ? 2 : 0,
           highlightElevation: 0,
-          color: _tabIndex == index ? null : Colors.grey[400],
+          color: _tabIndex == index ? null : utils.colorFondoTabs,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           onPressed: () {
@@ -169,52 +169,53 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   Widget _crearItem(BuildContext context, VisitanteFreqModel visitante) {
-    return Column(
-      children: <Widget>[
-        Card(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          //color: utils.colorFondoTarjeta,
-          elevation: 3,
-          child: Container(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text('Nombre', style: estiloTituloTarjeta(11)),
-                    Text(visitante.unico ? 'Único' : '',
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: colorPrincipal)),
-                  ],
-                ),
-                Text(
-                  '${visitante.nombre}',
-                  style: estiloSubtituloTarjeta(17),
-                ),
-                SizedBox(height: 15),
-                Text('Vence en:', style: estiloTituloTarjeta(11)),
-                visitante.vigencia
-                        .isBefore(DateTime.now().add(Duration(days: 31)))
-                    ? CountdownTimer(
-                        endTime: visitante.vigencia.millisecondsSinceEpoch,
-                        defaultDays: '0',
-                        defaultHours: '00',
-                        defaultMin: '00',
-                        defaultSec: '00',
-                        daysSymbol: " dias ",
-                        hoursSymbol: "h ",
-                        minSymbol: "m ",
-                        secSymbol: "s",
-                        onEnd: () => Future.delayed(
-                            Duration(seconds: 2), () => setState(() {})),
-                      )
-                    : Text('Tiempo Indefinido'),
-                Row(
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 8,
+      child: Container(
+        padding: EdgeInsets.all(15.0),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Nombre', style: estiloTituloTarjeta(12)),
+                  Text(
+                    '${visitante.nombre}',
+                    style: estiloSubtituloTarjeta(15),
+                  ),
+                  SizedBox(height: 20),
+                  Text('Vence en:', style: estiloTituloTarjeta(12)),
+                  visitante.vigencia
+                          .isBefore(DateTime.now().add(Duration(days: 31)))
+                      ? CountdownTimer(
+                          endTime: visitante.vigencia.millisecondsSinceEpoch,
+                          defaultDays: '0',
+                          defaultHours: '00',
+                          defaultMin: '00',
+                          defaultSec: '00',
+                          daysSymbol: " dias ",
+                          hoursSymbol: "h ",
+                          minSymbol: "m ",
+                          secSymbol: "s",
+                          textStyle: estiloSubtituloTarjeta(15),
+                          onEnd: () => Future.delayed(
+                              Duration(seconds: 2), () => setState(() {})),
+                        )
+                      : Text(
+                          'Tiempo Indefinido',
+                          style: estiloSubtituloTarjeta(15),
+                        ),
+                ],
+              ),
+            ),
+            Flexible(
+              flex: 0,
+              child: Container(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     RaisedButton(
@@ -222,11 +223,12 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                           borderRadius: BorderRadius.circular(15)),
                       color: colorPrincipal,
                       child: Container(
-                        width: 80,
+                        width: 100,
+                        height: 40,
                         alignment: Alignment.center,
                         child: Text(
                           'Ver Código',
-                          style: estiloBotones(13),
+                          style: estiloBotones(12),
                         ),
                       ),
                       onPressed: () {
@@ -243,29 +245,31 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                     RaisedButton(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
-                      color: colorSecundario,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : colorFondoPrincipalDark,
                       child: Container(
-                          width: 80,
+                          width: 100,
+                          height: 40,
                           alignment: Alignment.center,
                           child: Text(
                             'Eliminar',
                             softWrap: false,
-                            style: estiloBotones(13),
+                            style: estiloBotonesDark(
+                                12,
+                                Theme.of(context).scaffoldBackgroundColor),
                           )),
                       onPressed: () {
                         _eliminaVisitanteFreq(context, visitante);
                       },
                     )
                   ],
-                )
-              ],
-            ),
-          ),
+                ),
+              ),
+            )
+          ],
         ),
-        SizedBox(
-          height: 10,
-        )
-      ],
+      ),
     );
   }
 
@@ -531,7 +535,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         Scaffold.of(context).showSnackBar(creaSnackBarIcon(
             SvgPicture.asset(rutaIconoVisitantesFrecuentes,
                 height: tamanoIcoSnackbar, color: Colors.white),
-            tipoRostro==1?'Acceso colono creado':'Visitante frecuente creado',
+            tipoRostro == 1
+                ? 'Acceso colono creado'
+                : 'Visitante frecuente creado',
             5));
       });
     }

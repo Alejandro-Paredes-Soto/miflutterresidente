@@ -30,6 +30,8 @@ Color colorContenedorSaldo = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastAceptada = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastRechazada = Color.fromRGBO(233, 55, 54, 1.0);
 Color colorFechaAviso = Color.fromRGBO(146, 152, 160, 1.0);
+Color colorFondoTabs= Color.fromRGBO(173, 176, 180, 1.0);
+
 MaterialColor colorCalendario = MaterialColor(0xFF0245E8, _colorCalendario);
 const Map<int, Color> _colorCalendario = {
   50: const Color(0xFF0245E8),
@@ -130,14 +132,20 @@ TextStyle estiloBotones(double fontSize) {
       color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.w900);
 }
 
+TextStyle estiloBotonesDark(double fontSize, Color color) {
+  return TextStyle(
+      color: color, fontSize: fontSize, fontWeight: FontWeight.w900);
+}
+
 TextStyle estiloTituloTarjeta(double fontSize) {
   return TextStyle(
     fontSize: fontSize,
+    fontWeight: FontWeight.w500
   );
 }
 
 TextStyle estiloSubtituloTarjeta(double fontSize) {
-  return TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold);
+  return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w900);
 }
 
 TextStyle estiloTextoBlancoSombreado(double fontSize) {
