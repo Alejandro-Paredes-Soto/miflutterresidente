@@ -165,11 +165,11 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
       disabledColor: utils.colorSecundario,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Container(
-        height: 50,
+        height: 60,
         alignment: Alignment.center,
         child: Text(
           'Reservar',
-          style: utils.estiloBotones(18),
+          style: utils.estiloBotones(15),
         ),
       ),
       onPressed: _reservando
