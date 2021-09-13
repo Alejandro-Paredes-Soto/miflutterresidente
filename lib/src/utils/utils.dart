@@ -70,11 +70,12 @@ String rutaIconoMiCasa = 'assets/IconoMiCasa.svg';
 String rutaIconoPromociones = 'assets/IconoPromociones.svg';
 String rutaIconoCerrarSesion = 'assets/IconoCerrarSesion.svg';
 String rutaIconoMenu = 'assets/IconoMenu.svg';
+String rutaIconoCaseta = 'assets/IconoCaseta.svg';
 String rutaGifLoadRed = 'assets/loading-image.gif';
 String rutaGifLoadBanner = 'assets/loading-banner.gif';
 String rutaIconoWhastApp = 'assets/whatsapp.svg';
 String rutaFondoLogin = 'assets/fondo-login-main.jpg';
-String rutaIconoEntradasTags = 'assets/IconoEntradasTags.svg';
+String rutaIconoAccesos = 'assets/IconoAccesos.svg';
 
 AppBar appBarLogo(
     {@required String titulo, BackButton backbtn = const BackButton()}) {

@@ -3,6 +3,7 @@ import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
 import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,6 +37,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _noMolestar = false,
       _accesos = false;
   EncuestaModel _datosEncuesta;
+  String _numeroCaseta = '';
 
   @override
   void initState() {
@@ -49,6 +51,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           _nuevaEncuesta = true;
         }
       });
+    });
+    avisosProvider.obtenerNumeroCaseta(_prefs.usuarioLogged).then((respuesta) {
+      if (respuesta.containsKey(1)) {
+        if (!mounted) return;
+        setState(() {
+          _numeroCaseta = respuesta[1];
+        });
+      }
     });
     configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 2)
@@ -92,15 +102,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         actions: [
           FlatButton(
-            onPressed: _cerrarSesion,
+            onPressed: _abrirSoporte,
             child: Column(
               children: [
-                Icon(
-                  Icons.info,
-                  size: 35,
-                  semanticLabel: 'Ayuda',
+                SvgPicture.asset(
+                  utils.rutaIconoWhastApp,
+                  height: 30,
+                  color: Theme.of(context).iconTheme.color,
                 ),
-                AutoSizeText('Ayuda', maxLines: 1),
+                AutoSizeText('Soporte', maxLines: 1),
               ],
             ),
           ),
@@ -116,12 +126,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: Container(
           padding: EdgeInsets.all(15.0),
           child: Column(
-            children: [
-              _creaPrimerFila(),
-              _creaBtnFrecuentes(),
-              _creaTerceraFila(),
-              _creaCuartaFila(),
-            ],
+            children: AnimationConfiguration.toStaggeredList(
+              duration: Duration(milliseconds: 500),
+              childAnimationBuilder: (widget) => SlideAnimation(
+                horizontalOffset: 100.0,
+                child: FadeInAnimation(
+                  child: widget,
+                ),
+              ),
+              children: [
+                _creaPrimerFila(),
+                _creaBtnFrecuentes(),
+                _creaTerceraFila(),
+                _creaCuartaFila(),
+                _creaQuintaFila(),
+              ],
+            ),
           ),
         ),
       ),
@@ -220,21 +240,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         children: [
           Expanded(
               flex: 2,
-              child: Material(
-                borderRadius: BorderRadius.circular(15.0),
-                color: Theme.of(context).cardColor,
-                elevation: 8,
-                child: Container(
-                    margin: EdgeInsets.only(right: 8.0),
-                    alignment: Alignment.center,
-                    //borderRadius: BorderRadius.circular(15.0),
+              child: Container(
+                padding: EdgeInsets.only(right:8),
+                child: Material(
+                  borderRadius: BorderRadius.circular(15.0),
+                  color: Theme.of(context).cardColor,
+                  elevation: 8,
+                  child: Container(
+                      margin: EdgeInsets.only(right: 8.0),
+                      alignment: Alignment.center,
+                      //borderRadius: BorderRadius.circular(15.0),
 
-                    child: _creaSwitchNoMolestar()),
+                      child: _creaSwitchNoMolestar()),
+                ),
               )),
           Expanded(
             flex: 1,
-            child: Padding(
-              padding: EdgeInsets.only(left: 14.0),
+            child: Container(
+              padding: EdgeInsets.only(left:12),
               child: _creaBtnIconoMini(
                 rutaIcono: utils.rutaIconoPromociones,
                 titulo: 'Promos',
@@ -242,6 +265,38 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _creaQuintaFila() {
+    return Container(
+      height: 130,
+      padding: EdgeInsets.only(top: 20.0),
+      child: Row(
+        children: [
+          Visibility(
+              visible: _accesos,
+              child: Flexible(
+                  child: _creaBtnIconoMini(
+                      rutaIcono: utils.rutaIconoAccesos,
+                      titulo: 'Mis accesos',
+                      ruta: 'misAccesos'))),
+          Visibility(visible: _accesos, child: SizedBox(width: 20)),
+          Visibility(
+              visible: _numeroCaseta != '',
+              child: Expanded(
+                  child: _creaBtnIconoMini(
+                      rutaIcono: utils.rutaIconoCaseta,
+                      titulo: 'Contacto a caseta',
+                      onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
+          Visibility(visible: _numeroCaseta != '', child: SizedBox(width: 20)),
+          Flexible(
+              child: _creaBtnIconoMini(
+                  rutaIcono: utils.rutaIconoCerrarSesion,
+                  titulo: 'Cerrar sesión',
+                  onPressed: _cerrarSesion)),
         ],
       ),
     );
@@ -283,6 +338,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     String rutaIcono,
     String titulo,
     String ruta,
+    Function onPressed,
   }) {
     return RaisedButton(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
@@ -314,7 +370,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ],
         ),
       ),
-      onPressed: () => Navigator.pushNamed(context, ruta),
+      onPressed:
+          ruta == null ? onPressed : () => Navigator.pushNamed(context, ruta),
     );
   }
 
@@ -520,22 +577,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         () => Navigator.pop(context));
   }
 
-  Widget _creaBtnTags() {
-    return AnimatedContainer(
-      width: _accesos ? MediaQuery.of(context).size.width / 3 : 0,
-      duration: Duration(milliseconds: 800),
-      curve: Curves.bounceOut,
-      margin: EdgeInsets.only(left: 15),
-      child: RaisedButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: SvgPicture.asset(utils.rutaIconoEntradasTags,
-              color: Colors.white, height: 55),
-          onPressed: () => Navigator.of(context).pushNamed('MisAccesos'),
-          color: utils.colorPrincipal),
-    );
-  }
-
   Widget _creaSwitchNoMolestar() {
     return FutureBuilder(
         future: configUsuarioProvider.obtenerEstadoConfig(
@@ -624,95 +665,25 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  _creaItemsFAB() {
-    return FutureBuilder(
-      future: avisosProvider.obtenerNumeroCaseta(_prefs.usuarioLogged),
-      builder:
-          (BuildContext context, AsyncSnapshot<Map<int, dynamic>> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.containsKey(1)) {
-            return _creaFABAyuda(numero: snapshot.data[1]);
-          } else {
-            return _creaFABSoporte();
-          }
-        } else
-          return FloatingActionButton(
-              child: CircularProgressIndicator(
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(utils.colorPrincipal)),
-              onPressed: null);
-      },
-    );
-  }
-
-  Widget _creaFABSoporte() {
-    return FloatingActionButton(
-      tooltip: 'Contactar a soporte',
-      backgroundColor: Colors.white,
-      child: Container(
-          padding: EdgeInsets.all(10),
-          child: SvgPicture.asset(
-            utils.rutaIconoWhastApp,
-            color: Color.fromRGBO(37, 211, 102, 1.0),
-          )),
-      onPressed: () {
-        creaDialogYesNo(
-            context,
-            'Chat de WhatsApp',
-            'Este canal de comunicación es únicamente para el soporte de la aplicación. NO es un canal directo con caseta. ¿Quieres continuar?',
-            'Sí',
-            'No', () async {
-          await _launchWhatsApp(
-              '524779205753', 'Hola. Necesito ayuda con la aplicación Dostop.');
-          Navigator.of(context, rootNavigator: true).pop('dialog');
-        }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
-      },
-    );
-  }
-
-  Widget _creaFABAyuda({String numero}) {
-    return SpeedDial(
-      animatedIcon: AnimatedIcons.menu_close,
-      overlayColor: Theme.of(context).scaffoldBackgroundColor,
-      overlayOpacity: 0.5,
-      backgroundColor: utils.colorPrincipal,
-      children: [
-        SpeedDialChild(
-          child: Container(
-              padding: EdgeInsets.all(10),
-              child: SvgPicture.asset(
-                utils.rutaIconoWhastApp,
-                color: Color.fromRGBO(37, 211, 102, 1.0),
-              )),
-          backgroundColor: Colors.white,
-          labelBackgroundColor: Theme.of(context).cardColor,
-          label: 'Contacto con soporte',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () async {
-            await _launchWhatsApp('524779205753',
-                'Hola. Necesito ayuda con la aplicación Dostop.');
-          },
-        ),
-        SpeedDialChild(
-          child: Icon(Icons.security),
-          backgroundColor: Colors.grey,
-          labelBackgroundColor: Theme.of(context).cardColor,
-          label: 'Contacto a caseta',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () async {
-            await _launchWhatsApp(numero, '');
-          },
-        ),
-      ],
-    );
-  }
-
   _launchWhatsApp(String numero, String mensaje) async {
     final link = WhatsAppUnilink(phoneNumber: numero, text: mensaje);
     // Convert the WhatsAppUnilink instance to a string.
     // Use either Dart's string interpolation or the toString() method.
     // The "launch" method is part of "url_launcher".
     await launch('$link');
+  }
+
+  _abrirSoporte() {
+    creaDialogYesNo(
+        context,
+        'Chat de WhatsApp',
+        'Este canal de comunicación es únicamente para el soporte de la aplicación. NO es un canal directo con caseta. ¿Quieres continuar?',
+        'Sí',
+        'No', () async {
+      await _launchWhatsApp(
+          '524779205753', 'Hola. Necesito ayuda con la aplicación Dostop.');
+      Navigator.of(context, rootNavigator: true).pop('dialog');
+    }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
   }
 
   _cerrarSesion() {

@@ -121,7 +121,7 @@ class _MyAppState extends State<MyApp> {
             'Incidente': (BuildContext context) => ReportarIncidentePage(),
             'SeguimientoInc': (BuildContext context) =>
                 SeguimientoIncidentePage(),
-            'MisAccesos': (BuildContext context) => MisAccesosPage(),
+            'misAccesos': (BuildContext context) => MisAccesosPage(),
           },
           themeMode: ThemeMode.dark,
           theme: ThemeData(
