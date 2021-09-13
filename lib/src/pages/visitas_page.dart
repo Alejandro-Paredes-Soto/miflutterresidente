@@ -3,6 +3,7 @@ import 'package:dostop_v2/src/providers/visitas_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:dynamic_list_view/dynamic_list.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -16,8 +17,6 @@ class VisitasPage extends StatefulWidget {
 }
 
 class _VisitasPageState extends State<VisitasPage> {
-  final _scrollControllerSliver = ScrollController();
-
   DynamicListController _dynamicListController = DynamicListController();
   final _prefs = PreferenciasUsuario();
   final visitasProvider = VisitasProvider();
@@ -25,7 +24,6 @@ class _VisitasPageState extends State<VisitasPage> {
   bool _habilitaBtn = false, _filtrado = false;
   Future<List<VisitaModel>> _visitasProvider;
   int _pag = 1;
-  final _key = GlobalKey();
   double opacidad = 1.0;
   @override
   void initState() {
@@ -37,7 +35,12 @@ class _VisitasPageState extends State<VisitasPage> {
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => _dynamicListController.scrollController.addListener(() {
               setState(() {
-                if (opacidad >0) opacidad -= 0.001;
+                if (_dynamicListController
+                        .scrollController.position.userScrollDirection ==
+                    ScrollDirection.reverse)
+                  opacidad = 0.0;
+                else
+                  opacidad = 1.0;
               });
             }));
   }
@@ -56,91 +59,81 @@ class _VisitasPageState extends State<VisitasPage> {
     );
   }
 
-  Widget _creaBuscador(bool boxIsScrolled) {
-    return SliverAppBar(
-      backgroundColor: Colors.transparent,
-      title: Text('Visitas'),
-      expandedHeight: 240,
-      elevation: 0.0,
-      centerTitle: false,
-      floating: true,
-      forceElevated: boxIsScrolled,
-      bottom: PreferredSize(
-          child: _elementosBuscador(), preferredSize: Size.fromHeight(150)),
-    );
-  }
-
   Widget _elementosBuscador() {
-    return Opacity(
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 200),
       opacity: opacidad,
-      child: Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        height: 240,
-        padding: EdgeInsets.only(left: 20, right: 20),
-        child: Column(
-          children: <Widget>[
-            InkWell(
-                child: _creaCampoFecha(
-                  _fechaInicio == '' ? 'Desde' : _fechaInicio,
-                ),
-                onTap: _filtrado
-                    ? null
-                    : () async {
-                        _fechaInicio = await _selectDate(context,
-                                fechaFinal: DateTime.tryParse(
-                                    formatoFechaBusqueda(_fechaFinal))) ??
-                            _fechaInicio;
-                        setState(() {
-                          if (_fechaInicio != '' && _fechaFinal != '')
-                            _habilitaBtn = true;
-                        });
-                      }),
-            SizedBox(
-              height: 20,
-            ),
-            InkWell(
-                child: _creaCampoFecha(
-                  _fechaFinal == '' ? 'Hasta' : _fechaFinal,
-                ),
-                onTap: _filtrado
-                    ? null
-                    : () async {
-                        _fechaFinal = await _selectDate(context,
-                                fechaInicial: DateTime.tryParse(
-                                    formatoFechaBusqueda(_fechaInicio))) ??
-                            _fechaFinal;
-                        setState(() {
-                          if (_fechaInicio != '' && _fechaFinal != '')
-                            _habilitaBtn = true;
-                        });
-                      }),
-            SizedBox(
-              height: 30,
-            ),
-            RaisedButton(
-              color: utils.colorPrincipal,
-              disabledColor: utils.colorSecundario,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
-              child: Container(
-                alignment: Alignment.center,
-                width: double.infinity,
-                height: 50,
-                child: Text(!_filtrado ? 'Filtrar' : 'Quitar filtro',
-                    style: utils.estiloBotones(18)),
+      child: IgnorePointer(
+        ignoring: opacidad == 0,
+        child: Container(
+          height: 240,
+          color: Theme.of(context).scaffoldBackgroundColor,
+          padding: EdgeInsets.only(left: 20, right: 20),
+          child: Column(
+            children: <Widget>[
+              GestureDetector(
+                  child: _creaCampoFecha(
+                    _fechaInicio == '' ? 'Desde' : _fechaInicio,
+                  ),
+                  onTap: _filtrado
+                      ? null
+                      : () async {
+                          _fechaInicio = await _selectDate(context,
+                                  fechaFinal: DateTime.tryParse(
+                                      formatoFechaBusqueda(_fechaFinal))) ??
+                              _fechaInicio;
+                          setState(() {
+                            if (_fechaInicio != '' && _fechaFinal != '')
+                              _habilitaBtn = true;
+                          });
+                        }),
+              SizedBox(
+                height: 20,
               ),
-              onPressed: _habilitaBtn
-                  ? () {
-                      // cacheData = [];
-                      _filtrarVisitas();
-                      setState(() {});
-                    }
-                  : null,
-            ),
-            SizedBox(
-              height: 20,
-            )
-          ],
+              GestureDetector(
+                  child: _creaCampoFecha(
+                    _fechaFinal == '' ? 'Hasta' : _fechaFinal,
+                  ),
+                  onTap: _filtrado
+                      ? null
+                      : () async {
+                          _fechaFinal = await _selectDate(context,
+                                  fechaInicial: DateTime.tryParse(
+                                      formatoFechaBusqueda(_fechaInicio))) ??
+                              _fechaFinal;
+                          setState(() {
+                            if (_fechaInicio != '' && _fechaFinal != '')
+                              _habilitaBtn = true;
+                          });
+                        }),
+              SizedBox(
+                height: 30,
+              ),
+              RaisedButton(
+                color: utils.colorAcentuado,
+                disabledColor: utils.colorSecundario,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                child: Container(
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  height: 50,
+                  child: Text(!_filtrado ? 'Filtrar' : 'Quitar filtro',
+                      style: utils.estiloBotones(18)),
+                ),
+                onPressed: _habilitaBtn
+                    ? () {
+                        // cacheData = [];
+                        _filtrarVisitas();
+                        setState(() {});
+                      }
+                    : null,
+              ),
+              SizedBox(
+                height: 20,
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -202,12 +195,15 @@ class _VisitasPageState extends State<VisitasPage> {
 
   Widget _cargaVisitas() {
     return DynamicList.build(
-        key: _key,
         controller: _dynamicListController,
         dataRequester: _dataRequester,
         initRequester: _initRequester,
         itemBuilder: (List dataList, BuildContext context, int index) {
-          if (dataList.length > 0)
+          if (dataList.length > 0) if (index == 0)
+            return Container(
+                padding: EdgeInsets.only(top: 240),
+                child: _crearItem(context, dataList[index], index));
+          else
             return _crearItem(context, dataList[index], index);
           else
             return Center(
@@ -270,7 +266,7 @@ class _VisitasPageState extends State<VisitasPage> {
                         borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(20),
                             bottomRight: Radius.circular(20)),
-                        color: utils.colorPrincipal),
+                        ),
                     width: double.infinity,
                     height: 25,
                     child: Row(
@@ -320,8 +316,8 @@ class _VisitasPageState extends State<VisitasPage> {
                 containerHeight: 130,
                 pagination: imagenes.length > 1
                     ? SwiperPagination(
-                        margin: EdgeInsets.all(2),
-                        alignment: Alignment.topCenter)
+                      alignment: Alignment.topCenter,
+                      builder: DotSwiperPaginationBuilder(color: Colors.white60, activeColor: Colors.white60, activeSize: 20.0))
                     : null,
                 itemCount: imagenes.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -341,6 +337,14 @@ class _VisitasPageState extends State<VisitasPage> {
             ),
           ));
     }
+  }
+
+  Widget _creaPaginador(){
+    return Container(
+      width: 10,
+      height: 10,
+      color: Colors.red,
+    );
   }
 
   String formatoFechaBusqueda(String fecha) {
@@ -365,7 +369,6 @@ class _VisitasPageState extends State<VisitasPage> {
           formatoFechaBusqueda(_fechaFinal),
           _pag);
       _filtrado = true;
-      _key.currentState.didUpdateWidget(_key.currentWidget);
     } else {
       _pag = 1;
       _visitasProvider = visitasProvider.buscarVisitasXFecha(
@@ -376,6 +379,7 @@ class _VisitasPageState extends State<VisitasPage> {
       _fechaFinal = '';
       _fechaTemp = '';
     }
+    _dynamicListController.refresh();
   }
 
   _abrirVisitaDetalle(VisitaModel visita, BuildContext context) {
@@ -385,28 +389,5 @@ class _VisitasPageState extends State<VisitasPage> {
   @override
   void dispose() {
     super.dispose();
-    _scrollControllerSliver.dispose();
-  }
-
-  Widget _creaFAB() {
-    return FloatingActionButton(
-      child: Icon(Icons.search),
-      backgroundColor: utils.colorPrincipal,
-      onPressed: () {
-        // if (_scrollControllerSliver.position.pixels !=
-        //     _scrollControllerSliver.position.maxScrollExtent) {
-        //   _scrollControllerSliver.animateTo(
-        //       _scrollControllerSliver.position.maxScrollExtent,
-        //       curve: Curves.easeIn,
-        //       duration: Duration(milliseconds: 300));
-        // } else {
-        //   _scrollControllerSliver.animateTo(
-        //       _scrollControllerSliver.position.minScrollExtent,
-        //       curve: Curves.easeIn,
-        //       duration: Duration(milliseconds: 300));
-        // }
-        _dynamicListController.toTop();
-      },
-    );
   }
 }
