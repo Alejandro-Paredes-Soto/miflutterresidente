@@ -85,7 +85,7 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
           child: Container(
               alignment: Alignment.center,
               width: double.infinity,
-              height: 50,
+              height: 60,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -101,7 +101,7 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
                   ),
                   Text(
                     _registrando ? 'Enviando Reporte...' : 'Enviar Reporte',
-                    style: utils.estiloBotones(20),
+                    style: utils.estiloBotones(15),
                   ),
                 ],
               )),
