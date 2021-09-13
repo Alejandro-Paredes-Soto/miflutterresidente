@@ -241,7 +241,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           Expanded(
               flex: 2,
               child: Container(
-                padding: EdgeInsets.only(right:8),
+                padding: EdgeInsets.only(right: 8),
                 child: Material(
                   borderRadius: BorderRadius.circular(15.0),
                   color: Theme.of(context).cardColor,
@@ -257,7 +257,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           Expanded(
             flex: 1,
             child: Container(
-              padding: EdgeInsets.only(left:12),
+              padding: EdgeInsets.only(left: 12),
               child: _creaBtnIconoMini(
                 rutaIcono: utils.rutaIconoPromociones,
                 titulo: 'Promos',
