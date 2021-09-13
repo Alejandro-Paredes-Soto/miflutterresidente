@@ -87,7 +87,11 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                   pagination: imagenes.length > 1
                       ? SwiperPagination(
                           margin: EdgeInsets.all(2),
-                          alignment: Alignment.topCenter)
+                          alignment: Alignment.bottomCenter,
+                          builder: DotSwiperPaginationBuilder(
+                              color: Colors.white60,
+                              activeColor: Colors.white60,
+                              activeSize: 20.0))
                       : null,
                   scale: 0.85,
                   itemBuilder: (BuildContext context, int index) {
@@ -175,47 +179,24 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
           )),
         ),
         SizedBox(height: 5),
-        Text('Nombre',
-            style: TextStyle(
-              color: utils.colorPrincipal,
-              fontSize: 17,
-            )),
-        Text(visita.visitante,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
+        Text(visita.visitante, style: utils.estiloBotones(18)),
         SizedBox(
           height: 30,
         ),
-        Text('Placas',
-            style: TextStyle(
-              color: utils.colorPrincipal,
-              fontSize: 17,
-            )),
-        Text(visita.placa,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text('Placas', style: utils.estiloTituloInfoVisita(12)),
+        Text(visita.placa, style: utils.estiloBotones(18)),
         SizedBox(height: 5),
-        Text('Vehículo',
-            style: TextStyle(
-              color: utils.colorPrincipal,
-              fontSize: 17,
-            )),
-        Text(visita.modelo,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
+        Text(visita.modelo, style: utils.estiloBotones(18)),
         SizedBox(height: 5),
-        Text('Marca',
-            style: TextStyle(
-              color: utils.colorPrincipal,
-              fontSize: 17,
-            )),
-        Text(visita.marca,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text('Marca', style: utils.estiloTituloInfoVisita(12)),
+        Text(visita.marca, style: utils.estiloBotones(18)),
         SizedBox(height: 5),
         Text(visita.codigo == '' ? 'Motivo' : '',
-            style: TextStyle(
-              color: utils.colorPrincipal,
-              fontSize: 17,
-            )),
+            style: utils.estiloTituloInfoVisita(12)),
         Text(visita.codigo == '' ? visita.motivoVisita : '',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            style: utils.estiloBotones(18)),
         SizedBox(height: 60)
       ],
     );
@@ -254,7 +235,7 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
   Widget _creaFAB(ReporteModel reporte, List<String> datos) {
     return FloatingActionButton.extended(
         backgroundColor: utils.colorPrincipal,
-        icon: Icon(reporte==null?Icons.report:Icons.chat),
+        icon: Icon(reporte == null ? Icons.report : Icons.chat),
         label: Text(reporte == null ? 'Reportar Incidente' : 'Ver reporte'),
         onPressed: () => reporte == null
             ? _abrirReportePage(context, datos)

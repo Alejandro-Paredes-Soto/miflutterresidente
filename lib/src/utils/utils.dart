@@ -150,6 +150,11 @@ TextStyle estiloTextoBlancoSombreado(double fontSize) {
       ]);
 }
 
+TextStyle estiloTituloInfoVisita(double fontSize) {
+  return TextStyle(
+      color: colorAcentuado, fontSize: fontSize, fontWeight: FontWeight.w500);
+}
+
 Brightness temaStatusBar(BuildContext context) {
   return Theme.of(context).platform == TargetPlatform.iOS
       ? Brightness.light
