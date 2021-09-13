@@ -30,7 +30,7 @@ Color colorContenedorSaldo = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastAceptada = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastRechazada = Color.fromRGBO(233, 55, 54, 1.0);
 Color colorFechaAviso = Color.fromRGBO(146, 152, 160, 1.0);
-MaterialColor colorCalendario = MaterialColor(0xFFDF3736, _colorCalendario);
+MaterialColor colorCalendario = MaterialColor(0xFF0245E8, _colorCalendario);
 const Map<int, Color> _colorCalendario = {
   50: const Color(0xFF0245E8),
   100: const Color(0xFF0245E8),
@@ -146,7 +146,7 @@ TextStyle estiloTextoBlancoSombreado(double fontSize) {
       fontWeight: FontWeight.bold,
       shadows: [
         Shadow(color: Colors.black, blurRadius: 20, offset: Offset(0, 0)),
-        Shadow(color: Colors.black, blurRadius: 8, offset: Offset(0, 0))
+        Shadow(color: Colors.black, blurRadius: 20, offset: Offset(0, 0))
       ]);
 }
 

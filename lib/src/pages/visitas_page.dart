@@ -48,7 +48,7 @@ class _VisitasPageState extends State<VisitasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: utils.appBarLogo(titulo: 'Visitas'),
+      appBar: utils.appBarLogo(titulo: 'Historial'),
       body: Stack(
         children: [
           Positioned(child: _cargaVisitas()),
@@ -66,11 +66,12 @@ class _VisitasPageState extends State<VisitasPage> {
       child: IgnorePointer(
         ignoring: opacidad == 0,
         child: Container(
-          height: 240,
+          height: 260,
           color: Theme.of(context).scaffoldBackgroundColor,
           padding: EdgeInsets.only(left: 20, right: 20),
           child: Column(
             children: <Widget>[
+              SizedBox(height:30),
               GestureDetector(
                   child: _creaCampoFecha(
                     _fechaInicio == '' ? 'Desde' : _fechaInicio,
@@ -117,9 +118,9 @@ class _VisitasPageState extends State<VisitasPage> {
                 child: Container(
                   alignment: Alignment.center,
                   width: double.infinity,
-                  height: 50,
+                  height: 60,
                   child: Text(!_filtrado ? 'Filtrar' : 'Quitar filtro',
-                      style: utils.estiloBotones(18)),
+                      style: utils.estiloBotones(15)),
                 ),
                 onPressed: _habilitaBtn
                     ? () {
@@ -129,9 +130,6 @@ class _VisitasPageState extends State<VisitasPage> {
                       }
                     : null,
               ),
-              SizedBox(
-                height: 20,
-              )
             ],
           ),
         ),
@@ -156,12 +154,12 @@ class _VisitasPageState extends State<VisitasPage> {
                         color: contenido.contains(RegExp('Desde|Hasta'))
                             ? Colors.grey
                             : Theme.of(context).textTheme.bodyText2.color)),
-                Icon(Icons.calendar_today),
+                Icon(Icons.calendar_today, size: 35,),
               ],
             ),
           ),
           Divider(
-            thickness: 2,
+            thickness: 1.5,
           )
         ],
       ),
@@ -180,7 +178,7 @@ class _VisitasPageState extends State<VisitasPage> {
         builder: (context, widget) {
           return Theme(
             data: ThemeData(
-                splashColor: Colors.green,
+                primaryColor: utils.colorCalendario,
                 primarySwatch: utils.colorCalendario,
                 accentColor: utils.colorSecundario),
             child: widget,
@@ -201,7 +199,7 @@ class _VisitasPageState extends State<VisitasPage> {
         itemBuilder: (List dataList, BuildContext context, int index) {
           if (dataList.length > 0) if (index == 0)
             return Container(
-                padding: EdgeInsets.only(top: 240),
+                padding: EdgeInsets.only(top: 260),
                 child: _crearItem(context, dataList[index], index));
           else
             return _crearItem(context, dataList[index], index);
@@ -235,38 +233,28 @@ class _VisitasPageState extends State<VisitasPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              elevation: 4,
-              child: Column(
+              elevation: 8,
+              child: Stack(
+                alignment: Alignment.bottomLeft,
                 children: <Widget>[
-                  Stack(
-                    alignment: Alignment.bottomLeft,
-                    children: <Widget>[
-                      _cargaImagenesVisita(
-                          visita.idVisitas,
-                          utils.validaImagenes([
-                            visita.imgRostro,
-                            visita.imgId,
-                            visita.imgPlaca
-                          ])),
-                      Container(
-                          padding: EdgeInsets.only(left: 10, bottom: 10),
-                          child: Hero(
-                            tag: visita.idVisitas + visita.visitante,
-                            child: Text(
-                              '${visita.visitante}',
-                              style: utils.estiloTextoBlancoSombreado(18),
-                              overflow: TextOverflow.fade,
-                            ),
-                          )),
-                    ],
-                  ),
+                  _cargaImagenesVisita(
+                      visita.idVisitas,
+                      utils.validaImagenes(
+                          [visita.imgRostro, visita.imgId, visita.imgPlaca])),
                   Container(
-                    padding: EdgeInsets.only(right: 15),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20)),
+                      padding: EdgeInsets.only(left: 10, bottom: 40),
+                      child: Hero(
+                        tag: visita.idVisitas + visita.visitante,
+                        child: Text(
+                          '${visita.visitante}',
+                          style: utils.estiloTextoBlancoSombreado(18),
+                          overflow: TextOverflow.fade,
                         ),
+                      )),
+                  Container(
+                    padding: EdgeInsets.only(right: 15, bottom: 10),
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(20)),
                     width: double.infinity,
                     height: 25,
                     child: Row(
@@ -275,10 +263,7 @@ class _VisitasPageState extends State<VisitasPage> {
                         children: <Widget>[
                           Text(
                             '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold),
+                            style: utils.estiloTextoBlancoSombreado(11),
                             overflow: TextOverflow.fade,
                           )
                         ]),
@@ -299,25 +284,27 @@ class _VisitasPageState extends State<VisitasPage> {
   Widget _cargaImagenesVisita(String id, List<String> imagenes) {
     if (imagenes.length == 0) {
       return Container(
-        height: 200,
+        height: 230,
         child: Center(child: Icon(Icons.broken_image)),
       );
     } else {
       return Container(
-          height: 200,
+          height: 230,
           child: Hero(
             tag: id,
             child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              borderRadius: BorderRadius.circular(20.0),
               child: Swiper(
                 loop: imagenes.length > 1 ? true : false,
                 scrollDirection: Axis.horizontal,
                 containerHeight: 130,
                 pagination: imagenes.length > 1
                     ? SwiperPagination(
-                      alignment: Alignment.topCenter,
-                      builder: DotSwiperPaginationBuilder(color: Colors.white60, activeColor: Colors.white60, activeSize: 20.0))
+                        alignment: Alignment.topCenter,
+                        builder: DotSwiperPaginationBuilder(
+                            color: Colors.white60,
+                            activeColor: Colors.white60,
+                            activeSize: 20.0))
                     : null,
                 itemCount: imagenes.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -337,14 +324,6 @@ class _VisitasPageState extends State<VisitasPage> {
             ),
           ));
     }
-  }
-
-  Widget _creaPaginador(){
-    return Container(
-      width: 10,
-      height: 10,
-      color: Colors.red,
-    );
   }
 
   String formatoFechaBusqueda(String fecha) {
