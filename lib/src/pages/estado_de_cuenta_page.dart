@@ -1,3 +1,4 @@
+import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/providers/estado_de_cuenta_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
@@ -16,7 +17,8 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
   Future<List<CuentaModel>> _obtenerEgresos;
   Future<List<CuentaModel>> _obtenerIngresos;
   String _saldo = '';
-  bool _cambiaEstados = false;
+  int _tabIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -41,24 +43,54 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
     );
   }
 
+  Widget _creaTabs() {
+    return Container(
+      height: 60,
+      child: CustomTabBar(
+        utils.colorFondoTabs,
+        utils.colorAcentuado,
+        [
+          Container(
+              child: Text(
+            '\nIngresos\n',
+            textAlign: TextAlign.center,
+            style: utils.estiloBotones(15),
+          )),
+          Container(
+              child: Text(
+            '\nEgresos\n',
+            textAlign: TextAlign.center,
+            style: utils.estiloBotones(15),
+          ))
+        ],
+        () => _tabIndex,
+        (index) {
+          setState(() {
+            _tabIndex = index;
+          });
+        },
+        allowExpand: true,
+        outerVerticalPadding: 40,
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+    );
+  }
 
   Widget _creaBody() {
     return Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 10,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 15),
         child: Column(
           children: <Widget>[
             SizedBox(height: 20),
             AnimatedContainer(
                 duration: Duration(milliseconds: 500),
-                height: 50,
+                height: 75,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: _saldo != ''
                       ? !_saldo.contains('-')
-                          ? utils.colorContenedorSaldo
-                          : utils.colorPrincipal
+                          ? utils.colorPrincipal
+                          : utils.colorToastRechazada
                       : Colors.black12,
                 ),
                 margin: EdgeInsets.symmetric(horizontal: 80),
@@ -68,32 +100,29 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
                   textAlign: TextAlign.center,
                   text: TextSpan(children: <TextSpan>[
                     TextSpan(
-                      text: 'Saldo actual:\n',
-                      style: TextStyle(
-                          color: _saldo != '' ? Colors.white : Colors.grey,
-                          fontSize: 15),
-                    ),
+                        text: 'Saldo actual:\n',
+                        style: utils.estiloBotones(15)),
                     TextSpan(
                       text: '$_saldo',
-                      style: utils.estiloBotones(18),
+                      style: utils.estiloBotones(25),
                     )
                   ]),
                 )),
-            SizedBox(height: 20),
-            _creaTabsCuentas(),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
+            _creaTabs(),
+            SizedBox(height: 30),
             // _creaPagesCuentas(),
             Expanded(
               child: AnimatedCrossFade(
-                crossFadeState: _cambiaEstados
+                crossFadeState: _tabIndex == 0
                     ? CrossFadeState.showSecond
                     : CrossFadeState.showFirst,
                 firstChild: AnimatedContainer(
-                    height: _cambiaEstados ? 0 : null,
+                    height: _tabIndex == 0 ? 0 : null,
                     child: _crearLista(_obtenerEgresos, _pageCuentasEgCtrl),
                     duration: Duration(milliseconds: 200)),
                 secondChild: AnimatedContainer(
-                    height: !_cambiaEstados ? 0 : null,
+                    height: _tabIndex != 0 ? 0 : null,
                     child: _crearLista(_obtenerIngresos, _pageCuentasInCtrl),
                     duration: Duration(milliseconds: 200)),
                 duration: Duration(milliseconds: 200),
@@ -103,49 +132,6 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
         ));
   }
 
-  Widget _creaTabsCuentas() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        Expanded(
-          child: FlatButton(
-            color: !_cambiaEstados ? utils.colorSecundarioToggle : Colors.transparent,
-            child: Container(
-                alignment: Alignment.center,
-                height: 50,
-                child: Text('Egresos', style: TextStyle(fontSize: 18))),
-            onPressed: () {
-              setState(() {
-                _cambiaEstados = false;
-              });
-            },
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 5),
-          height: 30,
-          width: 1,
-          color: Colors.grey,
-        ),
-        Expanded(
-          child: FlatButton(
-            color: _cambiaEstados ? utils.colorSecundarioToggle : Colors.transparent,
-            child: Container(
-                alignment: Alignment.center,
-                height: 50,
-                child: Text('Ingresos', style: TextStyle(fontSize: 18))),
-            onPressed: () {
-              setState(() {
-                _cambiaEstados = true;
-              });
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _crearLista(
       Future<List<CuentaModel>> future, PageController controller) {
     return FutureBuilder(
@@ -153,7 +139,7 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
       builder:
           (BuildContext context, AsyncSnapshot<List<CuentaModel>> snapshot) {
         if (snapshot.hasData) if (snapshot.data.length > 0) {
-            int _totalPaginas=snapshot.data.length;
+          int _totalPaginas = snapshot.data.length;
           return Stack(
             children: <Widget>[
               PageView.builder(
@@ -170,10 +156,10 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
                     icon: Icon(Icons.arrow_back_ios),
                     onPressed: () {
                       setState(() {
-                        if(controller.page<_totalPaginas-1)
-                        controller.nextPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeInOut);
+                        if (controller.page < _totalPaginas - 1)
+                          controller.nextPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut);
                       });
                     },
                   ),
@@ -181,10 +167,10 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
                     icon: Icon(Icons.arrow_forward_ios),
                     onPressed: () {
                       setState(() {
-                        if(controller.page>0)
-                        controller.previousPage(
-                            duration: Duration(milliseconds: 300),
-                            curve: Curves.easeInOut);
+                        if (controller.page > 0)
+                          controller.previousPage(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut);
                       });
                     },
                   )
@@ -215,31 +201,36 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
         Text('Total del mes:',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         Text('\$${item.tipoCuentaMes}', style: TextStyle(fontSize: 16)),
+        SizedBox(height: 20),
         Expanded(
           child: item.list.length == 0
               ? Container(
-                  padding: EdgeInsets.only(top: 50,),
+                  padding: EdgeInsets.only(
+                    top: 50,
+                  ),
                   child: Text('No hay movimientos',
                       style: TextStyle(fontSize: 16)))
-              : ListView.builder(
+              : ListView.separated(
+                  separatorBuilder: (context, index) => Divider(),
                   itemCount: item.list.length,
-                  itemExtent: 70,
                   itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        border:
-                            Border(bottom: BorderSide(color: Colors.black12)),
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      title: Text(
+                        item.list[index].concepto,
+                        style: utils.estiloBotones(15),
                       ),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        title: Text(
-                          item.list[index].concepto,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text('${item.list[index].nombreProv}', softWrap: false, overflow: TextOverflow.visible,),
-                        trailing: Text('\$${item.list[index].monto}',
-                            style: TextStyle(fontSize: 15)),
-                      ),
+                      subtitle: item.list[index].nombreProv == ''
+                          ? null
+                          : Text(
+                              item.list[index].nombreProv,
+                              softWrap: false,
+                              overflow: TextOverflow.visible,
+                              style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
+                      trailing: Text('\$${item.list[index].monto}',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w700)),
                     );
                   },
                 ),
