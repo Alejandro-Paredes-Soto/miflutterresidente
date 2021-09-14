@@ -131,6 +131,7 @@ class _MyAppState extends State<MyApp> {
               primaryColor: utils.colorPrincipal,
               primarySwatch: utils.colorCalendario,
               accentColor: utils.colorSecundario,
+              dividerTheme: DividerThemeData(color: Colors.black, thickness: 1),
               buttonTheme: ButtonThemeData(
                   buttonColor: utils.colorPrincipal,
                   disabledColor: utils.colorSecundario),
@@ -155,7 +156,7 @@ class _MyAppState extends State<MyApp> {
               iconTheme: IconThemeData(color: Colors.white),
               snackBarTheme: SnackBarThemeData(
                   actionTextColor: utils.colorFondoPrincipalDark),
-              dividerColor: Colors.white,
+              dividerTheme: DividerThemeData(color: Colors.white, thickness: 1),
               textTheme: TextTheme(bodyText2: TextStyle(color: Colors.white)),
               fontFamily: 'PlusJakarta',
               brightness: Brightness.dark,
