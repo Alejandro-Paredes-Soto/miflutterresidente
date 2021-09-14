@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image/image.dart' as imageTools;
 import 'package:flutter_svg/svg.dart';
@@ -60,24 +61,66 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'V. Frecuentes'),
       body: _creaBody(),
-      floatingActionButton: _cargaFAB(),
+      floatingActionButton: _creaFABMultiple(context, _tipoServicio),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       // bottomNavigationBar: _creaBoton(),
     );
   }
 
+  Widget _creaTabs() {
+    return Container(
+      height: 60,
+      child: CustomTabBar(
+        utils.colorFondoTabs,
+        utils.colorAcentuado,
+        [
+          Container(
+              child: Text(
+            '\nVisitantes QR\n',
+            textAlign: TextAlign.center,
+            style: utils.estiloBotones(15),
+          )),
+          Container(
+              child: Text(
+            'Visitantes Rostros',
+            textAlign: TextAlign.center,
+            style: utils.estiloBotones(15),
+          )),
+          Container(
+              child: Text(
+            '\nColonos Rostros\n',
+            textAlign: TextAlign.center,
+            style: utils.estiloBotones(15),
+          ))
+        ],
+        () => _tabIndex,
+        (index) {
+          setState(() {
+            _tabIndex = index;
+          });
+        },
+        allowExpand: true,
+        innerHorizontalPadding: 40,
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+    );
+  }
+
   Widget _creaBody() {
-    return Column(
-      children: [
-        Flexible(
-          child: _creaTabsFrecuentes(),
-          flex: 0,
-        ),
-        Expanded(
-          child: _creaPagFrecuentes(),
-          flex: 1,
-        )
-      ],
+    return Container(
+      padding: EdgeInsets.all(15),
+      child: Column(
+        children: [
+          Flexible(
+            child: _creaTabs(),
+            flex: 0,
+          ),
+          Expanded(
+            child: _creaPagFrecuentes(),
+            flex: 1,
+          )
+        ],
+      ),
     );
   }
 
@@ -101,7 +144,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     if (lista.length > 0) {
       return Container(
           child: ListView.builder(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.only(top: 15.0),
         itemCount: lista.length,
         itemBuilder: (context, index) => _tabIndex == 0
             ? _crearItem(context, lista[index])
@@ -256,8 +299,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                             'Eliminar',
                             softWrap: false,
                             style: estiloBotonesDark(
-                                12,
-                                Theme.of(context).scaffoldBackgroundColor),
+                                12, Theme.of(context).scaffoldBackgroundColor),
                           )),
                       onPressed: () {
                         _eliminaVisitanteFreq(context, visitante);
@@ -455,10 +497,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     });
   }
 
-  Widget _cargaFAB() {
-    return _creaFABMultiple(context, _tipoServicio);
-  }
-
   Widget _creaFABMultiple(BuildContext context, String valor) {
     return _obteniendoConfig == 0
         ? FloatingActionButton(
@@ -471,7 +509,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 animatedIcon: AnimatedIcons.menu_close,
                 overlayColor: Theme.of(context).scaffoldBackgroundColor,
                 overlayOpacity: 0.5,
-                backgroundColor: utils.colorPrincipal,
+                backgroundColor: utils.colorAcentuado,
                 children: _obtenerElementosFAB(valor),
               )
             : Container();
