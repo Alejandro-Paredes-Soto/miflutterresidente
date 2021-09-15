@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/providers/estado_de_cuenta_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
@@ -47,7 +48,9 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
     return Container(
       height: 60,
       child: CustomTabBar(
-        utils.colorFondoTabs,
+        Theme.of(context).brightness == Brightness.light
+            ? utils.colorFondoPrincipalDark
+            : utils.colorFondoTabs,
         utils.colorAcentuado,
         [
           Container(
@@ -82,32 +85,31 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
         child: Column(
           children: <Widget>[
             SizedBox(height: 20),
-            AnimatedContainer(
-                duration: Duration(milliseconds: 500),
-                height: 75,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: _saldo != ''
-                      ? !_saldo.contains('-')
-                          ? utils.colorPrincipal
-                          : utils.colorToastRechazada
-                      : Colors.black12,
-                ),
-                margin: EdgeInsets.symmetric(horizontal: 80),
-                alignment: Alignment.center,
-                width: double.infinity,
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(children: <TextSpan>[
-                    TextSpan(
-                        text: 'Saldo actual:\n',
-                        style: utils.estiloBotones(15)),
-                    TextSpan(
-                      text: '$_saldo',
-                      style: utils.estiloBotones(25),
-                    )
-                  ]),
-                )),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              height: 75,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: _saldo != ''
+                    ? !_saldo.contains('-')
+                        ? utils.colorPrincipal
+                        : utils.colorToastRechazada
+                    : Colors.black12,
+              ),
+              child: Center(
+                widthFactor: 2,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Saldo actual:', style: utils.estiloBotones(15)),
+                      AutoSizeText(
+                        '$_saldo ',
+                        maxLines: 1,
+                        style: utils.estiloBotones(25),
+                      )
+                    ]),
+              ),
+            ),
             SizedBox(height: 30),
             _creaTabs(),
             SizedBox(height: 30),
@@ -216,10 +218,9 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
                   itemBuilder: (context, index) {
                     return ListTile(
                       contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      title: Text(
-                        item.list[index].concepto,
-                        style: utils.estiloBotones(15),
-                      ),
+                      title: Text(item.list[index].concepto,
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w900)),
                       subtitle: item.list[index].nombreProv == ''
                           ? null
                           : Text(
