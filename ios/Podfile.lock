@@ -1,4 +1,6 @@
 PODS:
+  - dynamic_list_view (0.0.1):
+    - Flutter
   - Firebase/CoreOnly (6.26.0):
     - FirebaseCore (= 6.7.2)
   - Firebase/Messaging (6.26.0):
@@ -95,6 +97,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - dynamic_list_view (from `.symlinks/plugins/dynamic_list_view/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
@@ -126,6 +129,8 @@ SPEC REPOS:
     - Protobuf
 
 EXTERNAL SOURCES:
+  dynamic_list_view:
+    :path: ".symlinks/plugins/dynamic_list_view/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
   firebase_messaging:
@@ -150,6 +155,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher/ios"
 
 SPEC CHECKSUMS:
+  dynamic_list_view: 715e9a7369dc2340db9a3fd4dd54134cfca4bf8f
   Firebase: 7cf5f9c67f03cb3b606d1d6535286e1080e57eb6
   firebase_core: 00e54a4744164a6b5a250b96dd1ad5afaba7a342
   firebase_messaging: 666d9994651b1ecf8c582b52dd913f3fa58c17ef

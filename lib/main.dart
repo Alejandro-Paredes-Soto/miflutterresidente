@@ -158,7 +158,9 @@ class _MyAppState extends State<MyApp> {
               snackBarTheme: SnackBarThemeData(
                   actionTextColor: utils.colorFondoPrincipalDark),
               dividerTheme: DividerThemeData(color: Colors.white, thickness: 1),
-              textTheme: TextTheme(bodyText2: TextStyle(color: Colors.white), caption: TextStyle(color: Colors.white)),
+              textTheme: TextTheme(
+                  bodyText2: TextStyle(color: Colors.white),
+                  caption: TextStyle(color: Colors.white)),
               fontFamily: 'PlusJakarta',
               brightness: Brightness.dark,
               primaryColor: utils.colorPrincipal,
