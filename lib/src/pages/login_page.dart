@@ -1,4 +1,3 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
@@ -6,8 +5,6 @@ import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
-
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -49,7 +46,10 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-         Image.asset(utils.rutaLogoLetrasDostopPng, height: 50,),
+          Image.asset(
+            utils.rutaLogoLetrasDostopPng,
+            height: 50,
+          ),
           Expanded(
             child: Container(
               alignment: Alignment.center,
@@ -104,6 +104,8 @@ class _LoginPageState extends State<LoginPage> {
         border: UnderlineInputBorder(borderRadius: BorderRadius.circular(15)),
         hintText: hint,
         labelText: label,
+        labelStyle: TextStyle(color: utils.colorTextoPrincipalDark),
+        hintStyle: TextStyle(color: utils.colorTextoPrincipalDark),
       ),
       onFieldSubmitted: (valor) {
         FocusScope.of(context).requestFocus(sigFocusText);
@@ -132,6 +134,8 @@ class _LoginPageState extends State<LoginPage> {
         fillColor: utils.colorTextLoginSemi,
         hintText: hint,
         labelText: label,
+        labelStyle: TextStyle(color: utils.colorTextoPrincipalDark),
+        hintStyle: TextStyle(color: utils.colorTextoPrincipalDark),
       ),
       validator: (texto) {
         if (utils.textoVacio(texto)) return 'Escribe tu contraseña';
@@ -232,15 +236,13 @@ class _LoginPageState extends State<LoginPage> {
     return ButtonTheme(
       height: 60,
       minWidth: double.infinity,
-      child: FlatButton(
-        colorBrightness: Brightness.dark,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Align(
-          child: Text(
-            'Olvidé mi contraseña',
-            style: utils.estiloBotones(15),
-          ),
-          alignment: Alignment.centerLeft,
+      child: RaisedButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        color: utils.colorAcentuado,
+        disabledColor: utils.colorAcentuado,
+        child: Text(
+          'Olvidé mi contraseña',
+          style: utils.estiloBotones(15),
         ),
         onPressed: _iniciando
             ? null
