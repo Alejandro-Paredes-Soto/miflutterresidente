@@ -66,7 +66,7 @@ class _NuevoVisitanteFrecuentePageState
       visible: !_visitanteRegistrado,
       child: Container(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.all(15),
           child: Form(
             key: formKey,
             child: Column(
@@ -106,7 +106,7 @@ class _NuevoVisitanteFrecuentePageState
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 child: Container(
-                  height: 50,
+                  height: 60,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -117,7 +117,7 @@ class _NuevoVisitanteFrecuentePageState
                       SizedBox(width: 5),
                       Text(
                         'Compartir',
-                        style: utils.estiloBotones(18),
+                        style: utils.estiloBotones(15),
                       )
                     ],
                   ),
@@ -141,7 +141,7 @@ class _NuevoVisitanteFrecuentePageState
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
                 child: Container(
-                  height: 50,
+                  height: 60,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -151,7 +151,7 @@ class _NuevoVisitanteFrecuentePageState
                       SizedBox(width: 5),
                       Text(
                         'Regresar',
-                        style: utils.estiloTextoAppBar(18),
+                        style: utils.estiloTextoAppBar(15),
                       )
                     ],
                   ),
@@ -238,7 +238,7 @@ class _NuevoVisitanteFrecuentePageState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text('Nuevo Visitante Frecuente',
-              textAlign: TextAlign.left, style: utils.estiloTextoAppBar(30)),
+              textAlign: TextAlign.left, style: utils.estiloTextoAppBar(25)),
           SizedBox(height: 10),
           Text(
             'Es necesario ingresar la información completa del visitante.',
@@ -460,14 +460,14 @@ class _NuevoVisitanteFrecuentePageState
             style: utils.estiloTextoAppBar(16)),
         SizedBox(height: 10),
         RaisedButton(
-          color: utils.colorPrincipal,
+          color: utils.colorAcentuado,
           disabledColor: utils.colorSecundario,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
               alignment: Alignment.center,
               width: double.infinity,
-              height: 50,
+              height: 60,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -483,8 +483,8 @@ class _NuevoVisitanteFrecuentePageState
                     width: 10,
                   ),
                   Text(
-                    _registrando ? 'Creando invitación...' : 'Crear Invitación',
-                    style: utils.estiloBotones(20),
+                    _registrando ? 'Creando invitación...' : 'Crear invitación',
+                    style: utils.estiloBotones(15),
                   ),
                 ],
               )),
