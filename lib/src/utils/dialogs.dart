@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dostop_v2/src/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -139,37 +140,6 @@ void creaDialogYesNo(
       });
 }
 
-void creaDialogEncuesta(
-    BuildContext context,
-    String titulo,
-    String textOpcionPos,
-    String textOpcionNeg,
-    Function funcionPos,
-    Function funcionNeg) {
-  showCupertinoDialog(
-      context: context,
-      builder: (ctx) {
-        return CupertinoAlertDialog(
-          title: new Text(titulo),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              child: Text(textOpcionPos),
-              onPressed: funcionPos,
-            ),
-            CupertinoDialogAction(
-              isDestructiveAction: true,
-              child: Text(textOpcionNeg),
-              onPressed: funcionNeg,
-            ),
-            CupertinoDialogAction(
-              child: Text('Cancelar'),
-              onPressed: () => Navigator.pop(context),
-            )
-          ],
-        );
-      });
-}
-
 void creaDialogYesNoAlt(
     BuildContext context,
     String titulo,
@@ -203,7 +173,7 @@ void creaDialogYesNoAlt(
       });
 }
 
-void creaDialogImagen(
+void creaDialogQR(
     BuildContext context,
     String titulo,
     Widget contenido,
@@ -218,45 +188,71 @@ void creaDialogImagen(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20))),
           backgroundColor: colorFondoTarjetaFreq,
-          contentPadding: EdgeInsets.all(10),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              contenido,
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(
-                    child: RaisedButton(
-                      color: colorPrincipal,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Text(
-                        textOpcionPos,
-                        softWrap: false,
-                        overflow: TextOverflow.fade,
-                        style: estiloBotones(13),
+          contentPadding: EdgeInsets.all(0),
+          content: Builder(
+            builder: (context) => Container(
+                height: MediaQuery.of(context).size.height * 0.55,
+                width: MediaQuery.of(context).size.width * 0.95,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.asset(
+                          rutaFondoQR,
+                          fit: BoxFit.fill,
+                        )),
+                    Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(15.0),
+                            child: contenido),
+                          SizedBox(height: 20),
+                          Flexible(
+                            child: RaisedButton(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                alignment: Alignment.center,
+                                height: 60,
+                                child: AutoSizeText(
+                                  textOpcionPos,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.fade,
+                                  style: estiloBotones(13, color: Colors.black),
+                                ),
+                              ),
+                              onPressed: funcionPos,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Flexible(
+                            child: RaisedButton(
+                              color: colorPrincipal,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                alignment: Alignment.center,
+                                height: 60,
+                                child: AutoSizeText(
+                                  textOpcionNeg,
+                                  maxLines: 1,
+                                  style: estiloBotones(13),
+                                ),
+                              ),
+                              onPressed: funcionNeg,
+                            ),
+                          ),
+                        ],
                       ),
-                      onPressed: funcionPos,
                     ),
-                  ),
-                  Flexible(
-                    child: RaisedButton(
-                      color: colorSecundario,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Text(
-                        textOpcionNeg,
-                        softWrap: false,
-                        style: estiloBotones(13),
-                      ),
-                      onPressed: funcionNeg,
-                    ),
-                  ),
-                ],
-              )
-            ],
+                  ],
+                )),
           ),
         );
       });
