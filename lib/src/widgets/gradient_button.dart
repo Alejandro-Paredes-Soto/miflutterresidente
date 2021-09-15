@@ -23,18 +23,22 @@ class RaisedGradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
-      color: Colors.transparent,
-      padding: EdgeInsets.all(0.0),
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+    return InkWell(
+      borderRadius: borderRadius,
+      onTap: onPressed,
       child: Ink(
         padding: padding,
         decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.18),
+                  blurRadius: 20,
+                  offset: Offset(3, 3))
+            ],
             gradient: onPressed != null ? gradient : disabledGradient,
             borderRadius: borderRadius),
         child: child,
       ),
-      onPressed: onPressed,
     );
   }
 }
