@@ -214,7 +214,7 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
           }
         }
         _maxWidth += widget.innerHorizontalPadding * 2.0;
-        _maxHeight += widget.innerVerticalPadding * 2.0;
+        _maxHeight += widget.innerVerticalPadding * 4.0;
 
         if (_shouldCalculateFullDimensions) {
           RenderBox _renderBox = _globalKeys.last.currentContext.findRenderObject();
@@ -507,25 +507,22 @@ class _Indicator extends StatelessWidget {
       alignment: _alignment,
       duration: _duration,
       curve: _curve,
-      child: Padding(
-        padding: _useShadow ? const EdgeInsets.only(left: 2.0, top: 2.0, right: 3.0, bottom: 4.0) : const EdgeInsets.all(2.0),
-        child: Container(
-          height: _height,
-          width: _width,
-          decoration: BoxDecoration(
-            color: _color,
-            borderRadius: _borderRadius,
-            boxShadow: _useShadow
-                ? [
-                    BoxShadow(
-                      color: const Color.fromARGB(170, 0, 0, 0),
-                      offset: const Offset(2.0, 4.0),
-                      blurRadius: 10.0,
-                      spreadRadius: 0.5,
-                    ),
-                  ]
-                : null,
-          ),
+      child: Container(
+        height: _height,
+        width: _width,
+        decoration: BoxDecoration(
+          color: _color,
+          borderRadius: _borderRadius,
+          boxShadow: _useShadow
+              ? [
+                  BoxShadow(
+                    color: const Color.fromRGBO(0, 0, 0, 0.40),
+                    offset: const Offset(0, 0),
+                    blurRadius: 8.0,
+                    spreadRadius: 0.5,
+                  ),
+                ]
+              : null,
         ),
       ),
     );
