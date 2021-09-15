@@ -30,7 +30,7 @@ Color colorContenedorSaldo = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastAceptada = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastRechazada = Color.fromRGBO(233, 55, 54, 1.0);
 Color colorFechaAviso = Color.fromRGBO(146, 152, 160, 1.0);
-Color colorFondoTabs= Color.fromRGBO(173, 176, 180, 1.0);
+Color colorFondoTabs = Color.fromRGBO(173, 176, 180, 1.0);
 
 MaterialColor colorCalendario = MaterialColor(0xFF0245E8, _colorCalendario);
 const Map<int, Color> _colorCalendario = {
@@ -77,6 +77,7 @@ String rutaGifLoadRed = 'assets/loading-image.gif';
 String rutaGifLoadBanner = 'assets/loading-banner.gif';
 String rutaIconoWhastApp = 'assets/whatsapp.svg';
 String rutaFondoLogin = 'assets/fondo-login-main.jpg';
+String rutaFondoQR = 'assets/FondoQR.png';
 String rutaIconoAccesos = 'assets/IconoAccesos.svg';
 
 AppBar appBarLogo(
@@ -127,21 +128,13 @@ TextStyle estiloTextoAppBar(double fontSize) {
       fontFamily: 'Poppins', fontWeight: FontWeight.bold, fontSize: fontSize);
 }
 
-TextStyle estiloBotones(double fontSize) {
-  return TextStyle(
-      color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.w900);
-}
-
-TextStyle estiloBotonesDark(double fontSize, Color color) {
+TextStyle estiloBotones(double fontSize, {Color color = Colors.white}) {
   return TextStyle(
       color: color, fontSize: fontSize, fontWeight: FontWeight.w900);
 }
 
 TextStyle estiloTituloTarjeta(double fontSize) {
-  return TextStyle(
-    fontSize: fontSize,
-    fontWeight: FontWeight.w500
-  );
+  return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w500);
 }
 
 TextStyle estiloSubtituloTarjeta(double fontSize) {
