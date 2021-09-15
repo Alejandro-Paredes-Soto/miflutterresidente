@@ -125,8 +125,9 @@ class _MyAppState extends State<MyApp> {
           },
           themeMode: ThemeMode.dark,
           theme: ThemeData(
+              textTheme: TextTheme(caption: TextStyle(color: Colors.black)),
               snackBarTheme: SnackBarThemeData(actionTextColor: Colors.white),
-              iconTheme: IconThemeData(color: utils.colorIconos),
+              iconTheme: IconThemeData(color: Colors.black),
               fontFamily: 'PlusJakarta',
               primaryColor: utils.colorPrincipal,
               primarySwatch: utils.colorCalendario,
@@ -138,7 +139,7 @@ class _MyAppState extends State<MyApp> {
               cursorColor: utils.colorPrincipal,
               textSelectionColor: Colors.black26,
               textSelectionHandleColor: utils.colorSecundario,
-              cardColor: utils.colorFondoTarjeta,
+              cardColor: Colors.white,
               appBarTheme: AppBarTheme(
                   textTheme:
                       TextTheme(headline6: TextStyle(color: Colors.black)),
@@ -157,7 +158,7 @@ class _MyAppState extends State<MyApp> {
               snackBarTheme: SnackBarThemeData(
                   actionTextColor: utils.colorFondoPrincipalDark),
               dividerTheme: DividerThemeData(color: Colors.white, thickness: 1),
-              textTheme: TextTheme(bodyText2: TextStyle(color: Colors.white)),
+              textTheme: TextTheme(bodyText2: TextStyle(color: Colors.white), caption: TextStyle(color: Colors.white)),
               fontFamily: 'PlusJakarta',
               brightness: Brightness.dark,
               primaryColor: utils.colorPrincipal,
