@@ -1,8 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/widgets/gradient_button.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pie_chart/pie_chart.dart';
@@ -32,11 +32,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _loginProvider = LoginProvider();
   final _prefs = PreferenciasUsuario();
   Map _resultados;
-  bool _nuevaEncuesta = false,
-      _respuestaEnviada = false,
-      _noMolestar = false,
-      _accesos = false;
+  bool _nuevaEncuesta = false, _respuestaEnviada = false, _accesos = false;
   EncuestaModel _datosEncuesta;
+  int _noMolestar = 2;
   String _numeroCaseta = '';
 
   @override
@@ -71,6 +69,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         }
       });
     });
+    configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 1)
+        .then((estadoNoMolestar) {
+      setState(() {
+        if (estadoNoMolestar.containsKey('valor')) {
+          _noMolestar = estadoNoMolestar['valor'] == '1' ? 1 : 0;
+        } else {
+          _noMolestar = 3;
+        }
+      });
+    });
   }
 
   @override
@@ -98,19 +107,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         centerTitle: false,
         title: Image.asset(
           utils.rutaLogoDostopDPng,
-          height: 38,
+          height: 40,
         ),
         actions: [
           FlatButton(
             onPressed: _abrirSoporte,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(
                   utils.rutaIconoWhastApp,
                   height: 30,
                   color: Theme.of(context).iconTheme.color,
                 ),
-                AutoSizeText('Soporte', maxLines: 1),
+                Text('Soporte', style: TextStyle(fontSize: 10)),
               ],
             ),
           ),
@@ -150,10 +160,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaPrimerFila() {
     return Container(
-        height: 250,
+        height: 220,
         child: Row(
           children: [
-            Flexible(child: _creaBtnVisitas()),
+            Expanded(child: _creaBtnVisitas()),
             SizedBox(width: 20),
             Flexible(
                 child: Column(
@@ -180,18 +190,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaBtnVisitas() {
     return RaisedGradientButton(
-      padding: EdgeInsets.all(10.0),
+      elevation: 8,
+      padding: EdgeInsets.all(30.0),
       gradient: utils.colorGradientePrincipal,
       borderRadius: BorderRadius.circular(15.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AutoSizeText('Historial de visitas',
-              maxLines: 3,
+          AutoSizeText('Historial\nde visitas',
+              maxLines: 2,
               wrapWords: false,
               textAlign: TextAlign.center,
               style: utils.estiloBotones(28)),
-          SizedBox(height: 10),
+          SizedBox(height: 20),
           SvgPicture.asset(
             utils.rutaIconoVisitas,
             height: 38,
@@ -205,7 +216,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaTerceraFila() {
     return Container(
-      height: 130,
+      height: 120,
       padding: EdgeInsets.only(top: 20.0),
       child: Row(
         children: [
@@ -233,26 +244,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaCuartaFila() {
     return Container(
-      height: 130,
+      height: 120,
       padding: EdgeInsets.only(top: 20.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
               flex: 2,
-              child: Container(
-                padding: EdgeInsets.only(right: 8),
-                child: Material(
-                  borderRadius: BorderRadius.circular(15.0),
-                  color: Theme.of(context).cardColor,
-                  elevation: 8,
-                  child: Container(
-                      margin: EdgeInsets.only(right: 8.0),
-                      alignment: Alignment.center,
-                      //borderRadius: BorderRadius.circular(15.0),
-
-                      child: _creaSwitchNoMolestar()),
-                ),
+              child: ElevatedContainer(
+                child: Container(
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(15.0)),
+                    padding: EdgeInsets.only(right: 8),
+                    margin: EdgeInsets.only(right: 8.0),
+                    alignment: Alignment.center,
+                    child: _creaSwitchNoMolestar()),
               )),
           Expanded(
             flex: 1,
@@ -272,9 +279,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaQuintaFila() {
     return Container(
-      height: 130,
+      height: 120,
       padding: EdgeInsets.only(top: 20.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Visibility(
               visible: _accesos,
@@ -289,7 +297,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               child: Expanded(
                   child: _creaBtnIconoMini(
                       rutaIcono: utils.rutaIconoCaseta,
-                      titulo: 'Contacto a caseta',
+                      titulo: 'Contacto\na caseta',
                       onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
           Visibility(visible: _numeroCaseta != '', child: SizedBox(width: 20)),
           Flexible(
@@ -297,6 +305,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   rutaIcono: utils.rutaIconoCerrarSesion,
                   titulo: 'Cerrar sesión',
                   onPressed: _cerrarSesion)),
+          Visibility(visible: _numeroCaseta == '', child: SizedBox(width: 20)),
+          Visibility(
+              visible: _numeroCaseta == '',
+              child: Expanded(child: Container())),
+          Visibility(visible: !_accesos, child: SizedBox(width: 20)),
+          Visibility(visible: !_accesos, child: Expanded(child: Container())),
         ],
       ),
     );
@@ -304,34 +318,38 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Widget _creaBtnIcono(
       {String rutaIcono, String titulo, String subtitulo, String ruta}) {
-    return RaisedButton(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        elevation: 8,
-        color: Theme.of(context).cardColor,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              SvgPicture.asset(
-                rutaIcono,
-                height: 25,
-                color: Colors.white,
-              ),
-              SizedBox(width: 10),
-              Flexible(
-                child: AutoSizeText(
-                  titulo,
-                  wrapWords: false,
-                  style: utils.estiloBotones(30),
+    return ElevatedContainer(
+      child: RaisedButton(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          elevation: 0,
+          color: Theme.of(context).cardColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                SvgPicture.asset(
+                  rutaIcono,
+                  height: 25,
+                  color: Theme.of(context).iconTheme.color,
                 ),
-              ),
-            ]),
-            Visibility(visible: subtitulo != null, child: Text(subtitulo ?? ''))
-          ],
-        ),
-        onPressed: () => Navigator.pushNamed(context, ruta));
+                SizedBox(width: 10),
+                Flexible(
+                  child: AutoSizeText(
+                    titulo,
+                    wrapWords: false,
+                    style: utils.estiloBotones(30,
+                        color: Theme.of(context).textTheme.bodyText2.color),
+                  ),
+                ),
+              ]),
+              Visibility(
+                  visible: subtitulo != null, child: Text(subtitulo ?? ''))
+            ],
+          ),
+          onPressed: () => Navigator.pushNamed(context, ruta)),
+    );
   }
 
   Widget _creaBtnIconoMini({
@@ -340,83 +358,89 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     String ruta,
     Function onPressed,
   }) {
-    return RaisedButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-      color: Theme.of(context).cardColor,
-      elevation: 8,
-      padding: EdgeInsets.zero,
-      child: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              rutaIcono,
-              height: 25,
-              color: Colors.white,
-            ),
-            SizedBox(height: 10),
-            Flexible(
-              child: AutoSizeText(
-                titulo,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.fade,
-                maxLines: 2,
-                wrapWords: false,
-                style: utils.estiloBotones(16),
+    return ElevatedContainer(
+      child: RaisedButton(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        color: Theme.of(context).cardColor,
+        elevation: 0,
+        padding: EdgeInsets.zero,
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                rutaIcono,
+                height: 25,
+                color: Theme.of(context).iconTheme.color,
               ),
-            ),
-          ],
+              SizedBox(height: 10),
+              Flexible(
+                child: AutoSizeText(
+                  titulo,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.fade,
+                  maxLines: 2,
+                  wrapWords: false,
+                  style: utils.estiloBotones(16,
+                      color: Theme.of(context).textTheme.bodyText2.color),
+                ),
+              ),
+            ],
+          ),
         ),
+        onPressed:
+            ruta == null ? onPressed : () => Navigator.pushNamed(context, ruta),
       ),
-      onPressed:
-          ruta == null ? onPressed : () => Navigator.pushNamed(context, ruta),
     );
   }
 
   Widget _creaBtnFrecuentes() {
     return Container(
-      height: 130,
+      height: 120,
       padding: EdgeInsets.only(top: 20.0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15.0),
-        child: FlatButton(
-            padding: EdgeInsets.all(0.0),
-            color: utils.colorAcentuado,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText('Visitas frecuentes',
-                          maxLines: 1,
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: Colors.black,
-                              letterSpacing: -0.5,
-                              fontWeight: FontWeight.w900)),
-                      Text('Envía códigos de acceso',
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500)),
-                    ],
+      child: ElevatedContainer(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15.0),
+          child: FlatButton(
+              padding: EdgeInsets.all(0.0),
+              color: utils.colorAcentuado,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText('Visitas frecuentes',
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.black,
+                                letterSpacing: -0.5,
+                                fontWeight: FontWeight.w900)),
+                        Text('Envía códigos de acceso',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500)),
+                      ],
+                    ),
                   ),
-                ),
-                Flexible(
-                  flex: 1,
-                  child: SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
-                      height: 40, width: 20, color: Colors.black),
-                ),
-              ],
-            ),
-            onPressed: () => Navigator.pushNamed(context, 'visitantesFreq')),
+                  Flexible(
+                    flex: 1,
+                    child: SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
+                        height: 40, width: 20, color: Colors.black),
+                  ),
+                ],
+              ),
+              onPressed: () => Navigator.pushNamed(context, 'visitantesFreq')),
+        ),
       ),
     );
   }
@@ -578,83 +602,80 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _creaSwitchNoMolestar() {
-    return FutureBuilder(
-        future: configUsuarioProvider.obtenerEstadoConfig(
-            _prefs.usuarioLogged, 1), //VALOR 1 MODO NO MOLESTAR
-        builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.data.containsKey('valor')) {
-              _noMolestar = snapshot.data['valor'] == '1' ? true : false;
-              return Container(
-                child: ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
-                  title: AutoSizeText('No molestar',
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                      style:
-                          TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
-                  subtitle: AutoSizeText(
-                      _noMolestar ? 'Activado' : 'Desactivado',
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: _noMolestar
-                              ? utils.colorToastRechazada
-                              : utils.colorAcentuado)),
-                  trailing: CupertinoSwitch(
-                      activeColor: utils.colorToastRechazada,
-                      trackColor: utils.colorAcentuado,
-                      value: _noMolestar,
-                      onChanged: (valor) {
-                        if (valor)
-                          creaDialogYesNo(
-                              context,
-                              'Activar modo no molestar',
-                              '¿Seguro que deseas activar el modo no molestar?'
-                                  '\n\nTodas tus visitas serán rechazadas automaticamente.'
-                                  '\nNota: Los códigos de visitantes frecuentes seguirán teniendo acceso',
-                              'Sí',
-                              'No', () {
-                            Navigator.pop(context);
-                            _cambiaModoNoMolestar(valor);
-                          }, () {
-                            setState(
-                              () {
-                                _noMolestar = false;
-                              },
-                            );
-                            Navigator.pop(context);
-                          });
-                        else
-                          _cambiaModoNoMolestar(valor);
-                      }),
-                ),
-              );
-            } else {
-              return Container();
-            }
-          } else {
-            return ListTile(
-              title: AutoSizeText(
-                'No molestar',
-                maxLines: 1,
-                textAlign: TextAlign.left,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: AutoSizeText('Cargando...',
-                  maxLines: 1, textAlign: TextAlign.left),
-              trailing: CupertinoSwitch(value: false, onChanged: null),
-            );
-          }
-        });
+    Map<String, dynamic> _dataNoMolestar = _obtenerMensajeSwitch(_noMolestar);
+    return Container(
+      padding: EdgeInsets.all(15.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AutoSizeText('No molestar',
+                    maxLines: 1,
+                    textAlign: TextAlign.left,
+                    style:
+                        TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+                AutoSizeText(_dataNoMolestar['estado'],
+                    maxLines: 1,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: _dataNoMolestar['color'])),
+              ]),
+          CupertinoSwitch(
+              activeColor: utils.colorToastRechazada,
+              trackColor: utils.colorAcentuado,
+              value: _noMolestar == 1,
+              onChanged: _noMolestar == 3
+                  ? null
+                  : (valor) {
+                      if (valor)
+                        creaDialogYesNo(
+                            context,
+                            'Activar modo no molestar',
+                            '¿Seguro que deseas activar el modo no molestar?'
+                                '\n\nTodas tus visitas serán rechazadas automaticamente.'
+                                '\nNota: Los códigos de visitantes frecuentes seguirán teniendo acceso',
+                            'Sí',
+                            'No', () {
+                          Navigator.pop(context);
+                          _cambiaModoNoMolestar(1);
+                        }, () {
+                          setState(
+                            () {
+                              _noMolestar = 0;
+                            },
+                          );
+                          Navigator.pop(context);
+                        });
+                      else
+                        _cambiaModoNoMolestar(0);
+                    }),
+        ],
+      ),
+    );
   }
 
-  _cambiaModoNoMolestar(bool valor) async {
+  Map<String, dynamic> _obtenerMensajeSwitch(int valor) {
+    switch (valor) {
+      case 0:
+        return {'estado': 'Desactivado', 'color': utils.colorAcentuado};
+      case 1:
+        return {'estado': 'Activado', 'color': utils.colorToastRechazada};
+      case 2:
+        return {'estado': 'Cargando...', 'color': utils.colorSecundario};
+      default:
+        return {'estado': 'No disponible', 'color': utils.colorSecundario};
+    }
+  }
+
+  _cambiaModoNoMolestar(int valor) async {
     creaDialogProgress(context, 'Cambiando...');
     Map resultado = await configUsuarioProvider.configurarOpc(
-        _prefs.usuarioLogged, 1, valor);
+        _prefs.usuarioLogged, 1, valor == 1);
     Navigator.pop(context);
     setState(() {
       _noMolestar = valor;
