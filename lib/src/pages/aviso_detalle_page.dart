@@ -1,4 +1,5 @@
 import 'package:dostop_v2/src/models/aviso_model.dart';
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:flutter/material.dart';
 
@@ -24,30 +25,30 @@ class AvisoDetallePage extends StatelessWidget {
             Expanded(
               child: Hero(
                 tag: aviso.idAviso,
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Text(
-                            utils.fechaCompleta(DateTime.tryParse(aviso.fecha)),
-                            style: utils.estiloFechaAviso(12)),
-                        SizedBox(height: 10),
-                        Flexible(
-                          child: Scrollbar(
+                child: Material(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                  elevation: 0,
+                  child: Scrollbar(
+                    child: ElevatedContainer(
+                      padding: EdgeInsets.all(15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Text(
+                              utils.fechaCompleta(DateTime.tryParse(aviso.fecha)),
+                              style: utils.estiloFechaAviso(12)),
+                          SizedBox(height: 5),
+                          Flexible(
                             child: SingleChildScrollView(
                               child: Text(
                                 aviso.descripcion,
                                 style: TextStyle(
-                                    fontWeight: FontWeight.w900, fontSize: 15),
+                                    fontWeight: FontWeight.w700, fontSize: 15),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
