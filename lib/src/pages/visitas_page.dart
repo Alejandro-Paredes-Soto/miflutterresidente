@@ -2,6 +2,7 @@ import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/providers/visitas_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dynamic_list_view/dynamic_list.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
@@ -71,7 +72,7 @@ class _VisitasPageState extends State<VisitasPage> {
           padding: EdgeInsets.only(left: 20, right: 20),
           child: Column(
             children: <Widget>[
-              SizedBox(height:30),
+              SizedBox(height: 30),
               GestureDetector(
                   child: _creaCampoFecha(
                     _fechaInicio == '' ? 'Desde' : _fechaInicio,
@@ -154,7 +155,10 @@ class _VisitasPageState extends State<VisitasPage> {
                         color: contenido.contains(RegExp('Desde|Hasta'))
                             ? Colors.grey
                             : Theme.of(context).textTheme.bodyText2.color)),
-                Icon(Icons.calendar_today, size: 35,),
+                Icon(
+                  Icons.calendar_today,
+                  size: 35,
+                ),
               ],
             ),
           ),
@@ -199,10 +203,13 @@ class _VisitasPageState extends State<VisitasPage> {
         itemBuilder: (List dataList, BuildContext context, int index) {
           if (dataList.length > 0) if (index == 0)
             return Container(
-                padding: EdgeInsets.only(top: 260),
+                padding: EdgeInsets.only(top: 260, bottom: 20),
                 child: _crearItem(context, dataList[index], index));
           else
-            return _crearItem(context, dataList[index], index);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: _crearItem(context, dataList[index], index),
+            );
           else
             return Center(
               child: Text('No se encontraron visitas'),
@@ -223,61 +230,44 @@ class _VisitasPageState extends State<VisitasPage> {
     return Future.value(_visitasProvider);
   }
 
-  _crearItem(BuildContext context, VisitaModel visita, int index) {
-    return Column(
-      children: <Widget>[
-        GestureDetector(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              elevation: 8,
-              child: Stack(
-                alignment: Alignment.bottomLeft,
-                children: <Widget>[
-                  _cargaImagenesVisita(
-                      visita.idVisitas,
-                      utils.validaImagenes(
-                          [visita.imgRostro, visita.imgId, visita.imgPlaca])),
-                  Container(
-                      padding: EdgeInsets.only(left: 10, bottom: 40),
-                      child: Hero(
-                        tag: visita.idVisitas + visita.visitante,
-                        child: Text(
-                          '${visita.visitante}',
-                          style: utils.estiloTextoBlancoSombreado(18),
-                          overflow: TextOverflow.fade,
-                        ),
-                      )),
-                  Container(
-                    padding: EdgeInsets.only(right: 15, bottom: 10),
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                    width: double.infinity,
-                    height: 25,
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}',
-                            style: utils.estiloTextoBlancoSombreado(11),
-                            overflow: TextOverflow.fade,
-                          )
-                        ]),
-                  )
-                ],
-              ),
-            ),
+  Widget _crearItem(BuildContext context, VisitaModel visita, int index) {
+    return GestureDetector(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: ElevatedContainer(
+          child: Stack(
+            alignment: Alignment.bottomLeft,
+            children: <Widget>[
+              _cargaImagenesVisita(
+                  visita.idVisitas,
+                  utils.validaImagenes(
+                      [visita.imgRostro, visita.imgId, visita.imgPlaca])),
+              Container(
+                  padding: EdgeInsets.only(left: 10, bottom: 40),
+                  child: Hero(
+                    tag: visita.idVisitas + visita.visitante,
+                    child: Text(
+                      '${visita.visitante}',
+                      style: utils.estiloTextoBlancoSombreado(18),
+                      overflow: TextOverflow.fade,
+                    ),
+                  )),
+              Container(
+                  padding: EdgeInsets.only(left: 10, bottom: 10),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                  width: double.infinity,
+                  height: 25,
+                  child: Text(
+                    '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}',
+                    style: utils.estiloTextoBlancoSombreado(11),
+                    overflow: TextOverflow.fade,
+                  ))
+            ],
           ),
-          onTap: () => _abrirVisitaDetalle(visita, context),
         ),
-        SizedBox(
-          height: 10,
-        )
-      ],
+      ),
+      onTap: () => _abrirVisitaDetalle(visita, context),
     );
   }
 
