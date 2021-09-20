@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 bool isDebug = !kReleaseMode;
 
 Color colorFondoPrincipalDark = Color.fromRGBO(22, 29, 40, 1.0);
+Color colorFondoPrincipalLight = Color.fromRGBO(245, 244, 249, 1.0);
 Color colorTextoPrincipalDark = Color.fromRGBO(184, 184, 184, 1.0);
 Color colorIconos = Color.fromRGBO(65, 64, 64, 1.0);
 Color colorPrincipal = Color.fromRGBO(2, 69, 232, 1.0);
@@ -94,10 +95,9 @@ AppBar appBarLogo(
           child: Text(
             titulo,
             style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                letterSpacing: Platform.isAndroid ? -1 : -1),
+                fontSize: 25,
+                fontWeight: FontWeight.w700,
+                letterSpacing:-1),
             softWrap: false,
             overflow: TextOverflow.fade,
           ),
@@ -112,9 +112,8 @@ AppBar appBarLogo(
 Text dostopLogo() {
   return Text(
     'dostop',
-    textScaleFactor: 0.85,
     style: TextStyle(
-        fontFamily: 'Poppins', fontSize: 22, fontWeight: FontWeight.w700),
+        fontFamily: 'Poppins', fontSize: 15, fontWeight: FontWeight.w700),
   );
 }
 
