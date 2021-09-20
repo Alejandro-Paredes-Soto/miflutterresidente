@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final configUsuarioProvider = ConfigUsuarioProvider();
   final _loginProvider = LoginProvider();
   final _prefs = PreferenciasUsuario();
+  
   Map _resultados;
   bool _nuevaEncuesta = false, _respuestaEnviada = false, _accesos = false;
   EncuestaModel _datosEncuesta;
@@ -111,6 +112,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         actions: [
           FlatButton(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             onPressed: _abrirSoporte,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -191,7 +194,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget _creaBtnVisitas() {
     return RaisedGradientButton(
       elevation: 8,
-      padding: EdgeInsets.all(30.0),
+      padding: EdgeInsets.all(10.0),
       gradient: utils.colorGradientePrincipal,
       borderRadius: BorderRadius.circular(15.0),
       child: Column(
@@ -201,7 +204,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               maxLines: 2,
               wrapWords: false,
               textAlign: TextAlign.center,
-              style: utils.estiloBotones(28)),
+              style: utils.estiloBotones(30)),
           SizedBox(height: 20),
           SvgPicture.asset(
             utils.rutaIconoVisitas,
@@ -251,15 +254,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         children: [
           Expanded(
               flex: 2,
-              child: ElevatedContainer(
-                child: Container(
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(15.0)),
-                    padding: EdgeInsets.only(right: 8),
-                    margin: EdgeInsets.only(right: 8.0),
-                    alignment: Alignment.center,
-                    child: _creaSwitchNoMolestar()),
+              child: Container(
+                margin: EdgeInsets.only(right: 8.0),
+                child: ElevatedContainer(
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(15.0)),
+                      alignment: Alignment.center,
+                      child: _creaSwitchNoMolestar()),
+                ),
               )),
           Expanded(
             flex: 1,
@@ -405,7 +409,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15.0),
           child: FlatButton(
-              padding: EdgeInsets.all(0.0),
+              padding: EdgeInsets.only(left:10.0, right: 10.0),
               color: utils.colorAcentuado,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -435,7 +439,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   Flexible(
                     flex: 1,
                     child: SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
-                        height: 40, width: 20, color: Colors.black),
+                        height: 35, width: 20, color: Colors.black),
                   ),
                 ],
               ),
@@ -606,25 +610,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Container(
       padding: EdgeInsets.all(15.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AutoSizeText('No molestar',
-                    maxLines: 1,
-                    textAlign: TextAlign.left,
-                    style:
-                        TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
-                AutoSizeText(_dataNoMolestar['estado'],
-                    maxLines: 1,
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: _dataNoMolestar['color'])),
-              ]),
+          Expanded(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AutoSizeText('No molestar',
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                      style:
+                          TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+                  AutoSizeText(_dataNoMolestar['estado'],
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: _dataNoMolestar['color'])),
+                ]),
+          ),
           CupertinoSwitch(
               activeColor: utils.colorToastRechazada,
               trackColor: utils.colorAcentuado,
