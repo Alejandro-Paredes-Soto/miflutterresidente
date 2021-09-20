@@ -189,70 +189,73 @@ void creaDialogQR(
               borderRadius: BorderRadius.all(Radius.circular(20))),
           backgroundColor: colorFondoTarjetaFreq,
           contentPadding: EdgeInsets.all(0),
-          content: Builder(
-            builder: (context) => Container(
-                height: MediaQuery.of(context).size.height * 0.55,
-                width: MediaQuery.of(context).size.width * 0.95,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Image.asset(
-                          rutaFondoQR,
-                          fit: BoxFit.fill,
-                        )),
-                    Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(15.0),
-                            child: contenido),
-                          SizedBox(height: 20),
-                          Flexible(
-                            child: RaisedButton(
-                              color: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                alignment: Alignment.center,
-                                height: 60,
-                                child: AutoSizeText(
-                                  textOpcionPos,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.fade,
-                                  style: estiloBotones(13, color: Colors.black),
-                                ),
-                              ),
-                              onPressed: funcionPos,
+          content: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.asset(
+                      rutaFondoQR,
+                      fit: BoxFit.fill,
+                    )),
+              ),
+              Padding(
+                padding: EdgeInsets.all(10.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ClipRRect(
+                          borderRadius: BorderRadius.circular(15.0),
+                          child: contenido),
+                      SizedBox(height: 20),
+                      Flexible(
+                        child: RaisedButton(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Container(
+                            alignment: Alignment.center,
+                            height: 60,
+                            child: AutoSizeText(
+                              textOpcionPos,
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              style: estiloBotones(13, color: Colors.black),
                             ),
                           ),
-                          SizedBox(height: 20),
-                          Flexible(
-                            child: RaisedButton(
-                              color: colorPrincipal,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                alignment: Alignment.center,
-                                height: 60,
-                                child: AutoSizeText(
-                                  textOpcionNeg,
-                                  maxLines: 1,
-                                  style: estiloBotones(13),
-                                ),
-                              ),
-                              onPressed: funcionNeg,
-                            ),
-                          ),
-                        ],
+                          onPressed: funcionPos,
+                        ),
                       ),
-                    ),
-                  ],
-                )),
+                      SizedBox(height: 20),
+                      Flexible(
+                        child: RaisedButton(
+                          color: colorPrincipal,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Container(
+                            alignment: Alignment.center,
+                            height: 60,
+                            child: AutoSizeText(
+                              textOpcionNeg,
+                              maxLines: 1,
+                              style: estiloBotones(13),
+                            ),
+                          ),
+                          onPressed: funcionNeg,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       });
