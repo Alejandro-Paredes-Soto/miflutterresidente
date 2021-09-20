@@ -39,7 +39,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   String _tipoServicio = '';
   Timer timer;
   bool _dialogAbierto = false;
-  bool _actualizaReg=false;
 
   @override
   void initState() {
@@ -54,8 +53,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       });
     });
     timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      if (!_dialogAbierto && _tabIndex > 0 && _actualizaReg)
-        setState(() {});
+      if (!_dialogAbierto && _tabIndex > 0) setState(() {});
     });
   }
 
@@ -247,13 +245,14 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                     ),
                     onPressed: () {
                       creaDialogQR(
-                          context,
+                          _scaffoldKey.currentContext,
                           '',
                           _creaQR(visitante.codigo),
                           'Compartir',
                           'Cancelar',
                           () => _compartir(visitante.codigo),
-                          () => Navigator.pop(context));
+                          () => Navigator.of(_scaffoldKey.currentContext)
+                              .pop('dialog'));
                     },
                   ),
                   SizedBox(height: 15),
@@ -274,7 +273,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                               color: Theme.of(context).scaffoldBackgroundColor),
                         )),
                     onPressed: () {
-                      _eliminaVisitanteFreq(context, visitante);
+                      _eliminaVisitanteFreq(
+                          _scaffoldKey.currentContext, visitante);
                     },
                   )
                 ],
@@ -315,7 +315,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Nombre', style: utils.estiloTituloTarjeta(11)),
-                  Text(visitante.nombre, style: utils.estiloSubtituloTarjeta(17)),
+                  Text(visitante.nombre,
+                      style: utils.estiloSubtituloTarjeta(17)),
                   SizedBox(height: 10),
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
                   Row(
@@ -459,8 +460,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       switch (estatus['OK']) {
         case 1:
           setState(() {});
-          Scaffold.of(context).showSnackBar(
-              utils.creaSnackBarIcon(Icon(Icons.delete), 'Visitante eliminado', 5));
+          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.delete), 'Visitante eliminado', 5));
           break;
         case 2:
           _dialogAbierto = false;
