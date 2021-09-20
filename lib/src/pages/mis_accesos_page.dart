@@ -108,7 +108,9 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
         initRequester: _initRequester,
         itemBuilder: (List dataList, BuildContext context, int index) {
           if (dataList.length > 0)
-            return _crearItem(context, dataList[index], index);
+            return Padding(
+                padding: EdgeInsets.only(bottom: 20),
+                child: _crearItem(context, dataList[index], index));
           else
             return Center(
               child: Text('No se encontraron accesos'),
