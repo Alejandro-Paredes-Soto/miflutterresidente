@@ -61,7 +61,7 @@ class AvisoDetallePage extends StatelessWidget {
                 child: Container(
                     width: 100,
                     alignment: Alignment.center,
-                    height: 57,
+                    height: 60,
                     child: Text(
                       'Cerrar',
                       style: utils.estiloBotones(12),
@@ -71,14 +71,5 @@ class AvisoDetallePage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _creaFAB(BuildContext context) {
-    return FloatingActionButton.extended(
-        backgroundColor: utils.colorPrincipal,
-        icon: Icon(Icons.arrow_back_ios),
-        label: Text('Regresar'),
-        onPressed: () => Navigator.pop(context),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)));
   }
 }
