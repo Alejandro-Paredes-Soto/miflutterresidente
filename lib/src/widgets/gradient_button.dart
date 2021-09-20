@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'elevated_container.dart';
+
 class RaisedGradientButton extends StatelessWidget {
   final Widget child;
   final Gradient gradient;
@@ -23,21 +25,22 @@ class RaisedGradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: borderRadius,
-      onTap: onPressed,
-      child: Ink(
-        padding: padding,
-        decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.18),
-                  blurRadius: 20,
-                  offset: Offset(3, 3))
-            ],
-            gradient: onPressed != null ? gradient : disabledGradient,
-            borderRadius: borderRadius),
-        child: child,
+    return ElevatedContainer(
+      child: Material(
+        color: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+        child: InkWell(
+          borderRadius: borderRadius,
+          onTap: onPressed,
+          child: Ink(
+            padding: padding,
+            decoration: BoxDecoration(
+                gradient: onPressed != null ? gradient : disabledGradient,
+                borderRadius: borderRadius),
+            child: child,
+          ),
+        ),
       ),
     );
   }
