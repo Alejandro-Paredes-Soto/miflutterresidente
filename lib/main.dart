@@ -123,7 +123,7 @@ class _MyAppState extends State<MyApp> {
                 SeguimientoIncidentePage(),
             'misAccesos': (BuildContext context) => MisAccesosPage(),
           },
-          themeMode: ThemeMode.dark,
+          themeMode: ThemeMode.system,
           theme: ThemeData(
               textTheme: TextTheme(caption: TextStyle(color: Colors.black)),
               snackBarTheme: SnackBarThemeData(actionTextColor: Colors.white),
@@ -147,8 +147,8 @@ class _MyAppState extends State<MyApp> {
                   actionsIconTheme: IconThemeData(color: utils.colorSecundario),
                   brightness: Brightness.light,
                   elevation: 0,
-                  color: Colors.white),
-              scaffoldBackgroundColor: Colors.white),
+                  color: utils.colorFondoPrincipalLight),
+              scaffoldBackgroundColor: utils.colorFondoPrincipalLight),
           // CONFIGURACIONES DEL DARK MODE THEME
           darkTheme: ThemeData(
               inputDecorationTheme: InputDecorationTheme(
