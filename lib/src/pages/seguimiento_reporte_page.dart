@@ -19,10 +19,6 @@ class SeguimientoIncidentePage extends StatelessWidget {
         padding: EdgeInsets.all(20),
         child: Column(
           children: <Widget>[
-            // Text(
-            //   'Seguimiento al reporte',
-            //   style: TextStyle(fontSize: 16),
-            // ),
             Container(
                 alignment: Alignment.centerRight,
                 height: 20,
@@ -80,7 +76,7 @@ class SeguimientoIncidentePage extends StatelessWidget {
       visible: texto == '' ? false : true,
       child: Container(
         decoration: BoxDecoration(
-            color: utils.colorSecundarioSemi,
+            color: utils.colorAcentuado,
             borderRadius: BorderRadius.circular(10)),
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         margin: EdgeInsets.only(right: 100),
