@@ -95,9 +95,7 @@ AppBar appBarLogo(
           child: Text(
             titulo,
             style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w700,
-                letterSpacing:-1),
+                fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: -1),
             softWrap: false,
             overflow: TextOverflow.fade,
           ),
@@ -129,7 +127,10 @@ TextStyle estiloTextoAppBar(double fontSize) {
 
 TextStyle estiloBotones(double fontSize, {Color color = Colors.white}) {
   return TextStyle(
-      color: color, fontSize: fontSize, fontWeight: FontWeight.w900);
+    color: color,
+    fontSize: fontSize,
+    fontWeight: FontWeight.w900,
+  );
 }
 
 TextStyle estiloTituloTarjeta(double fontSize) {
@@ -140,14 +141,25 @@ TextStyle estiloSubtituloTarjeta(double fontSize) {
   return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w900);
 }
 
-TextStyle estiloTextoBlancoSombreado(double fontSize) {
+TextStyle estiloTextoSombreado(double fontSize,
+    {Color color = Colors.white,
+    double blurRadius = 20,
+    double offsetX = 0,
+    double offsetY = 0,
+    bool dobleSombra = true}) {
   return TextStyle(
-      color: Colors.white,
+      color: color,
       fontSize: fontSize,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w900,
       shadows: [
-        Shadow(color: Colors.black, blurRadius: 20, offset: Offset(0, 0)),
-        Shadow(color: Colors.black, blurRadius: 20, offset: Offset(0, 0))
+        Shadow(
+            color: Colors.black,
+            blurRadius: blurRadius,
+            offset: Offset(offsetX, offsetY)),
+        Shadow(
+            color: dobleSombra ? Colors.black : Colors.transparent,
+            blurRadius: blurRadius,
+            offset: Offset(offsetX, offsetY)),
       ]);
 }
 
