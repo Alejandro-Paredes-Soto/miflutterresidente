@@ -44,18 +44,20 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
         children: <Widget>[
           Text(
             visita.fechaEntrada.isNotEmpty && visita.fechaEntrada != null
-                ? '${utils.fechaCompleta(DateTime.parse(visita.fechaEntrada))} ${visita.horaEntrada}'
+                ? '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}'
                 : '',
-            style: utils.estiloTextoAppBar(26),
+            style: utils.estiloTextoAppBar(20),
           ),
           SizedBox(height: 10),
-          Text(
-            visita.fechaSalida.isNotEmpty && visita.fechaSalida != null
-                ? 'Salida: ${utils.fechaCompleta(DateTime.parse(visita.fechaSalida))} ${visita.horaSalida}'
-                : '',
-            style: TextStyle(fontSize: 18),
+          Visibility(
+            visible:
+                visita.fechaSalida.isNotEmpty && visita.fechaSalida != null,
+            child: Text(
+              'Salida: ${utils.fechaCompleta(DateTime.tryParse(visita.fechaSalida))} ${visita.horaSalida}',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           _imagenesVisitante(
               visita.idVisitas,
               utils.validaImagenes(
@@ -132,81 +134,70 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
   }
 
   Widget _datosVisitante(VisitaModel visita, BuildContext context) {
+    final colorIcon = getColorEstatus(visita.estatus);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        AnimatedCrossFade(
-          duration: Duration(milliseconds: 300),
-          crossFadeState: visita.codigo != ''
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          firstChild: Container(
-              child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Icon(
-                Icons.brightness_1,
-                color: getColorEstatus(visita.estatus),
-                size: 18,
-              ),
-              SizedBox(
-                width: 2,
-              ),
-              Text('${visita.estatus}',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: getColorEstatus(visita.estatus),
-                  )),
-            ],
-          )),
-          secondChild: Container(
-              child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              SvgPicture.asset(
-                utils.rutaIconoVisitantesFrecuentes,
-                height: utils.tamanoIcoNavBar,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              // SizedBox(
-              //   width: 5,
-              // ),
-              // Text('V. Frecuente',
-              //     style: TextStyle(
-              //       fontSize: 18,
-              //     )),
-            ],
-          )),
-        ),
+        visita.codigo != ''
+            ? Container(
+                child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  SvgPicture.asset(
+                    utils.rutaIconoVisitantesFrecuentes,
+                    height: utils.tamanoIcoNavBar,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
+                ],
+              ))
+            : Container(
+                child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Icon(
+                    colorIcon['icono'],
+                    color: colorIcon['color'],
+                    size: 22,
+                  ),
+                  SizedBox(
+                    width: 2,
+                  ),
+                  Text('${visita.estatus}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: colorIcon['color'],
+                      )),
+                ],
+              )),
         SizedBox(height: 5),
         Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.visitante,
             style: utils.estiloBotones(18,
                 color: Theme.of(context).textTheme.bodyText2.color)),
         SizedBox(
-          height: 30,
+          height: 10,
         ),
         Text('Placas', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.placa,
             style: utils.estiloBotones(18,
                 color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 5),
+        SizedBox(height: 10),
         Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.modelo,
             style: utils.estiloBotones(18,
                 color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 5),
+        SizedBox(height: 10),
         Text('Marca', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.marca,
             style: utils.estiloBotones(18,
                 color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 5),
+        SizedBox(height: 10),
         Text(visita.codigo == '' ? 'Motivo' : '',
             style: utils.estiloTituloInfoVisita(12)),
         Text(visita.codigo == '' ? visita.motivoVisita : '',
             style: utils.estiloBotones(18,
                 color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 60)
+        SizedBox(height: 70)
       ],
     );
   }
@@ -242,15 +233,30 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
   }
 
   Widget _creaFAB(ReporteModel reporte, List<String> datos) {
-    return FloatingActionButton.extended(
-        backgroundColor: utils.colorPrincipal,
-        icon: Icon(reporte == null ? Icons.report : Icons.chat),
-        label: Text(reporte == null ? 'Reportar Incidente' : 'Ver reporte'),
+    return RaisedButton(
+        color: utils.colorPrincipal,
+        child: Container(
+          height: 60,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(reporte == null ? Icons.report : Icons.chat,
+                  color: Colors.white),
+              SizedBox(width: 10),
+              Container(
+                  child: Text(
+                reporte == null ? 'Reportar incidente' : 'Ver reporte',
+                style: utils.estiloBotones(15),
+              )),
+            ],
+          ),
+        ),
         onPressed: () => reporte == null
             ? _abrirReportePage(context, datos)
             : Navigator.of(context)
                 .pushNamed('SeguimientoInc', arguments: reporte),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)));
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)));
   }
 
   _abrirReportePage(BuildContext context, List<String> datos) async {
@@ -280,15 +286,13 @@ void _descargaImagen(BuildContext context, String url) async {
   }
 }
 
-Color getColorEstatus(String estatus) {
+Map<String, dynamic> getColorEstatus(String estatus) {
   switch (estatus) {
     case 'Aceptada':
-      return Colors.green;
+      return {'icono': Icons.check_circle, 'color': Colors.green};
     case 'Rechazada':
-      return Colors.red;
-    // case 'Sin Respuesta':
-    //   return Colors.amber;
+      return {'icono': Icons.cancel, 'color': Colors.red};
     default:
-      return Colors.grey;
+      return {'icono': Icons.remove_circle, 'color': Colors.grey};
   }
 }
