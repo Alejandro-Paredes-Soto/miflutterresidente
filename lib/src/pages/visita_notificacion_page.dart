@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -8,6 +7,7 @@ import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:dostop_v2/src/widgets/countdown_timer.dart';
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart' as toast;
 import 'package:http/http.dart' as http;
 
@@ -82,8 +82,9 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                     showZeroNumbers: false,
                     endTime: fecha.millisecondsSinceEpoch,
                     secSymbol: '',
-                    textStyle: utils.estiloBotones(18),
-                    onEnd: () => setState(() => _tiempoVencido = true),
+                    textStyle: utils.estiloBotones(18,
+                        color: Theme.of(context).textTheme.bodyText2.color),
+                    onEnd: () => setState(() => _tiempoVencido = false),
                   ),
                   Text(' seg'),
                 ],
@@ -192,7 +193,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
         Text(visita.tipoVisita == 1 ? visita.motivoVisita : '',
             style: utils.estiloBotones(18,
                 color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 100)
+        SizedBox(height: 120)
       ],
     );
   }
@@ -210,91 +211,70 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             valueColor: AlwaysStoppedAnimation<Color>(utils.colorPrincipal)),
       ),
-      secondChild: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          Container(
-            child: _respuestaEnviada
-                ? CircularProgressIndicator()
-                : RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    color: utils.colorAcentuado,
-                    child: Container(
-                        alignment: Alignment.center,
-                        width: 100,
-                        height: 100,
-                        child: Text(
-                          'Aceptar',
-                          textAlign: TextAlign.center,
-                          style: utils.estiloBotones(20),
-                        )),
-                    onPressed: _respuestaEnviada
-                        ? null
-                        : () {
-                            setState(() {
-                              _respuestaEnviada = true;
-                            });
-                            _notifProvider
-                                .respuestaVisita(
-                                    _prefs.usuarioLogged, idVisita, 1)
-                                .then((resp) {
-                              toast.showToast(
-                                resp['mensaje'],
-                                backgroundColor: resp['id'] == '0'
-                                    ? utils.colorToastAceptada
-                                    : null,
-                                textStyle: TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.white,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              );
-                              Navigator.pop(context);
-                            });
-                          },
-                  ),
-          ),
-          RaisedButton(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            color: utils.colorToastRechazada,
-            child: Container(
+      secondChild: Padding(
+        padding: const EdgeInsets.only(bottom: 15.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            _crearBtnRespuesta(
+                titulo: 'Aceptar', idRespuesta: 1, idVisita: idVisita),
+            _crearBtnRespuesta(
+                titulo: 'Rechazar', idRespuesta: 2, idVisita: idVisita)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _crearBtnRespuesta({
+    String titulo,
+    int idRespuesta,
+    String idVisita,
+  }) {
+    return ElevatedContainer(
+      child: RaisedButton(
+          padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          color: idRespuesta == 1
+              ? utils.colorAcentuado
+              : utils.colorToastRechazada,
+          child: Container(
               alignment: Alignment.center,
               width: 100,
               height: 100,
               child: Text(
-                'Rechazar',
+                titulo,
                 textAlign: TextAlign.center,
-                style: utils.estiloBotones(20),
-              ),
-            ),
-            onPressed: _respuestaEnviada
-                ? null
-                : () {
-                    setState(() {
-                      _respuestaEnviada = true;
-                    });
-                    _notifProvider
-                        .respuestaVisita(_prefs.usuarioLogged, idVisita, 2)
-                        .then((resp) {
-                      toast.showToast(
-                        resp['mensaje'],
-                        backgroundColor: resp['id'] == '0'
-                            ? utils.colorToastRechazada
-                            : null,
-                        textStyle: TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                      );
-                      Navigator.pop(context);
-                    });
-                  },
-          ),
-        ],
-      ),
+                style: utils.estiloTextoSombreado(22,
+                    blurRadius: 6, offsetY: 3, dobleSombra: false),
+              )),
+          onPressed: _respuestaEnviada
+              ? null
+              : () {
+                  setState(() {
+                    _respuestaEnviada = true;
+                  });
+                  _notifProvider
+                      .respuestaVisita(
+                          _prefs.usuarioLogged, idVisita, idRespuesta)
+                      .then((resp) {
+                    toast.showToast(
+                      resp['mensaje'],
+                      backgroundColor: resp['id'] == '0'
+                          ? idRespuesta == 1
+                              ? utils.colorToastAceptada
+                              : utils.colorToastRechazada
+                          : null,
+                      textStyle: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    );
+                    Navigator.pop(context);
+                  });
+                }),
     );
   }
 
