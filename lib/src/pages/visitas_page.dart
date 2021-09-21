@@ -248,7 +248,7 @@ class _VisitasPageState extends State<VisitasPage> {
                     tag: visita.idVisitas + visita.visitante,
                     child: Text(
                       '${visita.visitante}',
-                      style: utils.estiloTextoBlancoSombreado(18),
+                      style: utils.estiloTextoSombreado(18),
                       overflow: TextOverflow.fade,
                     ),
                   )),
@@ -260,7 +260,7 @@ class _VisitasPageState extends State<VisitasPage> {
                   height: 25,
                   child: Text(
                     '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}',
-                    style: utils.estiloTextoBlancoSombreado(11),
+                    style: utils.estiloTextoSombreado(11),
                     overflow: TextOverflow.fade,
                   ))
             ],
