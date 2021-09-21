@@ -100,7 +100,7 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
                     width: 10,
                   ),
                   Text(
-                    _registrando ? 'Enviando Reporte...' : 'Enviar Reporte',
+                    _registrando ? 'Enviando reporte...' : 'Enviar reporte',
                     style: utils.estiloBotones(15),
                   ),
                 ],
