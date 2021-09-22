@@ -38,6 +38,8 @@ void main() async {
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
+  static _MyAppState of(BuildContext context) =>
+      context.findAncestorStateOfType<_MyAppState>();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -123,7 +125,8 @@ class _MyAppState extends State<MyApp> {
                 SeguimientoIncidentePage(),
             'misAccesos': (BuildContext context) => MisAccesosPage(),
           },
-          themeMode: ThemeMode.system,
+          themeMode:
+              prefs.themeMode == 'Dark' ? ThemeMode.dark : ThemeMode.light,
           theme: ThemeData(
               textTheme: TextTheme(caption: TextStyle(color: Colors.black)),
               snackBarTheme: SnackBarThemeData(actionTextColor: Colors.white),
@@ -141,10 +144,11 @@ class _MyAppState extends State<MyApp> {
               textSelectionHandleColor: utils.colorSecundario,
               cardColor: Colors.white,
               appBarTheme: AppBarTheme(
-                  textTheme:
-                      TextTheme(headline6: TextStyle(color: Colors.black)),
-                  iconTheme: IconThemeData(color: utils.colorSecundario),
-                  actionsIconTheme: IconThemeData(color: utils.colorSecundario),
+                  textTheme: TextTheme(
+                      headline6: TextStyle(color: Colors.black),
+                      bodyText2: TextStyle(color: Colors.black)),
+                  iconTheme: IconThemeData(color: Colors.black),
+                  actionsIconTheme: IconThemeData(color: Colors.black),
                   brightness: Brightness.light,
                   elevation: 0,
                   color: utils.colorFondoPrincipalLight),
@@ -174,8 +178,9 @@ class _MyAppState extends State<MyApp> {
                   buttonColor: utils.colorPrincipal,
                   disabledColor: utils.colorSecundario),
               appBarTheme: AppBarTheme(
-                  textTheme:
-                      TextTheme(headline6: TextStyle(color: Colors.white)),
+                  textTheme: TextTheme(
+                      headline6: TextStyle(color: Colors.white),
+                      bodyText2: TextStyle(color: Colors.white)),
                   iconTheme: IconThemeData(color: Colors.white),
                   actionsIconTheme: IconThemeData(color: Colors.white),
                   brightness: Brightness.dark,
@@ -186,5 +191,11 @@ class _MyAppState extends State<MyApp> {
                   FloatingActionButtonThemeData(foregroundColor: Colors.white),
               scaffoldBackgroundColor: utils.colorFondoPrincipalDark),
         ));
+  }
+
+  void changeTheme() {
+    setState(() {
+      prefs.themeMode = prefs.themeMode == 'Dark' ? 'Light' : 'Dark';
+    });
   }
 }

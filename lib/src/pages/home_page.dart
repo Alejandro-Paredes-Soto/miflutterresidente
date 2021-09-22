@@ -18,6 +18,8 @@ import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../../main.dart';
+
 class HomePage extends StatefulWidget {
   final PageController pageController;
   HomePage({this.pageController});
@@ -31,7 +33,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final configUsuarioProvider = ConfigUsuarioProvider();
   final _loginProvider = LoginProvider();
   final _prefs = PreferenciasUsuario();
-  
+
   Map _resultados;
   bool _nuevaEncuesta = false, _respuestaEnviada = false, _accesos = false;
   EncuestaModel _datosEncuesta;
@@ -111,11 +113,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           height: 40,
         ),
         actions: [
-          FlatButton(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          IconButton(
+              padding: EdgeInsets.all(0),
+              icon: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Icons.wb_sunny_outlined
+                        : Icons.nightlight_round,
+                    size: 30,
+                  ),
+                  Text('Tema', style: TextStyle(fontSize: 10)),
+                ],
+              ),
+              onPressed: MyApp.of(context).changeTheme),
+          SizedBox(width: 10),
+          IconButton(
+            padding: EdgeInsets.all(0),
             onPressed: _abrirSoporte,
-            child: Column(
+            icon: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(
@@ -127,6 +144,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ],
             ),
           ),
+          SizedBox(width: 15),
         ],
       ),
       body: _creaBody(),
@@ -409,7 +427,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15.0),
           child: FlatButton(
-              padding: EdgeInsets.only(left:10.0, right: 10.0),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
               color: utils.colorAcentuado,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
