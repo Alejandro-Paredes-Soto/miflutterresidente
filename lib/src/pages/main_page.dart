@@ -57,16 +57,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
             arguments: data['visita']);
         setState(() {});
       }
-      if (data.containsKey('encuesta')) {
-        creaDialogSimple(
-            navigatorKey.currentContext,
-            'Nueva encuesta disponible',
-            'Respóndela en la sección de inicio',
-            'Aceptar', () {
-          Navigator.pop(navigatorKey.currentContext);
-          setState(() {});
-        });
-      }
     });
   }
 

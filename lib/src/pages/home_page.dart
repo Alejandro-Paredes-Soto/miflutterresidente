@@ -33,26 +33,45 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final configUsuarioProvider = ConfigUsuarioProvider();
   final _loginProvider = LoginProvider();
   final _prefs = PreferenciasUsuario();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  Map _resultados;
-  bool _nuevaEncuesta = false, _respuestaEnviada = false, _accesos = false;
+  bool _nuevaEncuesta = false, _accesos = false;
   EncuestaModel _datosEncuesta;
   int _noMolestar = 2;
   String _numeroCaseta = '';
 
-  @override
-  void initState() {
-    super.initState();
+  void _obtenerEncuesta() {
     avisosProvider.obtenerUltimaEncuesta(_prefs.usuarioLogged).then((encuesta) {
       ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
       if (!mounted) return;
       setState(() {
-        if (encuesta.containsKey(1)) {
-          _datosEncuesta = encuesta[1];
+        if (encuesta.containsKey(1) && !_nuevaEncuesta) {
           _nuevaEncuesta = true;
+          _datosEncuesta = encuesta[1];
+          _scaffoldKey.currentState
+              .showSnackBar(SnackBar(
+                duration: Duration(minutes: 1),
+                content: Text(
+                    'Hay disponible una nueva encuesta\n¡Nos interesa tu opinión!'),
+                action: SnackBarAction(
+                  onPressed: () => _responderEncuesta(
+                    pregunta: _datosEncuesta.pregunta,
+                    respuestas: _datosEncuesta.respuestas,
+                  ),
+                  label: 'Responder',
+                ),
+              ))
+              .closed
+              .then((value) => _nuevaEncuesta = false);
         }
       });
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _obtenerEncuesta();
     avisosProvider.obtenerNumeroCaseta(_prefs.usuarioLogged).then((respuesta) {
       if (respuesta.containsKey(1)) {
         if (!mounted) return;
@@ -88,24 +107,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void didUpdateWidget(HomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_nuevaEncuesta)
-      avisosProvider
-          .obtenerUltimaEncuesta(_prefs.usuarioLogged)
-          .then((encuesta) {
-        ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
-        if (!mounted) return;
-        setState(() {
-          if (encuesta.containsKey(1)) {
-            _datosEncuesta = encuesta[1];
-            _nuevaEncuesta = true;
-          }
-        });
-      });
+    _obtenerEncuesta();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: false,
         title: Image.asset(
@@ -382,40 +390,40 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }) {
     return ElevatedContainer(
       child: RaisedButton(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-        color: Theme.of(context).cardColor,
-        elevation: 0,
-        padding: EdgeInsets.zero,
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                rutaIcono,
-                height: 25,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              SizedBox(height: 10),
-              Flexible(
-                child: AutoSizeText(
-                  titulo,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.fade,
-                  maxLines: 2,
-                  wrapWords: false,
-                  style: utils.estiloBotones(16,
-                      color: Theme.of(context).textTheme.bodyText2.color),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+          color: Theme.of(context).cardColor,
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          child: Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  rutaIcono,
+                  height: 25,
+                  color: Theme.of(context).iconTheme.color,
                 ),
-              ),
-            ],
+                SizedBox(height: 10),
+                Flexible(
+                  child: AutoSizeText(
+                    titulo,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.fade,
+                    maxLines: 2,
+                    wrapWords: false,
+                    style: utils.estiloBotones(16,
+                        color: Theme.of(context).textTheme.bodyText2.color),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        onPressed:
-            ruta == null ? onPressed : () => Navigator.pushNamed(context, ruta),
-      ),
+          onPressed: ruta == null
+              ? onPressed
+              : () => Navigator.pushNamed(context, ruta)),
     );
   }
 
@@ -467,72 +475,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _cargaEncuesta() {
-    return AnimatedContainer(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      height: _nuevaEncuesta ? 130 : 0,
-      duration: Duration(milliseconds: 500),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Flexible(
-              child: Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    !_respuestaEnviada
-                        ? '¡Tienes una nueva encuesta disponible!'
-                        : '¡Gracias!',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  )),
-            ),
-            Flexible(child: SizedBox(height: 10)),
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    color: utils.colorPrincipal,
-                    child: Text(
-                      !_respuestaEnviada ? 'Responder' : 'Ver Resultados',
-                      style: utils.estiloBotones(15),
-                    ),
-                    onPressed: !_respuestaEnviada
-                        ? () => _responderEncuesta(
-                              pregunta: _datosEncuesta.pregunta,
-                              respuestas: _datosEncuesta.respuestas,
-                            )
-                        : () => _mostrarResultados(
-                            _datosEncuesta.pregunta, _resultados[1]),
-                  ),
-                  SizedBox(width: 20),
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    color: utils.colorSecundarioSemi,
-                    child: Text(
-                      !_respuestaEnviada ? 'En otro momento' : 'Cerrar',
-                      style: utils.estiloBotones(15),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _nuevaEncuesta = false;
-                      });
-                    },
-                  )
-                ],
-              ),
-            ),
-            Flexible(child: SizedBox(height: 10)),
-          ],
-        ),
-      ),
-    );
-  }
-
   _responderEncuesta({String pregunta, List<Respuesta> respuestas}) {
     List<CupertinoActionSheetAction> actions = respuestas
         .map((element) => CupertinoActionSheetAction(
@@ -540,11 +482,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               element.respuestaEncuesta,
               style: TextStyle(
                   fontSize: 20.0, color: Theme.of(context).iconTheme.color),
-              textScaleFactor: 1.0,
             ),
-            onPressed: () => _enviarRespuesta(
-                  int.tryParse(element.idRespuestaEncuesta),
-                )))
+            onPressed: () {
+              Navigator.of(context).pop('dialog');
+              _enviarRespuesta(int.tryParse(element.idRespuestaEncuesta));
+            }))
         .toList();
 
     showCupertinoModalPopup(
@@ -557,11 +499,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).textTheme.bodyText2.color,
                 ),
-                textScaleFactor: 0.9,
               ),
               actions: actions,
               cancelButton: CupertinoActionSheetAction(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.of(context).pop('dialog'),
                 child: Text(
                   'Cancelar',
                   style: TextStyle(
@@ -574,23 +515,32 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   _enviarRespuesta(int respuesta) {
-    Navigator.pop(context);
-    creaDialogProgress(context, 'Enviando respuesta');
+    creaDialogProgress(context, 'Enviando respuesta...');
     avisosProvider
         .enviarRespuestaEncuesta(_prefs.usuarioLogged, respuesta)
         .then((resultados) {
-      Navigator.pop(context);
+      Navigator.of(context).pop('dialog');
       if (resultados.containsKey(1)) {
-        Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-            Icon(Icons.assignment), 'Encuesta enviada', 10));
-        setState(() {
-          _respuestaEnviada = true;
-          _resultados = resultados;
-        });
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Row(
+              children: <Widget>[
+                Icon(Icons.send),
+                SizedBox(
+                  width: 15,
+                ),
+                Flexible(
+                  child: Text('Su respuesta ha sido registrada\n¡Gracias!',
+                      style: TextStyle(fontSize: 16)),
+                ),
+              ],
+            ),
+            duration: Duration(minutes: 1),
+            action: SnackBarAction(
+              label: 'Ver resultados',
+              onPressed: () =>
+                  _mostrarResultados(_datosEncuesta.pregunta, resultados[1]),
+            )));
       } else {
-        setState(() {
-          _nuevaEncuesta = false;
-        });
         Scaffold.of(context).showSnackBar(
             utils.creaSnackBarIcon(Icon(Icons.error), resultados[2], 10));
       }

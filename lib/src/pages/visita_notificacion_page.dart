@@ -41,6 +41,9 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   Widget build(BuildContext context) {
     final VisitaModel visita = ModalRoute.of(context).settings.arguments;
     id = visita.idVisitas;
+    if (visita.tipoVisita == 3) {
+      _tiempoVencido = true;
+    }
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -68,34 +71,37 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
-            child: AnimatedCrossFade(
-              duration: Duration(milliseconds: 200),
-              crossFadeState: !_tiempoVencido
-                  ? CrossFadeState.showFirst
-                  : CrossFadeState.showSecond,
-              firstChild: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Tiempo para responder '),
-                  CountdownTimer(
-                    showZeroNumbers: false,
-                    endTime: fecha.millisecondsSinceEpoch,
-                    secSymbol: '',
-                    textStyle: utils.estiloBotones(18,
-                        color: Theme.of(context).textTheme.bodyText2.color),
-                    onEnd: () => setState(() => _tiempoVencido = false),
-                  ),
-                  Text(' seg'),
-                ],
-              ),
-              secondChild: Text(
-                'El tiempo para responder esta visita ha expirado',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: utils.colorToastRechazada,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
+            padding: EdgeInsets.only(bottom: 10.0),
+            child: Visibility(
+              visible: visita.tipoVisita == 1 || visita.tipoVisita == 3,
+              child: AnimatedCrossFade(
+                duration: Duration(milliseconds: 200),
+                crossFadeState: !_tiempoVencido
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                firstChild: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Tiempo para responder '),
+                    CountdownTimer(
+                      showZeroNumbers: false,
+                      endTime: fecha.millisecondsSinceEpoch,
+                      secSymbol: '',
+                      textStyle: utils.estiloBotones(18,
+                          color: Theme.of(context).textTheme.bodyText2.color),
+                      onEnd: () => setState(() => _tiempoVencido = true),
+                    ),
+                    Text(' seg'),
+                  ],
+                ),
+                secondChild: Text(
+                  'El tiempo para responder esta visita ha expirado',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: utils.colorToastRechazada,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
