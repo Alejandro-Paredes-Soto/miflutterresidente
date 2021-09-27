@@ -289,7 +289,7 @@ void _descargaImagen(BuildContext context, String url) async {
 Map<String, dynamic> getColorEstatus(String estatus) {
   switch (estatus) {
     case 'Aceptada':
-      return {'icono': Icons.check_circle, 'color': Colors.green};
+      return {'icono': Icons.check_circle, 'color': utils.colorAcentuado};
     case 'Rechazada':
       return {'icono': Icons.cancel, 'color': Colors.red};
     default:
