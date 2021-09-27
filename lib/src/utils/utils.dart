@@ -184,7 +184,7 @@ bool correoValido(String email) {
 }
 
 bool textoVacio(String text) {
-  if (text.isEmpty) {
+  if (text.trim().isEmpty) {
     return true;
   } else
     return false;
