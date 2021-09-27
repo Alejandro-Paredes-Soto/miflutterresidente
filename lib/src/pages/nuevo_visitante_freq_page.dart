@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imageTools;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_extend/share_extend.dart';
@@ -40,16 +41,18 @@ class _NuevoVisitanteFrecuentePageState
   Widget build(BuildContext context) {
     _validaSesion.verificaSesion();
     return Scaffold(
-      appBar: utils.appBarLogo(titulo: 'Agregar', backbtn: BackButton(
-        onPressed: () {
-          if(!_registrando){
-            if(_visitanteRegistrado)
-              Navigator.pop(context, true);
-            else
-              Navigator.pop(context, false);
-          }
-        },
-      )),
+      appBar: utils.appBarLogo(
+          titulo: 'Agregar',
+          backbtn: BackButton(
+            onPressed: () {
+              if (!_registrando) {
+                if (_visitanteRegistrado)
+                  Navigator.pop(context, true);
+                else
+                  Navigator.pop(context, false);
+              }
+            },
+          )),
       body: AnimatedCrossFade(
         duration: Duration(milliseconds: 500),
         crossFadeState: _visitanteRegistrado
@@ -72,17 +75,15 @@ class _NuevoVisitanteFrecuentePageState
             child: Column(
               children: <Widget>[
                 _creaTitulo(),
-                SizedBox(height: 20.0),
+                SizedBox(height: 10.0),
                 _crearTextNombre('Nombre(s)', 'Ej. Luis'),
-                SizedBox(height: 20.0),
                 _crearTextApellidoP('Apellido paterno', 'Ej. Fernández'),
-                SizedBox(height: 20.0),
                 _crearTextApellidoM('Apellido materno', 'Ej. Herrera'),
-                SizedBox(height: 20.0),
+                SizedBox(height: 10.0),
                 _crearListaVigencia(),
-                SizedBox(height: 20.0),
+                SizedBox(height: 10.0),
                 _creaSwitchUnicaOc(),
-                SizedBox(height: 40.0),
+                SizedBox(height: 30.0),
                 _creaAvisoBoton()
               ],
             ),
@@ -250,7 +251,11 @@ class _NuevoVisitanteFrecuentePageState
   Widget _crearTextNombre(String label, String hint) {
     return TextFormField(
       controller: _txtNombreCtrl,
+      maxLength: 30,
       enabled: !_registrando,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       textInputAction: TextInputAction.next,
       onEditingComplete: FocusScope.of(context).unfocus,
       textCapitalization: TextCapitalization.sentences,
@@ -274,8 +279,12 @@ class _NuevoVisitanteFrecuentePageState
   Widget _crearTextApellidoP(String label, String hint) {
     return TextFormField(
       controller: _txtApPatCtrl,
+      maxLength: 20,
       focusNode: sigFocusText,
       enabled: !_registrando,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       onEditingComplete: FocusScope.of(context).unfocus,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.sentences,
@@ -299,8 +308,12 @@ class _NuevoVisitanteFrecuentePageState
   Widget _crearTextApellidoM(String label, String hint) {
     return TextFormField(
       controller: _txtApMatCtrl,
+      maxLength: 20,
       focusNode: sigFocusText2,
       enabled: !_registrando,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       onEditingComplete: FocusScope.of(context).unfocus,
       textInputAction: TextInputAction.done,
       textCapitalization: TextCapitalization.sentences,

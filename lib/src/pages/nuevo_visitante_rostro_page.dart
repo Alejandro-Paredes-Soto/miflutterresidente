@@ -63,6 +63,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaCampoNombre('Nombre(s)', 'Ej. Luis'),
               _creaCampoApellidoPat('Apellido paterno', 'Ej. Fernández'),
               _creaCampoApellidoMat('Apellido materno', 'Ej. Herrera'),
+              SizedBox(height: 10.0),
               _creaBtnAgregaImagen(),
               _creaTextoErrorImg(),
               SizedBox(height: 10.0),
@@ -96,6 +97,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       maxLength: 30,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.sentences,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
         hintText: hint,
@@ -117,6 +121,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       maxLength: 20,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.sentences,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       decoration: InputDecoration(
         hintText: hint,
         labelText: label,
@@ -135,6 +142,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       enabled: !_registrando,
       controller: _txtApMatCtrl,
       maxLength: 20,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
         hintText: hint,
@@ -264,13 +274,15 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     } catch (e) {
-       String mensajeError = '';
-      if(e.toString().contains('permission_denied'))
+      String mensajeError = '';
+      if (e.toString().contains('permission_denied'))
         mensajeError = 'Otorga los permisos correspondientes.';
-        else
-        mensajeError=e.toString();
+      else
+        mensajeError = e.toString();
       _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error), 'Ocurrió un error al procesar la imagen. $mensajeError', 2));
+          Icon(Icons.error),
+          'Ocurrió un error al procesar la imagen. $mensajeError',
+          2));
     }
   }
 
