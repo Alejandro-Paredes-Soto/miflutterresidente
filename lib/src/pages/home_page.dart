@@ -316,7 +316,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         children: [
           Visibility(
               visible: _accesos,
-              child: Flexible(
+              child: Expanded(
                   child: _creaBtnIconoMini(
                       rutaIcono: utils.rutaIconoAccesos,
                       titulo: 'Mis accesos',
@@ -330,7 +330,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       titulo: 'Contacto\na caseta',
                       onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
           Visibility(visible: _numeroCaseta != '', child: SizedBox(width: 20)),
-          Flexible(
+          Expanded(
               child: _creaBtnIconoMini(
                   rutaIcono: utils.rutaIconoCerrarSesion,
                   titulo: 'Cerrar sesión',

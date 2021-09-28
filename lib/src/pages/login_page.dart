@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       children: <Widget>[
         Image.asset(
           utils.rutaFondoLogin,
-          fit: BoxFit.fitHeight,
+          fit: BoxFit.cover,
         ),
         Positioned.fill(
           child: Scaffold(
