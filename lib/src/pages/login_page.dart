@@ -47,8 +47,8 @@ class _LoginPageState extends State<LoginPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Image.asset(
-            utils.rutaLogoLetrasDostopPng,
-            height: 50,
+            utils.rutaLogoLetrasDostopParco,
+            height: 90,
           ),
           Expanded(
             child: Container(

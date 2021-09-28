@@ -58,10 +58,12 @@ LinearGradient colorGradienteSecundario = LinearGradient(
 double tamanoIcoNavBar = 28;
 double tamanoIcoModal = 20;
 double tamanoIcoSnackbar = 18;
-String rutaLogoDostopD = 'assets/LogoDostopD.svg';
+String rutaLogoParcoDark='assets/LogoParcoDark.png';
+String rutaLogoParcoLight='assets/LogoParcoLight.png';
 String rutaLogoDostopDPng = 'assets/LogoDostopD.png';
-String rutaLogoLetrasDostop = 'assets/LogoLetrasDostop.svg';
 String rutaLogoLetrasDostopPng = 'assets/LogoLetrasDostop.png';
+String rutaLogoLetrasDostopParco = 'assets/LogoLetrasDostopParco.png';
+
 String rutaIconoInicio = 'assets/IconoInicio.svg';
 String rutaIconoVisitas = 'assets/IconoVisitas.svg';
 String rutaIconoEmergencia = 'assets/IconoEmergencia.svg';

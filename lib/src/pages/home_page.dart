@@ -116,9 +116,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: false,
-        title: Image.asset(
-          utils.rutaLogoDostopDPng,
-          height: 40,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              utils.rutaLogoDostopDPng,
+              height: 40,
+            ),
+            SizedBox(width: 5),
+            Padding(
+              padding: EdgeInsets.only(bottom: 5.0),
+              child: AnimatedCrossFade(
+                duration: Duration(milliseconds: 200),
+                crossFadeState: Theme.of(context).brightness == Brightness.dark
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                firstChild: Image.asset(utils.rutaLogoParcoDark, height: 35),
+                secondChild: Image.asset(utils.rutaLogoParcoLight, height: 35),
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
