@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
