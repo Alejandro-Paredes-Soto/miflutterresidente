@@ -1,7 +1,10 @@
 import 'dart:async';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:image/image.dart' as imageTools;
 import 'package:flutter_svg/svg.dart';
@@ -14,7 +17,6 @@ import 'package:dostop_v2/src/models/visitante_freq_model.dart';
 import 'package:dostop_v2/src/providers/visitantes_frecuentes_provider.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
-import 'package:dostop_v2/src/utils/utils.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
 import 'dart:io';
@@ -31,6 +33,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   final _prefs = PreferenciasUsuario();
   final visitanteProvider = VisitantesFreqProvider();
   final _configUsuarioProvider = ConfigUsuarioProvider();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _tabIndex = 0;
   int _obteniendoConfig = 0;
   String _tipoServicio = '';
@@ -50,34 +53,87 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       });
     });
     timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      if (!_dialogAbierto && _tabIndex > 0)
-        setState(() => print("actualizar info"));
+      if (!_dialogAbierto && _tabIndex > 0) setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: utils.appBarLogo(titulo: 'V. Frecuentes'),
       body: _creaBody(),
-      floatingActionButton: _cargaFAB(),
+      floatingActionButton: _creaFABMultiple(context, _tipoServicio),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       // bottomNavigationBar: _creaBoton(),
     );
   }
 
+  Widget _creaTabs(String valor) {
+    List<Widget> tabs = [
+      Container(
+          child: Text(
+        'Visitantes\nQR',
+        textAlign: TextAlign.center,
+        style: utils.estiloBotones(15),
+      )),
+      Container(
+          child: Text(
+        'Visitantes\nRostros',
+        textAlign: TextAlign.center,
+        style: utils.estiloBotones(15),
+      )),
+      Container(
+          child: Text(
+        'Colonos\nRostros',
+        textAlign: TextAlign.center,
+        style: utils.estiloBotones(15),
+      ))
+    ];
+    if (valor == '0') {
+      tabs.removeLast();
+      tabs.removeLast();
+    }
+    if (valor == '1') {
+      tabs.removeAt(1);
+    } else if (valor == '2') {
+      tabs.removeAt(2);
+    }
+    return valor == '' || valor == '0'
+        ? Container()
+        : Container(
+            height: 60,
+            child: CustomTabBar(
+              Theme.of(context).brightness == Brightness.dark
+                  ? utils.colorFondoTabs
+                  : utils.colorFondoPrincipalDark,
+              utils.colorAcentuado,
+              tabs,
+              () => _tabIndex,
+              (index) {
+                setState(() {
+                  _tabIndex = index;
+                });
+              },
+              allowExpand: true,
+              innerHorizontalPadding: 40,
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+          );
+  }
+
   Widget _creaBody() {
-    return Column(
-      children: [
-        Flexible(
-          child: _creaTabsFrecuentes(),
-          flex: 0,
-        ),
-        Expanded(
-          child: _creaPagFrecuentes(),
-          flex: 1,
-        )
-      ],
+    return Container(
+      padding: EdgeInsets.all(15),
+      child: Column(
+        children: [
+          _creaTabs(_tipoServicio),
+          Expanded(
+            child: _creaPagFrecuentes(),
+            flex: 1,
+          )
+        ],
+      ),
     );
   }
 
@@ -100,8 +156,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   Widget _creaListadoFrecuentes(List<VisitanteFreqModel> lista) {
     if (lista.length > 0) {
       return Container(
-          child: ListView.builder(
-        padding: EdgeInsets.all(10),
+          child: ListView.separated(
+        separatorBuilder: (context, index) => SizedBox(height: 15),
+        padding: EdgeInsets.only(top: 15.0),
         itemCount: lista.length,
         itemBuilder: (context, index) => _tabIndex == 0
             ? _crearItem(context, lista[index])
@@ -118,86 +175,31 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     }
   }
 
-  Widget _creaTabsFrecuentes() {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.grey[400],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Flexible(child: _creaTab('Visitantes QR', 0, true)),
-          Visibility(
-              visible: _obteniendoConfig == 0
-                  ? false
-                  : _tipoServicio == '2' || _tipoServicio == '3',
-              child: Flexible(child: _creaTab('Visitantes rostro', 1, true))),
-          Visibility(
-              visible: _obteniendoConfig == 0
-                  ? false
-                  : _tipoServicio == '1' || _tipoServicio == '3',
-              child: Flexible(child: _creaTab('Colonos rostro', 2, true)))
-        ],
-      ),
-    );
-  }
-
-  Widget _creaTab(String titulo, int index, bool visible) {
-    return Visibility(
-      visible: visible,
-      child: RaisedButton(
-          elevation: _tabIndex == index ? 2 : 0,
-          highlightElevation: 0,
-          color: _tabIndex == index ? null : Colors.grey[400],
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          onPressed: () {
-            setState(() {
-              _tabIndex = index;
-            });
-          },
-          child: Text(
-            titulo,
-            style: utils.estiloBotones(14),
-            textAlign: TextAlign.center,
-          )),
-    );
-  }
-
   Widget _crearItem(BuildContext context, VisitanteFreqModel visitante) {
-    return Column(
-      children: <Widget>[
-        Card(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          //color: utils.colorFondoTarjeta,
-          elevation: 3,
-          child: Container(
-            padding: EdgeInsets.all(10),
+    return ElevatedContainer(
+      padding: EdgeInsets.all(15.0),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text('Nombre', style: estiloTituloTarjeta(11)),
-                    Text(visitante.unico ? 'Único' : '',
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: colorPrincipal)),
-                  ],
-                ),
+                Text('Nombre', style: utils.estiloTituloTarjeta(12)),
                 Text(
                   '${visitante.nombre}',
-                  style: estiloSubtituloTarjeta(17),
+                  style: utils.estiloSubtituloTarjeta(15),
                 ),
-                SizedBox(height: 15),
-                Text('Vence en:', style: estiloTituloTarjeta(11)),
+                SizedBox(height: 20),
+                Text(visitante.unico ? 'QR de única ocasión:' : 'Vence en:',
+                    style: visitante.unico
+                        ? TextStyle(
+                            color: utils.colorAcentuado,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500)
+                        : utils.estiloTituloTarjeta(
+                            12,
+                          )),
                 visitante.vigencia
                         .isBefore(DateTime.now().add(Duration(days: 31)))
                     ? CountdownTimer(
@@ -210,72 +212,85 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                         hoursSymbol: "h ",
                         minSymbol: "m ",
                         secSymbol: "s",
+                        textStyle: utils.estiloSubtituloTarjeta(15),
                         onEnd: () => Future.delayed(
                             Duration(seconds: 2), () => setState(() {})),
                       )
-                    : Text('Tiempo Indefinido'),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      color: colorPrincipal,
-                      child: Container(
-                        width: 80,
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Ver Código',
-                          style: estiloBotones(13),
-                        ),
+                    : Text(
+                        'Tiempo Indefinido',
+                        style: utils.estiloSubtituloTarjeta(15),
                       ),
-                      onPressed: () {
-                        creaDialogImagen(
-                            context,
-                            '',
-                            _creaQR(visitante.codigo),
-                            'Compartir',
-                            'Cancelar',
-                            () => _compartir(visitante.codigo),
-                            () => Navigator.pop(context));
-                      },
-                    ),
-                    RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      color: colorSecundario,
-                      child: Container(
-                          width: 80,
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Eliminar',
-                            softWrap: false,
-                            style: estiloBotones(13),
-                          )),
-                      onPressed: () {
-                        _eliminaVisitanteFreq(context, visitante);
-                      },
-                    )
-                  ],
-                )
               ],
             ),
           ),
-        ),
-        SizedBox(
-          height: 10,
-        )
-      ],
+          Flexible(
+            flex: 0,
+            child: Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    color: utils.colorPrincipal,
+                    child: Container(
+                      width: 100,
+                      height: 50,
+                      alignment: Alignment.center,
+                      child: Text(
+                        'Ver código',
+                        style: utils.estiloBotones(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      creaDialogQR(
+                          _scaffoldKey.currentContext,
+                          '',
+                          _creaQR(visitante.codigo),
+                          'Compartir',
+                          'Cancelar',
+                          () => _compartir(visitante.codigo),
+                          () => Navigator.of(_scaffoldKey.currentContext)
+                              .pop('dialog'));
+                    },
+                  ),
+                  SizedBox(height: 15),
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : utils.colorFondoPrincipalDark,
+                    child: Container(
+                        width: 100,
+                        height: 50,
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Eliminar',
+                          softWrap: false,
+                          style: utils.estiloBotones(12,
+                              color: Theme.of(context).scaffoldBackgroundColor),
+                        )),
+                    onPressed: () {
+                      _eliminaVisitanteFreq(
+                          _scaffoldKey.currentContext, visitante);
+                    },
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 
   Widget _crearItemRostro(BuildContext context, VisitanteFreqModel visitante) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    return ElevatedContainer(
+      padding: EdgeInsets.all(10),
       child: Container(
-        padding: EdgeInsets.all(10),
-        height: 150,
+        height: 120,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -295,45 +310,47 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
             SizedBox(width: 10),
             Expanded(
               flex: 3,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Nombre', style: estiloTituloTarjeta(11)),
-                    Text(visitante.nombre, style: estiloSubtituloTarjeta(17)),
-                    SizedBox(height: 10),
-                    Text('Estatus', style: estiloTituloTarjeta(11)),
-                    Row(
-                      children: [
-                        visitante.estatusDispositivo == '1' &&
-                                visitante.activo == '1'
-                            ? Icon(Icons.check_circle_outline,
-                                color: utils.colorContenedorSaldo)
-                            : Container(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator()),
-                        SizedBox(width: 5),
-                        Text(visitante.estatusDispositivo == '1'
-                            ? visitante.activo == '0'
-                                ? 'Eliminando...'
-                                : 'Listo para usarse'
-                            : 'Registrando...'),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Visibility(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Nombre', style: utils.estiloTituloTarjeta(11)),
+                  Text(visitante.nombre,
+                      style: utils.estiloSubtituloTarjeta(17)),
+                  SizedBox(height: 10),
+                  Text('Estatus', style: utils.estiloTituloTarjeta(11)),
+                  Row(
+                    children: [
+                      visitante.estatusDispositivo == '1' &&
+                              visitante.activo == '1'
+                          ? Icon(Icons.check_circle_outline,
+                              color: utils.colorContenedorSaldo)
+                          : Container(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator()),
+                      SizedBox(width: 5),
+                      Text(visitante.estatusDispositivo == '1'
+                          ? visitante.activo == '0'
+                              ? 'Eliminando...'
+                              : 'Listo para usarse'
+                          : 'Registrando...'),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Visibility(
                       visible: visitante.estatusDispositivo == '0' ||
                           visitante.activo == '0',
-                      child: Text(
-                          !visitante.expiroTolerancia
-                              ? 'Esto puede tomar alrededor de 30 segundos.'
-                              : 'El tiempo de espera está tomando mas de lo normal. Puede que en caseta ocurra una falla de internet.',
-                          style: estiloTituloTarjeta(11)),
-                    ),
-                  ],
-                ),
+                      child: AutoSizeText(
+                        !visitante.expiroTolerancia
+                            ? 'Esto puede tomar alrededor de 30 segundos.'
+                            : 'El tiempo de espera está tomando mas de lo normal. Puede que en caseta ocurra una falla de internet.',
+                        style: utils.estiloTituloTarjeta(12),
+                        maxLines: 2,
+                        minFontSize: 8,
+                        wrapWords: false,
+                      )),
+                ],
               ),
             ),
             Visibility(
@@ -353,26 +370,34 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   Widget _creaQR(String codigo) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Container(
-          padding: EdgeInsets.all(10),
-          height: 200,
-          width: 200,
-          child: QrImage(
-            data: codigo,
-            version: QrVersions.auto,
-            size: 100,
+    return Container(
+      color: Colors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(10),
+            height: 200,
+            width: 200,
+            child: QrImage(
+              data: codigo,
+              version: QrVersions.auto,
+              size: 100,
+            ),
           ),
-        ),
-        SelectableText(
-          codigo,
-          style: TextStyle(
-              fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black),
-        )
-      ],
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: SelectableText(
+              codigo,
+              style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -435,12 +460,12 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       switch (estatus['OK']) {
         case 1:
           setState(() {});
-          Scaffold.of(context).showSnackBar(
-              creaSnackBarIcon(Icon(Icons.delete), 'Visitante eliminado', 5));
+          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.delete), 'Visitante eliminado', 5));
           break;
         case 2:
           _dialogAbierto = false;
-          Scaffold.of(context).showSnackBar(creaSnackBarIcon(
+          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.error), 'No se pudo eliminar al visitante', 5));
           break;
       }
@@ -449,10 +474,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       Navigator.pop(context);
       _dialogAbierto = false;
     });
-  }
-
-  Widget _cargaFAB() {
-    return _creaFABMultiple(context, _tipoServicio);
   }
 
   Widget _creaFABMultiple(BuildContext context, String valor) {
@@ -467,7 +488,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 animatedIcon: AnimatedIcons.menu_close,
                 overlayColor: Theme.of(context).scaffoldBackgroundColor,
                 overlayOpacity: 0.5,
-                backgroundColor: utils.colorPrincipal,
+                backgroundColor: utils.colorAcentuado,
                 children: _obtenerElementosFAB(valor),
               )
             : Container();
@@ -528,10 +549,13 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     if (result) {
       setState(() {});
       Future.delayed(Duration(milliseconds: 500), () {
-        Scaffold.of(context).showSnackBar(creaSnackBarIcon(
-            SvgPicture.asset(rutaIconoVisitantesFrecuentes,
-                height: tamanoIcoSnackbar, color: Colors.white),
-            tipoRostro==1?'Acceso colono creado':'Visitante frecuente creado',
+        _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+            SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
+                height: utils.tamanoIcoSnackbar,
+                color: Theme.of(context).snackBarTheme.actionTextColor),
+            tipoRostro == 1
+                ? 'Acceso colono creado'
+                : 'Visitante frecuente creado',
             5));
       });
     }

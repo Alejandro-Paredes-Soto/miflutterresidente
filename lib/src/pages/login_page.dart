@@ -1,11 +1,10 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
-import 'package:dostop_v2/src/utils/utils.dart';
+import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -25,13 +24,13 @@ class _LoginPageState extends State<LoginPage> {
       fit: StackFit.expand,
       children: <Widget>[
         Image.asset(
-          rutaFondoLogin,
-          fit: BoxFit.fitHeight,
+          utils.rutaFondoLogin,
+          fit: BoxFit.cover,
         ),
         Positioned.fill(
           child: Scaffold(
             //resizeToAvoidBottomInset: false,
-            backgroundColor: colorFondoLoginSemi,
+            backgroundColor: utils.colorFondoLoginSemi,
             appBar: _creaAppBar(),
             body: Container(
                 padding: EdgeInsets.all(10), child: _contenidoLogin()),
@@ -47,48 +46,34 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            'Dostop',
-            softWrap: false,
-            overflow: TextOverflow.visible,
-            style: TextStyle(
-                fontFamily: 'Play', fontSize: 40, color: colorPrincipal),
-          ),
-          Row(
-            children: <Widget>[
-              Text('Protegemos ',
-                  style: TextStyle(fontFamily: 'Play', color: Colors.white)),
-              TyperAnimatedTextKit(
-                text: ['tu hogar', 'a tu familia', 'lo que más importa'],
-                pause: Duration(seconds: 2),
-                speed: Duration(milliseconds: 100),
-                textStyle: TextStyle(fontFamily: 'Play', color: Colors.white),
-                isRepeatingAnimation: false,
-                //totalRepeatCount: 3,
-              ),
-            ],
+          Image.asset(
+            utils.rutaLogoLetrasDostopParco,
+            height: 90,
           ),
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(height: 40.0),
-                  Text(
-                    'Inicio de Sesión',
-                    style: estiloBotones(24),
-                  ),
-                  SizedBox(height: 40.0),
-                  _crearTextUsuario('Usuario', 'mail@ejemplo.com'),
-                  SizedBox(height: 20.0),
-                  _crearTextPassword('Contraseña', 'Contraseña de la cuenta'),
-                  SizedBox(height: 20.0),
-                  _crearBotonLogin(),
-                  SizedBox(height: 20.0),
-                  _crebaBotonForgPass(),
-                ],
+            child: Container(
+              alignment: Alignment.center,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(height: 40.0),
+                    Text(
+                      'Inicio de sesión',
+                      style: utils.estiloBotones(25),
+                    ),
+                    SizedBox(height: 40.0),
+                    _crearTextUsuario('Usuario', 'mail@ejemplo.com'),
+                    SizedBox(height: 20.0),
+                    _crearTextPassword('Contraseña', 'Contraseña de la cuenta'),
+                    SizedBox(height: 20.0),
+                    _crearBotonLogin(),
+                    SizedBox(height: 20.0),
+                    _crebaBotonForgPass(),
+                  ],
+                ),
               ),
             ),
           )
@@ -102,35 +87,12 @@ class _LoginPageState extends State<LoginPage> {
       brightness: Brightness.dark,
       elevation: 0,
       backgroundColor: Colors.transparent,
-      // title: Row(
-      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //   children: [
-      //     Text(
-      //       'Dostop',
-      //       softWrap: false,
-      //       overflow: TextOverflow.visible,
-      //       style: TextStyle(
-      //           fontFamily: 'Play', fontSize: 40, color: colorPrincipal),
-      //     ),
-      //     Hero(
-      //       tag: 'd',
-      //       // child: SvgPicture.asset(
-      //       //   rutaLogoDostopD,
-      //       //   fit: BoxFit.cover,
-      //       //   height: 32,
-      //       // ),
-      //       child: Container(
-      //         height: 32,
-      //       ),
-      //     ),
-      //   ],
-      // ),
     );
   }
 
   Widget _crearTextUsuario(String label, String hint) {
     return TextFormField(
-      style: TextStyle(color: colorFondoPrincipalDark),
+      style: TextStyle(color: Colors.white),
       enabled: !_iniciando,
       inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[ ]'))],
       controller: _txtUserCtrl,
@@ -138,18 +100,20 @@ class _LoginPageState extends State<LoginPage> {
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
         filled: true,
-        fillColor: colorTextLoginSemi,
+        fillColor: utils.colorTextLoginSemi,
         border: UnderlineInputBorder(borderRadius: BorderRadius.circular(15)),
         hintText: hint,
         labelText: label,
+        labelStyle: TextStyle(color: utils.colorTextoPrincipalDark),
+        hintStyle: TextStyle(color: utils.colorTextoPrincipalDark),
       ),
       onFieldSubmitted: (valor) {
         FocusScope.of(context).requestFocus(sigFocusText);
       },
       validator: (texto) {
-        if (textoVacio(texto))
+        if (utils.textoVacio(texto))
           return 'Ingresa tu correo electrónico';
-        else if (!correoValido(texto))
+        else if (!utils.correoValido(texto))
           return 'El correo escrito no es válido';
         else
           return null;
@@ -159,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _crearTextPassword(String label, String hint) {
     return TextFormField(
-      style: TextStyle(color: colorFondoPrincipalDark),
+      style: TextStyle(color: Colors.white),
       enabled: !_iniciando,
       focusNode: sigFocusText,
       controller: _txtPassCtrl,
@@ -167,43 +131,48 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
         border: UnderlineInputBorder(borderRadius: BorderRadius.circular(15)),
         filled: true,
-        fillColor: colorTextLoginSemi,
+        fillColor: utils.colorTextLoginSemi,
         hintText: hint,
         labelText: label,
+        labelStyle: TextStyle(color: utils.colorTextoPrincipalDark),
+        hintStyle: TextStyle(color: utils.colorTextoPrincipalDark),
       ),
       validator: (texto) {
-        if (textoVacio(texto)) return 'Escribe tu contraseña';
+        if (utils.textoVacio(texto)) return 'Escribe tu contraseña';
         return null;
       },
     );
   }
 
   Widget _crearBotonLogin() {
-    return MaterialButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      height: 50,
-      highlightElevation: 0,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Visibility(
-            child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(colorPrincipal)),
-            visible: _iniciando,
-          ),
-          SizedBox(width: 10),
-          Flexible(
-            fit: FlexFit.loose,
-            child: Text(
-              _iniciando ? 'Iniciando Sesión...' : 'Iniciar Sesión',
-              style: estiloBotones(18),
-              textAlign: TextAlign.center,
+    return RaisedGradientButton(
+      padding: EdgeInsets.all(0.0),
+      borderRadius: BorderRadius.circular(15),
+      gradient: utils.colorGradientePrincipal,
+      disabledGradient: utils.colorGradienteSecundario,
+      child: Container(
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Visibility(
+              child: CircularProgressIndicator(
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(utils.colorPrincipal)),
+              visible: _iniciando,
             ),
-          ),
-        ],
+            SizedBox(width: 10),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Text(
+                _iniciando ? 'Iniciando Sesión...' : 'Iniciar Sesión',
+                style: utils.estiloBotones(15),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
-      color: colorPrincipal,
-      disabledColor: colorSecundario,
       onPressed: _iniciando ? null : _submit,
     );
   }
@@ -245,8 +214,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _navegarAHome() async {
-    Map estatus =
-        await loginProvider.registrarTokenFCM(obtenerIDPlataforma(context));
+    Map estatus = await loginProvider
+        .registrarTokenFCM(utils.obtenerIDPlataforma(context));
     switch (estatus['OK']) {
       case 0:
         print(estatus['message']);
@@ -265,17 +234,15 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _crebaBotonForgPass() {
     return ButtonTheme(
-      height: 50,
+      height: 60,
       minWidth: double.infinity,
-      child: FlatButton(
-        colorBrightness: Brightness.dark,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Align(
-          child: Text(
-            'Olvidé mi contraseña',
-            style: estiloBotones(18),
-          ),
-          alignment: Alignment.centerLeft,
+      child: RaisedButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+        color: utils.colorAcentuado,
+        disabledColor: utils.colorAcentuado,
+        child: Text(
+          'Olvidé mi contraseña',
+          style: utils.estiloBotones(15),
         ),
         onPressed: _iniciando
             ? null

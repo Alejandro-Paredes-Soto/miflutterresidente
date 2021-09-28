@@ -20,7 +20,6 @@ class PushNotificationsManager {
   MensajeStream mensajeStream = MensajeStream.instancia;
   final notifProvider = NotificacionesProvider();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  // bool notificacionForeground = false;
   List<String> idsVisitas = List();
 
   Future<void> initNotifications() async {
@@ -115,24 +114,7 @@ class PushNotificationsManager {
       //     mensajeStream.addMessage({'incidente': 'El guardia respondió tu reporte: $mensaje'??'Nueva notificación'});
       //     break;
     }
-    // iniciarTimer();
   }
-  /*OPCIÓN DE ULTIMO RECURSO!!! USAR UN TIMER PARECE SER INEFICIENTE Y PUEDE TRAER CONSIGO PROBLEMAS DE MEMORIA (MEMORY LEAK)
-   *SI LA PETICIÓN DE LUIS PERMANECE PARA REALIZAR LA ACTUALIZACIÓN DE VISITAS AUNQUE EL USUARIO NO DE CLICK A LA NOTIFICACIÓN
-   *DESCOMENTAR TODOS LOS EVENTOS CON iniciaTimer() y detenerTimer(). SE PROBÓ Y FUNCIONA, PERO EN ALGUNOS ESCENARIOS EL TIMER
-   *SIGUE CORRIENDO AUNQUE LO HAYAMOS DETENIDO. 
-   *
-   * USAR SOLAMENTE COMO ÚLTIMO RECURSO!!!!
-   */
-  // iniciarTimer() {
-  //   _timerVisitas =
-  //       Timer.periodic(Duration(seconds: 2), (_) => mostrarUltimaVisita());
-  // }
-
-  // detenerTimer() {
-  //   if (_timerVisitas.isActive) _timerVisitas.cancel();
-  // }
-
   mostrarUltimaVisita() async {
     final visita = await notifProvider
         .obtenerUltimaNotificacion(_prefs.usuarioLogged)

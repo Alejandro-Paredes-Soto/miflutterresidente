@@ -62,7 +62,7 @@ class _MiCasaPageState extends State<MiCasaPage> {
                     duration: Duration(milliseconds: 500),
                     height: 50,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(15),
                         color: saldo['color']),
                     margin: EdgeInsets.symmetric(horizontal: 90),
                     alignment: Alignment.center,
@@ -78,22 +78,17 @@ class _MiCasaPageState extends State<MiCasaPage> {
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
                   Expanded(
-                    child: ListView.builder(
+                    child: ListView.separated(
+                      separatorBuilder: (context, index) => Divider(),
                       itemCount: datosPago.pagos.length,
-                      itemExtent: 50,
                       itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(color: Colors.black12))),
-                          child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                            title: Text(
-                                '${utils.fechaCompleta(datosPago.pagos[index].fechaPago, showTime: true)}'),
-                            trailing: Text(
-                              '\$${datosPago.pagos[index].monto}',
-                              style: TextStyle(fontSize: 16),
-                            ),
+                        return ListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 5),
+                          title: Text(
+                              '${utils.fechaCompleta(datosPago.pagos[index].fechaPago, showTime: true)}'),
+                          trailing: Text(
+                            '\$${datosPago.pagos[index].monto}',
+                            style: TextStyle(fontSize: 16),
                           ),
                         );
                       },
@@ -119,20 +114,20 @@ class _MiCasaPageState extends State<MiCasaPage> {
         'texto': 'Total a pagar:',
         'monto': '\$${saldoDouble.toStringAsFixed(2)}',
         'estado': 'Con adeudo',
-        'color': utils.colorPrincipal
+        'color': utils.colorToastRechazada
       };
     if (saldoDouble < 0)
       return {
         'texto': 'Saldo a favor:',
         'monto': '\$${(saldoDouble * -1).toStringAsFixed(2)}',
         'estado': 'Sin adeudo',
-        'color': utils.colorContenedorSaldo
+        'color': utils.colorAcentuado
       };
     return {
       'texto': 'Saldo:',
       'monto': '\$0.00',
       'estado': 'Sin adeudo',
-      'color': utils.colorContenedorSaldo
+      'color': utils.colorAcentuado
     };
   }
 

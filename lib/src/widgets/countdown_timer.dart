@@ -21,29 +21,30 @@ class CountdownTimer extends StatefulWidget {
   final TextStyle hoursSymbolTextStyle;
   final TextStyle minSymbolTextStyle;
   final TextStyle secSymbolTextStyle;
+  final bool showZeroNumbers;
   final void Function() onEnd;
 
-  CountdownTimer({
-    this.endTime,
-    this.defaultDays = "--",
-    this.defaultHours = "--",
-    this.defaultMin = "--",
-    this.defaultSec = "--",
-    this.daysSymbol = "天",
-    this.hoursSymbol = ":",
-    this.minSymbol = ":",
-    this.secSymbol = "",
-    this.textStyle,
-    this.daysTextStyle,
-    this.hoursTextStyle,
-    this.minTextStyle,
-    this.secTextStyle,
-    this.daysSymbolTextStyle,
-    this.hoursSymbolTextStyle,
-    this.minSymbolTextStyle,
-    this.secSymbolTextStyle,
-    this.onEnd,
-  });
+  CountdownTimer(
+      {this.endTime,
+      this.defaultDays = "--",
+      this.defaultHours = "--",
+      this.defaultMin = "--",
+      this.defaultSec = "--",
+      this.daysSymbol = "天",
+      this.hoursSymbol = ":",
+      this.minSymbol = ":",
+      this.secSymbol = "",
+      this.textStyle,
+      this.daysTextStyle,
+      this.hoursTextStyle,
+      this.minTextStyle,
+      this.secTextStyle,
+      this.daysSymbolTextStyle,
+      this.hoursSymbolTextStyle,
+      this.minSymbolTextStyle,
+      this.secSymbolTextStyle,
+      this.onEnd,
+      this.showZeroNumbers = true});
 
   @override
   _CountDownState createState() => _CountDownState();
@@ -56,16 +57,12 @@ class _CountDownState extends State<CountdownTimer> {
 
   DiffDate getDateData() {
     if (widget.endTime == null) return null;
-    int diff = ((widget.endTime - DateTime
-        .now()
-        .millisecondsSinceEpoch) / 1000).floor();
+    int diff = ((widget.endTime - DateTime.now().millisecondsSinceEpoch) / 1000)
+        .floor();
     if (diff < 0) {
       return null;
     }
-    int days,
-        hours,
-        min,
-        sec = 0;
+    int days, hours, min, sec = 0;
     if (diff >= 86400) {
       days = (diff / 86400).floor();
       diff -= days * 86400;
@@ -169,37 +166,45 @@ class _CountDownState extends State<CountdownTimer> {
       ));
     }
     if (diffDate.hours != -1) {
-      var hours = _getNumberAddZero(diffDate.hours);
-      list.add(Text(
-        '${hours ?? widget.defaultHours}',
-        style: _getTextStyle(widget.hoursTextStyle),
-      ));
-      list.add(Text(
-        widget.hoursSymbol,
-        style: _getTextStyle(widget.hoursSymbolTextStyle),
-      ));
+      if (diffDate.hours != 0 ||
+          (diffDate.hours == 0 && widget.showZeroNumbers)) {
+        var hours = _getNumberAddZero(diffDate.hours);
+        list.add(Text(
+          '${hours ?? widget.defaultHours}',
+          style: _getTextStyle(widget.hoursTextStyle),
+        ));
+        list.add(Text(
+          widget.hoursSymbol,
+          style: _getTextStyle(widget.hoursSymbolTextStyle),
+        ));
+      }
     }
     if (diffDate.min != -1) {
-      var min = _getNumberAddZero(diffDate.min);
-      list.add(Text(
-        '${min ?? widget.defaultMin}',
-        style: _getTextStyle(widget.minTextStyle),
-      ));
-      list.add(Text(
-        widget.minSymbol,
-        style: _getTextStyle(widget.minSymbolTextStyle),
-      ));
+      if (diffDate.min != 0 || (diffDate.min == 0 && widget.showZeroNumbers)) {
+        var min = _getNumberAddZero(diffDate.min);
+        list.add(Text(
+          '${min ?? widget.defaultMin}',
+          style: _getTextStyle(widget.minTextStyle),
+        ));
+        list.add(Text(
+          widget.minSymbol,
+          style: _getTextStyle(widget.minSymbolTextStyle),
+        ));
+      }
     }
     if (diffDate.sec != -1) {
-      var sec = _getNumberAddZero(diffDate.sec);
-      list.add(Text(
-        '${sec ?? widget.defaultSec}',
-        style: _getTextStyle(widget.secTextStyle),
-      ));
-      list.add(Text(
-        widget.secSymbol,
-        style: _getTextStyle(widget.secSymbolTextStyle),
-      ));
+      if (diffDate.sec != 0 ||
+          (diffDate.sec == 0 && widget.showZeroNumbers)) {
+        var sec = _getNumberAddZero(diffDate.sec);
+        list.add(Text(
+          '${sec ?? widget.defaultSec}',
+          style: _getTextStyle(widget.secTextStyle),
+        ));
+        list.add(Text(
+          widget.secSymbol,
+          style: _getTextStyle(widget.secSymbolTextStyle),
+        ));
+      }
     }
     return list;
   }
@@ -215,7 +220,7 @@ class _CountDownState extends State<CountdownTimer> {
   }
 
   void checkDateEnd(DiffDate data) {
-    if(data.days == -1 && data.hours == 0 && data.min == 0 && data.sec == 0) {
+    if (data.days == -1 && data.hours == 0 && data.min == 0 && data.sec == 0) {
       widget.onEnd();
       disposeDiffTimer();
     }

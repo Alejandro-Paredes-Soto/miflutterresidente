@@ -28,7 +28,7 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
     final List<String> _datosVisita = ModalRoute.of(context).settings.arguments;
     _idVisita=_datosVisita[0];
     return Scaffold(
-      appBar: utils.appBarLogoD(titulo: 'Reportar'),
+      appBar: utils.appBarLogo(titulo: 'Reportar'),
       body: _creaBody(context, _datosVisita[1]),
     );
   }
@@ -85,7 +85,7 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
           child: Container(
               alignment: Alignment.center,
               width: double.infinity,
-              height: 50,
+              height: 60,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -100,8 +100,8 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
                     width: 10,
                   ),
                   Text(
-                    _registrando ? 'Enviando Reporte...' : 'Enviar Reporte',
-                    style: utils.estiloBotones(20),
+                    _registrando ? 'Enviando reporte...' : 'Enviar reporte',
+                    style: utils.estiloBotones(15),
                   ),
                 ],
               )),

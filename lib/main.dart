@@ -1,15 +1,23 @@
+import 'package:dostop_v2/src/pages/areas_comunes_page.dart';
 import 'package:dostop_v2/src/pages/aviso_detalle_page.dart';
+import 'package:dostop_v2/src/pages/avisos_page.dart';
+import 'package:dostop_v2/src/pages/emergencia_page.dart';
+import 'package:dostop_v2/src/pages/estado_de_cuenta_page.dart';
+import 'package:dostop_v2/src/pages/mi_casa_page.dart';
 import 'package:dostop_v2/src/pages/mis_accesos_page.dart';
 import 'package:dostop_v2/src/pages/nuevo_visitante_freq_page.dart';
 import 'package:dostop_v2/src/pages/nuevo_visitante_rostro_page.dart';
 import 'package:dostop_v2/src/pages/promocion_detalle_page.dart';
 import 'package:dostop_v2/src/pages/login_page.dart';
 import 'package:dostop_v2/src/pages/main_page.dart';
+import 'package:dostop_v2/src/pages/promociones_page.dart';
 import 'package:dostop_v2/src/pages/restablecer_usuario_page.dart';
 import 'package:dostop_v2/src/pages/seguimiento_reporte_page.dart';
 import 'package:dostop_v2/src/pages/visita_detalle_page.dart';
 import 'package:dostop_v2/src/pages/reportar_incidente_page.dart';
 import 'package:dostop_v2/src/pages/visita_notificacion_page.dart';
+import 'package:dostop_v2/src/pages/visitantes_frecuentes_page.dart';
+import 'package:dostop_v2/src/pages/visitas_page.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
@@ -30,6 +38,8 @@ void main() async {
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
+  static _MyAppState of(BuildContext context) =>
+      context.findAncestorStateOfType<_MyAppState>();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -66,13 +76,14 @@ class _MyAppState extends State<MyApp> {
         reverseCurve: Curves.fastOutSlowIn,
         toastPositions:
             StyledToastPosition(align: Alignment.bottomCenter, offset: 80),
-        child:
-            MaterialApp(
+        child: MaterialApp(
           // /*BLOQUE DE CODIGO QUE PREVIENE EL ESCALADO DE TEXTO CON EL SISTEMA*/
-          // builder: (BuildContext context, Widget child) {
-          //   return MediaQuery(
-          //   data: MediaQuery.of(context).copyWith(textScaleFactor: 1.2),
-          //   child: child,);},
+          builder: (BuildContext context, Widget child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+              child: child,
+            );
+          },
           // /*FIN DEL BLOQUE*/
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
@@ -90,8 +101,17 @@ class _MyAppState extends State<MyApp> {
           initialRoute: prefs.usuarioLogged == '' ? 'login' : 'main',
           routes: {
             'login': (BuildContext context) => LoginPage(),
-            'main': (BuildContext context) => MainPage(),
             'resetUser': (BuildContext context) => RestablecerUsuarioPage(),
+            'main': (BuildContext context) => MainPage(),
+            'visitas': (BuildContext context) => VisitasPage(),
+            'emergencias': (BuildContext context) => EmergenciasPage(),
+            'avisos': (BuildContext context) => AvisosPage(),
+            'visitantesFreq': (BuildContext context) =>
+                VisitantesFrecuentesPage(),
+            'estadosCuenta': (BuildContext context) => EstadoDeCuentaPage(),
+            'areasComunes': (BuildContext context) => AreasComunesPage(),
+            'miCasa': (BuildContext context) => MiCasaPage(),
+            'promociones': (BuildContext context) => PromocionesPage(),
             'AvisoDetalle': (BuildContext context) => AvisoDetallePage(),
             'VisitaDetalle': (BuildContext context) => VisitaDetallePage(),
             'VisitaNotif': (BuildContext context) => VisitaNofificacionPage(),
@@ -101,68 +121,81 @@ class _MyAppState extends State<MyApp> {
             'NuevoVisitRostro': (BuildContext context) =>
                 NuevoVisitanteRostroPage(),
             'Incidente': (BuildContext context) => ReportarIncidentePage(),
-            'SeguimientoInc': (BuildContext context) => SeguimientoIncidentePage(),
-            'MisAccesos': (BuildContext context) => MisAccesosPage(),
+            'SeguimientoInc': (BuildContext context) =>
+                SeguimientoIncidentePage(),
+            'misAccesos': (BuildContext context) => MisAccesosPage(),
           },
+          themeMode:
+              prefs.themeMode == 'Dark' ? ThemeMode.dark : ThemeMode.light,
           theme: ThemeData(
+              textTheme: TextTheme(caption: TextStyle(color: Colors.black)),
               snackBarTheme: SnackBarThemeData(actionTextColor: Colors.white),
-              iconTheme: IconThemeData(color: utils.colorIconos),
-              fontFamily: 'Poppins',
+              iconTheme: IconThemeData(color: Colors.black),
+              fontFamily: 'PlusJakarta',
               primaryColor: utils.colorPrincipal,
               primarySwatch: utils.colorCalendario,
               accentColor: utils.colorSecundario,
+              dividerTheme: DividerThemeData(color: Colors.black, thickness: 1),
               buttonTheme: ButtonThemeData(
                   buttonColor: utils.colorPrincipal,
                   disabledColor: utils.colorSecundario),
               cursorColor: utils.colorPrincipal,
               textSelectionColor: Colors.black26,
               textSelectionHandleColor: utils.colorSecundario,
-              cardColor: utils.colorFondoTarjeta,
+              cardColor: Colors.white,
               appBarTheme: AppBarTheme(
-                  textTheme:
-                      TextTheme(headline6: TextStyle(color: Colors.black)),
-                  iconTheme: IconThemeData(color: utils.colorSecundario),
-                  actionsIconTheme: IconThemeData(color: utils.colorSecundario),
+                  textTheme: TextTheme(
+                      headline6: TextStyle(color: Colors.black),
+                      bodyText2: TextStyle(color: Colors.black)),
+                  iconTheme: IconThemeData(color: Colors.black),
+                  actionsIconTheme: IconThemeData(color: Colors.black),
                   brightness: Brightness.light,
                   elevation: 0,
-                  color: Colors.white),
-              scaffoldBackgroundColor: Colors.white),
+                  color: utils.colorFondoPrincipalLight),
+              scaffoldBackgroundColor: utils.colorFondoPrincipalLight),
           // CONFIGURACIONES DEL DARK MODE THEME
           darkTheme: ThemeData(
-            inputDecorationTheme: InputDecorationTheme(
-                labelStyle: TextStyle(
-                  color: utils.colorSecundario,
-                ),
-                hintStyle: TextStyle(color: utils.colorSecundario)),
-            iconTheme: IconThemeData(color: utils.colorTextoPrincipalDark),
-            snackBarTheme: SnackBarThemeData(
-                actionTextColor: utils.colorFondoPrincipalDark),
-            textTheme: TextTheme(
-                bodyText2: TextStyle(color: utils.colorTextoPrincipalDark)),
-            fontFamily: 'Poppins',
-            brightness: Brightness.dark,
-            primaryColor: utils.colorPrincipal,
-            accentColor: Colors.grey,
-            cursorColor: Colors.red,
-            backgroundColor: utils.colorFondoPrincipalDark,
-            textSelectionColor: Colors.grey,
-            textSelectionHandleColor: Colors.grey,
-            buttonTheme: ButtonThemeData(
-                buttonColor: utils.colorPrincipal,
-                disabledColor: utils.colorSecundario),
-            appBarTheme: AppBarTheme(
-                textTheme: TextTheme(
-                    headline6: TextStyle(color: utils.colorTextoPrincipalDark)),
-                iconTheme: IconThemeData(color: utils.colorTextoPrincipalDark),
-                actionsIconTheme:
-                    IconThemeData(color: utils.colorFondoPrincipalDark),
-                brightness: Brightness.dark,
-                elevation: 0,
-                color: utils.colorFondoPrincipalDark),
-            canvasColor: utils.colorFondoPrincipalDark,
-            floatingActionButtonTheme:
-                FloatingActionButtonThemeData(foregroundColor: Colors.white),
-          ),
+              inputDecorationTheme: InputDecorationTheme(
+                  labelStyle: TextStyle(color: utils.colorTextoPrincipalDark),
+                  hintStyle: TextStyle(color: utils.colorTextoPrincipalDark)),
+              iconTheme: IconThemeData(color: Colors.white),
+              snackBarTheme: SnackBarThemeData(
+                  actionTextColor: utils.colorFondoPrincipalDark),
+              dividerTheme: DividerThemeData(color: Colors.white, thickness: 1),
+              textTheme: TextTheme(
+                  bodyText2: TextStyle(color: Colors.white),
+                  caption: TextStyle(color: Colors.white)),
+              fontFamily: 'PlusJakarta',
+              brightness: Brightness.dark,
+              primaryColor: utils.colorPrincipal,
+              accentColor: utils.colorPrincipal,
+              cursorColor: utils.colorPrincipal,
+              backgroundColor: utils.colorFondoPrincipalDark,
+              textSelectionColor: Colors.grey,
+              textSelectionHandleColor: Colors.grey,
+              cardColor: utils.colorFondoTarjetaDark,
+              buttonTheme: ButtonThemeData(
+                  buttonColor: utils.colorPrincipal,
+                  disabledColor: utils.colorSecundario),
+              appBarTheme: AppBarTheme(
+                  textTheme: TextTheme(
+                      headline6: TextStyle(color: Colors.white),
+                      bodyText2: TextStyle(color: Colors.white)),
+                  iconTheme: IconThemeData(color: Colors.white),
+                  actionsIconTheme: IconThemeData(color: Colors.white),
+                  brightness: Brightness.dark,
+                  elevation: 0,
+                  color: utils.colorFondoPrincipalDark),
+              canvasColor: utils.colorFondoTarjetaDark,
+              floatingActionButtonTheme:
+                  FloatingActionButtonThemeData(foregroundColor: Colors.white),
+              scaffoldBackgroundColor: utils.colorFondoPrincipalDark),
         ));
+  }
+
+  void changeTheme() {
+    setState(() {
+      prefs.themeMode = prefs.themeMode == 'Dark' ? 'Light' : 'Dark';
+    });
   }
 }

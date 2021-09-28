@@ -1,8 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:dostop_v2/src/providers/login_provider.dart';
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
+import 'package:dostop_v2/src/widgets/gradient_button.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:pie_chart/pie_chart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
@@ -16,6 +18,8 @@ import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../../main.dart';
+
 class HomePage extends StatefulWidget {
   final PageController pageController;
   HomePage({this.pageController});
@@ -27,26 +31,54 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final avisosProvider = AvisosProvider();
   final visitasProvider = VisitasProvider();
   final configUsuarioProvider = ConfigUsuarioProvider();
+  final _loginProvider = LoginProvider();
   final _prefs = PreferenciasUsuario();
-  Map _resultados;
-  bool _nuevaEncuesta = false,
-      _respuestaEnviada = false,
-      _noMolestar = false,
-      _accesos = false;
-  EncuestaModel _datosEncuesta;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  @override
-  void initState() {
-    super.initState();
+  bool _nuevaEncuesta = false, _accesos = false;
+  EncuestaModel _datosEncuesta;
+  int _noMolestar = 2;
+  String _numeroCaseta = '';
+
+  void _obtenerEncuesta() {
     avisosProvider.obtenerUltimaEncuesta(_prefs.usuarioLogged).then((encuesta) {
       ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
       if (!mounted) return;
       setState(() {
-        if (encuesta.containsKey(1)) {
-          _datosEncuesta = encuesta[1];
+        if (encuesta.containsKey(1) && !_nuevaEncuesta) {
           _nuevaEncuesta = true;
+          _datosEncuesta = encuesta[1];
+          _scaffoldKey.currentState
+              .showSnackBar(SnackBar(
+                duration: Duration(minutes: 1),
+                content: Text(
+                    'Hay disponible una nueva encuesta\n¡Nos interesa tu opinión!'),
+                action: SnackBarAction(
+                  onPressed: () => _responderEncuesta(
+                    pregunta: _datosEncuesta.pregunta,
+                    respuestas: _datosEncuesta.respuestas,
+                  ),
+                  label: 'Responder',
+                ),
+              ))
+              .closed
+              .then((value) => _nuevaEncuesta = false);
         }
       });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _obtenerEncuesta();
+    avisosProvider.obtenerNumeroCaseta(_prefs.usuarioLogged).then((respuesta) {
+      if (respuesta.containsKey(1)) {
+        if (!mounted) return;
+        setState(() {
+          _numeroCaseta = respuesta[1];
+        });
+      }
     });
     configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 2)
@@ -59,96 +91,402 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         }
       });
     });
+    configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 1)
+        .then((estadoNoMolestar) {
+      setState(() {
+        if (estadoNoMolestar.containsKey('valor')) {
+          _noMolestar = estadoNoMolestar['valor'] == '1' ? 1 : 0;
+        } else {
+          _noMolestar = 3;
+        }
+      });
+    });
   }
 
   @override
   void didUpdateWidget(HomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_nuevaEncuesta)
-      avisosProvider
-          .obtenerUltimaEncuesta(_prefs.usuarioLogged)
-          .then((encuesta) {
-        ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
-        if (!mounted) return;
-        setState(() {
-          if (encuesta.containsKey(1)) {
-            _datosEncuesta = encuesta[1];
-            _nuevaEncuesta = true;
-          }
-        });
-      });
+    _obtenerEncuesta();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: utils.appBarLogo(titulo: 'Inicio'),
+      key: _scaffoldKey,
+      appBar: AppBar(
+        centerTitle: false,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              utils.rutaLogoDostopDPng,
+              height: 40,
+            ),
+            SizedBox(width: 5),
+            Padding(
+              padding: EdgeInsets.only(bottom: 5.0),
+              child: AnimatedCrossFade(
+                duration: Duration(milliseconds: 200),
+                crossFadeState: Theme.of(context).brightness == Brightness.dark
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                firstChild: Image.asset(utils.rutaLogoParcoDark, height: 35),
+                secondChild: Image.asset(utils.rutaLogoParcoLight, height: 35),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+              padding: EdgeInsets.all(0),
+              icon: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Icons.wb_sunny_outlined
+                        : Icons.nightlight_round,
+                    size: 30,
+                  ),
+                  Text('Tema', style: TextStyle(fontSize: 10)),
+                ],
+              ),
+              onPressed: MyApp.of(context).changeTheme),
+          SizedBox(width: 10),
+          IconButton(
+            padding: EdgeInsets.all(0),
+            onPressed: _abrirSoporte,
+            icon: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  utils.rutaIconoWhastApp,
+                  height: 30,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                Text('Soporte', style: TextStyle(fontSize: 10)),
+              ],
+            ),
+          ),
+          SizedBox(width: 15),
+        ],
+      ),
       body: _creaBody(),
-      floatingActionButton: _creaItemsFAB(),
     );
   }
 
-  Widget _cargaEncuesta() {
-    return AnimatedContainer(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      height: _nuevaEncuesta ? 130 : 0,
-      duration: Duration(milliseconds: 500),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Flexible(
-              child: Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    !_respuestaEnviada
-                        ? '¡Tienes una nueva encuesta disponible!'
-                        : '¡Gracias!',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  )),
+  Widget _creaBody() {
+    return Scrollbar(
+      child: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(15.0),
+          child: Column(
+            children: AnimationConfiguration.toStaggeredList(
+              duration: Duration(milliseconds: 500),
+              childAnimationBuilder: (widget) => SlideAnimation(
+                horizontalOffset: 100.0,
+                child: FadeInAnimation(
+                  child: widget,
+                ),
+              ),
+              children: [
+                _creaPrimerFila(),
+                _creaBtnFrecuentes(),
+                _creaTerceraFila(),
+                _creaCuartaFila(),
+                _creaQuintaFila(),
+              ],
             ),
-            Flexible(child: SizedBox(height: 10)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _creaPrimerFila() {
+    return Container(
+        height: 220,
+        child: Row(
+          children: [
+            Expanded(child: _creaBtnVisitas()),
+            SizedBox(width: 20),
             Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    color: utils.colorPrincipal,
-                    child: Text(
-                      !_respuestaEnviada ? 'Responder' : 'Ver Resultados',
-                      style: utils.estiloBotones(15),
-                    ),
-                    onPressed: !_respuestaEnviada
-                        ? () => _responderEncuesta(
-                              pregunta: _datosEncuesta.pregunta,
-                              respuestas: _datosEncuesta.respuestas,
-                            )
-                        : () => _mostrarResultados(
-                            _datosEncuesta.pregunta, _resultados[1]),
-                  ),
-                  SizedBox(width: 20),
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    color: utils.colorSecundarioSemi,
-                    child: Text(
-                      !_respuestaEnviada ? 'En otro momento' : 'Cerrar',
-                      style: utils.estiloBotones(15),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _nuevaEncuesta = false;
-                      });
-                    },
-                  )
-                ],
+                child: Column(
+              children: [
+                Expanded(
+                  child: _creaBtnIcono(
+                      rutaIcono: utils.rutaIconoAvisos,
+                      titulo: 'Avisos',
+                      ruta: 'avisos'),
+                ),
+                SizedBox(height: 20),
+                Expanded(
+                  child: _creaBtnIcono(
+                      rutaIcono: utils.rutaIconoEmergencia,
+                      titulo: 'SOS',
+                      subtitulo: 'Emergencias',
+                      ruta: 'emergencias'),
+                ),
+              ],
+            ))
+          ],
+        ));
+  }
+
+  Widget _creaBtnVisitas() {
+    return RaisedGradientButton(
+      elevation: 8,
+      padding: EdgeInsets.all(10.0),
+      gradient: utils.colorGradientePrincipal,
+      borderRadius: BorderRadius.circular(15.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AutoSizeText('Historial\nde visitas',
+              maxLines: 2,
+              wrapWords: false,
+              textAlign: TextAlign.center,
+              style: utils.estiloBotones(30)),
+          SizedBox(height: 20),
+          SvgPicture.asset(
+            utils.rutaIconoVisitas,
+            height: 38,
+            color: Colors.white,
+          )
+        ],
+      ),
+      onPressed: () => Navigator.pushNamed(context, 'visitas'),
+    );
+  }
+
+  Widget _creaTerceraFila() {
+    return Container(
+      height: 120,
+      padding: EdgeInsets.only(top: 20.0),
+      child: Row(
+        children: [
+          Expanded(
+              child: _creaBtnIconoMini(
+                  rutaIcono: utils.rutaIconoEstadoDeCuenta,
+                  titulo: 'Estados de cuenta',
+                  ruta: 'estadosCuenta')),
+          SizedBox(width: 20),
+          Expanded(
+              child: _creaBtnIconoMini(
+                  rutaIcono: utils.rutaIconoAreasComunes,
+                  titulo: 'Áreas comunes',
+                  ruta: 'areasComunes')),
+          SizedBox(width: 20),
+          Expanded(
+              child: _creaBtnIconoMini(
+                  rutaIcono: utils.rutaIconoMiCasa,
+                  titulo: 'Mi casa',
+                  ruta: 'miCasa'))
+        ],
+      ),
+    );
+  }
+
+  Widget _creaCuartaFila() {
+    return Container(
+      height: 120,
+      padding: EdgeInsets.only(top: 20.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+              flex: 2,
+              child: Container(
+                margin: EdgeInsets.only(right: 8.0),
+                child: ElevatedContainer(
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(15.0)),
+                      alignment: Alignment.center,
+                      child: _creaSwitchNoMolestar()),
+                ),
+              )),
+          Expanded(
+            flex: 1,
+            child: Container(
+              padding: EdgeInsets.only(left: 12),
+              child: _creaBtnIconoMini(
+                rutaIcono: utils.rutaIconoPromociones,
+                titulo: 'Promos',
+                ruta: 'promociones',
               ),
             ),
-            Flexible(child: SizedBox(height: 10)),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _creaQuintaFila() {
+    return Container(
+      height: 120,
+      padding: EdgeInsets.only(top: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Visibility(
+              visible: _accesos,
+              child: Expanded(
+                  child: _creaBtnIconoMini(
+                      rutaIcono: utils.rutaIconoAccesos,
+                      titulo: 'Mis accesos',
+                      ruta: 'misAccesos'))),
+          Visibility(visible: _accesos, child: SizedBox(width: 20)),
+          Visibility(
+              visible: _numeroCaseta != '',
+              child: Expanded(
+                  child: _creaBtnIconoMini(
+                      rutaIcono: utils.rutaIconoCaseta,
+                      titulo: 'Contacto\na caseta',
+                      onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
+          Visibility(visible: _numeroCaseta != '', child: SizedBox(width: 20)),
+          Expanded(
+              child: _creaBtnIconoMini(
+                  rutaIcono: utils.rutaIconoCerrarSesion,
+                  titulo: 'Cerrar sesión',
+                  onPressed: _cerrarSesion)),
+          Visibility(visible: _numeroCaseta == '', child: SizedBox(width: 20)),
+          Visibility(
+              visible: _numeroCaseta == '',
+              child: Expanded(child: Container())),
+          Visibility(visible: !_accesos, child: SizedBox(width: 20)),
+          Visibility(visible: !_accesos, child: Expanded(child: Container())),
+        ],
+      ),
+    );
+  }
+
+  Widget _creaBtnIcono(
+      {String rutaIcono, String titulo, String subtitulo, String ruta}) {
+    return ElevatedContainer(
+      child: RaisedButton(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          elevation: 0,
+          color: Theme.of(context).cardColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                SvgPicture.asset(
+                  rutaIcono,
+                  height: 25,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                SizedBox(width: 10),
+                Flexible(
+                  child: AutoSizeText(
+                    titulo,
+                    wrapWords: false,
+                    style: utils.estiloBotones(30,
+                        color: Theme.of(context).textTheme.bodyText2.color),
+                  ),
+                ),
+              ]),
+              Visibility(
+                  visible: subtitulo != null, child: Text(subtitulo ?? ''))
+            ],
+          ),
+          onPressed: () => Navigator.pushNamed(context, ruta)),
+    );
+  }
+
+  Widget _creaBtnIconoMini({
+    String rutaIcono,
+    String titulo,
+    String ruta,
+    Function onPressed,
+  }) {
+    return ElevatedContainer(
+      child: RaisedButton(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+          color: Theme.of(context).cardColor,
+          elevation: 0,
+          padding: EdgeInsets.zero,
+          child: Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  rutaIcono,
+                  height: 25,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                SizedBox(height: 10),
+                Flexible(
+                  child: AutoSizeText(
+                    titulo,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.fade,
+                    maxLines: 2,
+                    wrapWords: false,
+                    style: utils.estiloBotones(16,
+                        color: Theme.of(context).textTheme.bodyText2.color),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          onPressed: ruta == null
+              ? onPressed
+              : () => Navigator.pushNamed(context, ruta)),
+    );
+  }
+
+  Widget _creaBtnFrecuentes() {
+    return Container(
+      height: 120,
+      padding: EdgeInsets.only(top: 20.0),
+      child: ElevatedContainer(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15.0),
+          child: FlatButton(
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+              color: utils.colorAcentuado,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AutoSizeText('Visitas frecuentes',
+                            maxLines: 1,
+                            style: TextStyle(
+                                fontSize: 30,
+                                color: Colors.black,
+                                letterSpacing: -0.5,
+                                fontWeight: FontWeight.w900)),
+                        Text('Envía códigos de acceso',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
+                        height: 35, width: 20, color: Colors.black),
+                  ),
+                ],
+              ),
+              onPressed: () => Navigator.pushNamed(context, 'visitantesFreq')),
         ),
       ),
     );
@@ -157,30 +495,36 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   _responderEncuesta({String pregunta, List<Respuesta> respuestas}) {
     List<CupertinoActionSheetAction> actions = respuestas
         .map((element) => CupertinoActionSheetAction(
-            child: Text(element.respuestaEncuesta,
-                style: TextStyle(
-                    fontSize: 20.0, color: Theme.of(context).iconTheme.color), textScaleFactor: 1.0,),
-            onPressed: () => _enviarRespuesta(
-                  int.tryParse(element.idRespuestaEncuesta),
-                )))
+            child: Text(
+              element.respuestaEncuesta,
+              style: TextStyle(
+                  fontSize: 20.0, color: Theme.of(context).iconTheme.color),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop('dialog');
+              _enviarRespuesta(int.tryParse(element.idRespuestaEncuesta));
+            }))
         .toList();
 
     showCupertinoModalPopup(
         context: context,
         builder: (_) => CupertinoActionSheet(
-              title: Text(pregunta,
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.bodyText2.color,
-                  ),
-                  textScaleFactor: 0.9,),
+              title: Text(
+                pregunta,
+                style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyText2.color,
+                ),
+              ),
               actions: actions,
               cancelButton: CupertinoActionSheetAction(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.of(context).pop('dialog'),
                 child: Text(
                   'Cancelar',
-                  style: TextStyle(fontWeight: FontWeight.bold,),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
                   textScaleFactor: 1.0,
                 ),
               ),
@@ -188,23 +532,32 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   _enviarRespuesta(int respuesta) {
-    Navigator.pop(context);
-    creaDialogProgress(context, 'Enviando respuesta');
+    creaDialogProgress(context, 'Enviando respuesta...');
     avisosProvider
         .enviarRespuestaEncuesta(_prefs.usuarioLogged, respuesta)
         .then((resultados) {
-      Navigator.pop(context);
+      Navigator.of(context).pop('dialog');
       if (resultados.containsKey(1)) {
-        Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-            Icon(Icons.assignment), 'Encuesta enviada', 10));
-        setState(() {
-          _respuestaEnviada = true;
-          _resultados = resultados;
-        });
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Row(
+              children: <Widget>[
+                Icon(Icons.send),
+                SizedBox(
+                  width: 15,
+                ),
+                Flexible(
+                  child: Text('Su respuesta ha sido registrada\n¡Gracias!',
+                      style: TextStyle(fontSize: 16)),
+                ),
+              ],
+            ),
+            duration: Duration(minutes: 1),
+            action: SnackBarAction(
+              label: 'Ver resultados',
+              onPressed: () =>
+                  _mostrarResultados(_datosEncuesta.pregunta, resultados[1]),
+            )));
       } else {
-        setState(() {
-          _nuevaEncuesta = false;
-        });
         Scaffold.of(context).showSnackBar(
             utils.creaSnackBarIcon(Icon(Icons.error), resultados[2], 10));
       }
@@ -237,148 +590,82 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         () => Navigator.pop(context));
   }
 
-  _creaBody() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          _cargaEncuesta(),
-          Container(
-              padding: EdgeInsets.only(left: 15, right: 15),
-              child:
-                  Text('Últimas Visitas', style: utils.estiloTextoAppBar(18))),
-          _cargaUltimasVisitas(),
-          Container(
-            height: 40,
-            child: FlatButton(
-              child: Text(
-                'Ver todas las visitas',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                widget.pageController.jumpToPage(1);
-              },
-            ),
+  Widget _creaSwitchNoMolestar() {
+    Map<String, dynamic> _dataNoMolestar = _obtenerMensajeSwitch(_noMolestar);
+    return Container(
+      padding: EdgeInsets.all(15.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AutoSizeText('No molestar',
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                      style:
+                          TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+                  AutoSizeText(_dataNoMolestar['estado'],
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: _dataNoMolestar['color'])),
+                ]),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Flexible(
-                flex: 2,
-                child: _creaBtnTags(),
-              ),
-              Expanded(
-                flex: 4,
-                child: _creaSwitchNoMolestar(),
-              )
-            ],
-          ),
-          Container(
-              padding: EdgeInsets.only(left: 15, right: 15),
-              child:
-                  Text('Últimos Avisos', style: utils.estiloTextoAppBar(18))),
-          _cargaUltimosAvisos(),
-          Container(
-            height: 40,
-            child: FlatButton(
-              child: Text(
-                'Ver todos los avisos',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                widget.pageController.jumpToPage(3);
-              },
-            ),
-          )
+          CupertinoSwitch(
+              activeColor: utils.colorToastRechazada,
+              trackColor: utils.colorAcentuado,
+              value: _noMolestar == 1,
+              onChanged: _noMolestar == 3
+                  ? null
+                  : (valor) {
+                      if (valor)
+                        creaDialogYesNo(
+                            context,
+                            'Activar modo no molestar',
+                            '¿Seguro que deseas activar el modo no molestar?'
+                                '\n\nTodas tus visitas serán rechazadas automaticamente.'
+                                '\nNota: Los códigos de visitantes frecuentes seguirán teniendo acceso',
+                            'Sí',
+                            'No', () {
+                          Navigator.pop(context);
+                          _cambiaModoNoMolestar(1);
+                        }, () {
+                          setState(
+                            () {
+                              _noMolestar = 0;
+                            },
+                          );
+                          Navigator.pop(context);
+                        });
+                      else
+                        _cambiaModoNoMolestar(0);
+                    }),
         ],
       ),
     );
   }
 
-  Widget _creaBtnTags() {
-    return AnimatedContainer(
-      width: _accesos ? MediaQuery.of(context).size.width / 3 : 0,
-      duration: Duration(milliseconds: 800),
-      curve: Curves.bounceOut,
-      margin: EdgeInsets.only(left: 15),
-      child: RaisedButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: SvgPicture.asset(utils.rutaIconoEntradasTags,
-              color: Colors.white, height: 55),
-          onPressed: () => Navigator.of(context).pushNamed('MisAccesos'),
-          color: utils.colorPrincipal),
-    );
+  Map<String, dynamic> _obtenerMensajeSwitch(int valor) {
+    switch (valor) {
+      case 0:
+        return {'estado': 'Desactivado', 'color': utils.colorAcentuado};
+      case 1:
+        return {'estado': 'Activado', 'color': utils.colorToastRechazada};
+      case 2:
+        return {'estado': 'Cargando...', 'color': utils.colorSecundario};
+      default:
+        return {'estado': 'No disponible', 'color': utils.colorSecundario};
+    }
   }
 
-  Widget _creaSwitchNoMolestar() {
-    return FutureBuilder(
-        future: configUsuarioProvider.obtenerEstadoConfig(
-            _prefs.usuarioLogged, 1), //VALOR 1 MODO NO MOLESTAR
-        builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.data.containsKey('valor')) {
-              _noMolestar = snapshot.data['valor'] == '1' ? true : false;
-              return Container(
-                child: ListTile(
-                  title: Text('Modo no molestar',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(_noMolestar ? 'Activado' : 'Desactivado',
-                      textAlign: TextAlign.right),
-                  trailing: CupertinoSwitch(
-                      activeColor: utils.colorPrincipal,
-                      trackColor: utils.colorContenedorSaldo,
-                      value: _noMolestar,
-                      onChanged: (valor) {
-                        if (valor)
-                          creaDialogYesNo(
-                              context,
-                              'Activar modo no molestar',
-                              '¿Seguro que deseas activar el modo no molestar?'
-                                  '\n\nTodas tus visitas serán rechazadas automaticamente.'
-                                  '\nNota: Los códigos de visitantes frecuentes seguirán teniendo acceso',
-                              'Sí',
-                              'No', () {
-                            Navigator.pop(context);
-                            _cambiaModoNoMolestar(valor);
-                          }, () {
-                            setState(
-                              () {
-                                _noMolestar = false;
-                              },
-                            );
-                            Navigator.pop(context);
-                          });
-                        else
-                          _cambiaModoNoMolestar(valor);
-                      }),
-                ),
-              );
-            } else {
-              return Container(
-                height: 30,
-              );
-            }
-          } else {
-            return ListTile(
-              title: Text(
-                'Modo no molestar',
-                textAlign: TextAlign.right,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text('Cargando...', textAlign: TextAlign.right),
-              trailing: CupertinoSwitch(value: false, onChanged: null),
-            );
-          }
-        });
-  }
-
-  _cambiaModoNoMolestar(bool valor) async {
+  _cambiaModoNoMolestar(int valor) async {
     creaDialogProgress(context, 'Cambiando...');
     Map resultado = await configUsuarioProvider.configurarOpc(
-        _prefs.usuarioLogged, 1, valor);
+        _prefs.usuarioLogged, 1, valor == 1);
     Navigator.pop(context);
     setState(() {
       _noMolestar = valor;
@@ -389,361 +676,53 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  _cargaUltimasVisitas() {
-    return FutureBuilder(
-      future: visitasProvider.obtenerUltimasVisitas(_prefs.usuarioLogged),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<VisitaModel>> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.length > 0) {
-            return Container(
-                height: 240, child: _crearItemVisita(context, snapshot.data));
-          } else {
-            return Container(
-              height: 240,
-              child: Center(
-                child: Text('No tienes visitas por ahora',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center),
-              ),
-            );
-          }
-        } else {
-          return Container(
-            height: 240,
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              elevation: 4,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  _crearItemVisita(BuildContext context, List<VisitaModel> visitas) {
-    return Swiper(
-      containerHeight: 240,
-      loop: false,
-      itemCount: visitas.length,
-      viewportFraction: 1,
-      scale: 0.95,
-      control: SwiperControl(
-          iconPrevious: Icons.arrow_back_ios,
-          iconNext: Icons.arrow_forward_ios,
-          color: utils.colorIndicadorSwiper,
-          disableColor: Colors.transparent),
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              GestureDetector(
-                child: Card(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Stack(
-                        alignment: Alignment.bottomLeft,
-                        children: <Widget>[
-                          _cargaImagenesVisita(utils.validaImagenes([
-                            visitas[index].imgRostro,
-                            visitas[index].imgId,
-                            visitas[index].imgPlaca
-                          ])),
-                          Container(
-                              padding: EdgeInsets.only(left: 10, bottom: 10),
-                              child: Text(
-                                '${visitas[index].visitante}',
-                                style: utils.estiloTextoBlancoSombreado(18),
-                                overflow: TextOverflow.fade,
-                              )),
-                        ],
-                      ),
-                      Container(
-                        padding: EdgeInsets.only(right: 15),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20)),
-                            color: utils.colorPrincipal),
-                        width: double.infinity,
-                        height: 25,
-                        child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Text(
-                                '${utils.fechaCompleta(DateTime.tryParse(visitas[index].fechaEntrada))} ${visitas[index].horaEntrada}',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold),
-                                overflow: TextOverflow.fade,
-                              )
-                            ]),
-                      )
-                    ],
-                  ),
-                ),
-                onTap: () => _abrirVisitaDetalle(visitas[index], context),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _cargaImagenesVisita(List<String> imagenes) {
-    if (imagenes.length == 0) {
-      return Container(
-        height: 200,
-        child: Center(child: Icon(Icons.broken_image)),
-      );
-    } else {
-      return Container(
-          height: 200,
-          child: ClipRRect(
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-            child: Swiper(
-              loop: imagenes.length > 1 ? true : false,
-              scrollDirection: Axis.vertical,
-              containerHeight: 130,
-              pagination: SwiperPagination(
-                  margin: EdgeInsets.only(right: 10, top: 10),
-                  alignment: Alignment.topRight),
-              itemCount: imagenes.length,
-              itemBuilder: (BuildContext context, int index) {
-                return CachedNetworkImage(
-                  placeholder: (context, url) =>
-                      Image.asset(utils.rutaGifLoadRed),
-                  errorWidget: (context, url, error) => Container(
-                      height: 200,
-                      child: Center(child: Icon(Icons.broken_image))),
-                  imageUrl: imagenes[index],
-                  fit: BoxFit.cover,
-                  fadeInDuration: Duration(milliseconds: 300),
-                );
-              },
-            ),
-          ));
-    }
-  }
-
-  _abrirVisitaDetalle(VisitaModel visita, BuildContext context) {
-    Navigator.of(context).pushNamed('VisitaDetalle', arguments: visita);
-  }
-
-  _cargaUltimosAvisos() {
-    return FutureBuilder(
-      future: avisosProvider.obtenerUltimosAvisos(_prefs.usuarioLogged),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<AvisoModel>> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.length > 0) {
-            return Container(
-                height: 240, child: _crearItemAviso(context, snapshot.data));
-          } else {
-            return Container(
-              height: 240,
-              child: Center(
-                child: Text('No tienes avisos por ahora',
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center),
-              ),
-            );
-          }
-        } else {
-          return Container(
-            height: 240,
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  _crearItemAviso(BuildContext context, List<AvisoModel> avisos) {
-    return Swiper(
-      containerHeight: 200,
-      loop: false,
-      itemCount: avisos.length,
-      control: SwiperControl(
-          iconPrevious: Icons.arrow_back_ios,
-          iconNext: Icons.arrow_forward_ios,
-          color: utils.colorIndicadorSwiper,
-          disableColor: Colors.transparent),
-      scale: 0.9,
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                child: Column(
-                  children: <Widget>[
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20))),
-                      child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          height: 200,
-                          child: Text(
-                            '${avisos[index].descripcion}',
-                            overflow: TextOverflow.fade,
-                            style: TextStyle(fontSize: 15),
-                          )),
-                      onPressed: () =>
-                          _abrirAvisoDetalle(avisos[index], context),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(right: 15),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20)),
-                          color: utils.colorPrincipal),
-                      width: double.infinity,
-                      height: 25,
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Text(
-                              '${utils.fechaCompleta(DateTime.tryParse(avisos[index].fecha))}',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold),
-                              overflow: TextOverflow.fade,
-                            )
-                          ]),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  _abrirAvisoDetalle(AvisoModel aviso, BuildContext context) {
-    Navigator.of(context).pushNamed('AvisoDetalle', arguments: aviso);
-  }
-
-  _creaItemsFAB() {
-    return FutureBuilder(
-      future: avisosProvider.obtenerNumeroCaseta(_prefs.usuarioLogged),
-      builder:
-          (BuildContext context, AsyncSnapshot<Map<int, dynamic>> snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data.containsKey(1)) {
-            return _creaFABAyuda(numero: snapshot.data[1]);
-          } else {
-            return _creaFABSoporte();
-          }
-        } else
-          return FloatingActionButton(
-              child: CircularProgressIndicator(
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(utils.colorPrincipal)),
-              onPressed: null);
-      },
-    );
-  }
-
-  Widget _creaFABSoporte() {
-    return FloatingActionButton(
-      tooltip: 'Contactar a soporte',
-      backgroundColor: Colors.white,
-      child: Container(
-          padding: EdgeInsets.all(10),
-          child: SvgPicture.asset(
-            utils.rutaIconoWhastApp,
-            color: Color.fromRGBO(37, 211, 102, 1.0),
-          )),
-      onPressed: () {
-        creaDialogYesNo(
-            context,
-            'Chat de WhatsApp',
-            'Este canal de comunicación es únicamente para el soporte de la aplicación. NO es un canal directo con caseta. ¿Quieres continuar?',
-            'Sí',
-            'No', () async {
-          await _launchWhatsApp(
-              '524779205753', 'Hola. Necesito ayuda con la aplicación Dostop.');
-          Navigator.of(context, rootNavigator: true).pop('dialog');
-        }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
-      },
-    );
-  }
-
-  Widget _creaFABAyuda({String numero}) {
-    return SpeedDial(
-      animatedIcon: AnimatedIcons.menu_close,
-      overlayColor: Theme.of(context).scaffoldBackgroundColor,
-      overlayOpacity: 0.5,
-      backgroundColor: utils.colorPrincipal,
-      children: [
-        SpeedDialChild(
-          child: Container(
-              padding: EdgeInsets.all(10),
-              child: SvgPicture.asset(
-                utils.rutaIconoWhastApp,
-                color: Color.fromRGBO(37, 211, 102, 1.0),
-              )),
-          backgroundColor: Colors.white,
-          labelBackgroundColor: Theme.of(context).cardColor,
-          label: 'Contacto con soporte',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () async {
-            await _launchWhatsApp('524779205753',
-                'Hola. Necesito ayuda con la aplicación Dostop.');
-          },
-        ),
-        SpeedDialChild(
-          child: Icon(Icons.security),
-          backgroundColor: Colors.grey,
-          labelBackgroundColor: Theme.of(context).cardColor,
-          label: 'Contacto a caseta',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () async {
-            await _launchWhatsApp(numero, '');
-          },
-        ),
-      ],
-    );
-  }
-
   _launchWhatsApp(String numero, String mensaje) async {
     final link = WhatsAppUnilink(phoneNumber: numero, text: mensaje);
     // Convert the WhatsAppUnilink instance to a string.
     // Use either Dart's string interpolation or the toString() method.
     // The "launch" method is part of "url_launcher".
     await launch('$link');
+  }
+
+  _abrirSoporte() {
+    creaDialogYesNo(
+        context,
+        'Chat de WhatsApp',
+        'Este canal de comunicación es únicamente para el soporte de la aplicación. NO es un canal directo con caseta. ¿Quieres continuar?',
+        'Sí',
+        'No', () async {
+      await _launchWhatsApp(
+          '524779205753', 'Hola. Necesito ayuda con la aplicación Dostop.');
+      Navigator.of(context, rootNavigator: true).pop('dialog');
+    }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
+  }
+
+  _cerrarSesion() {
+    creaDialogYesNoAlt(
+        context,
+        'Confirmar',
+        '¿Estás seguro de que deseas cerrar sesión?\n\nDejarás de recibir notificaciones de tus visitas.',
+        'Cerrar sesión',
+        'Cancelar', () {
+      Navigator.pop(context);
+      creaDialogProgress(context, 'Cerrando Sesión...');
+      _loginProvider.logout().then((logout) {
+        Navigator.pop(context);
+        if (logout) {
+          _prefs.borraPrefs();
+          print('${_prefs.usuarioLogged}');
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              'login', (Route<dynamic> route) => false);
+        } else {
+          creaDialogSimple(
+              context,
+              '¡Ups! algo salió mal',
+              'No se pudo cerrar tu sesión, verifica tu conexión a internet',
+              'Aceptar',
+              () => Navigator.pop(context));
+        }
+      });
+    }, () => Navigator.pop(context));
   }
 
   @override

@@ -1,9 +1,10 @@
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
+import 'package:dynamic_list_view/dynamic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/mis_accesos_provider.dart';
-import 'package:dostop_v2/src/widgets/dinamic_list_view.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
@@ -48,15 +49,17 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
   }
 
   Widget _creaBody() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.0),
-      child: Column(
-        children: [
-          _creaSwitchNotifAccesos(),
-          _creaListaVehiculos(),
-          Expanded(child: _cargaListadoAccesos()),
-          _creaBannerIconos()
-        ],
+    return SafeArea(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 15.0),
+        child: Column(
+          children: [
+            _creaSwitchNotifAccesos(),
+            _creaListaVehiculos(),
+            Expanded(child: _cargaListadoAccesos()),
+            _creaBannerIconos()
+          ],
+        ),
       ),
     );
   }
@@ -99,13 +102,15 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
   }
 
   Widget _cargaListadoAccesos() {
-    return DynamicListView.build(
+    return DynamicList.build(
         key: _key,
         dataRequester: _dataRequester,
         initRequester: _initRequester,
         itemBuilder: (List dataList, BuildContext context, int index) {
           if (dataList.length > 0)
-            return _crearItem(context, dataList[index], index);
+            return Padding(
+                padding: EdgeInsets.only(bottom: 20),
+                child: _crearItem(context, dataList[index], index));
           else
             return Center(
               child: Text('No se encontraron accesos'),
@@ -123,63 +128,59 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
   }
 
   Widget _crearItem(BuildContext context, AccesoModel acceso, int index) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      elevation: 4,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: Icon(
-                acceso.accion == '1'
-                    ? Icons.arrow_circle_up
-                    : Icons.arrow_circle_down,
-                color: acceso.accion == '1'
-                    ? utils.colorContenedorSaldo
-                    : utils.colorPrincipal,
-                size: 40,
-              ),
+    return ElevatedContainer(
+      padding: EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Icon(
+              acceso.accion == '1'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
+              color: acceso.accion == '1'
+                  ? utils.colorContenedorSaldo
+                  : utils.colorToastRechazada,
+              size: 40,
             ),
-            Expanded(
-              flex: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(acceso.tipoAcceso == '2' ? 'Persona' : 'Vehiculo',
-                      style: utils.estiloTituloTarjeta(14)),
-                  Text(
-                      acceso.tipoAcceso == '2'
-                          ? acceso.nombreAcceso
-                          : '${acceso.marca} ${acceso.modelo} ${acceso.color}',
-                      style: utils.estiloSubtituloTarjeta(17)),
-                  Visibility(
-                      visible: acceso.tipoAcceso != '2',
-                      child:
-                          Text('Placas', style: utils.estiloTituloTarjeta(14))),
-                  Visibility(
-                      visible: acceso.tipoAcceso != '2',
-                      child: Text('${acceso.placas}',
-                          style: utils.estiloSubtituloTarjeta(17))),
-                  SizedBox(height: 5),
-                  Text(
-                      acceso.tipoAcceso == '2'
-                          ? 'Acceso con rostro'
-                          : 'Acceso con tag',
-                      style: utils.estiloTituloTarjeta(14)),
-                  Padding(
-                    padding: EdgeInsets.only(right: 15.0),
-                    child: Text(
-                      '${utils.fechaCompleta(acceso.fechaAcceso)} ${acceso.horaAcceso}',
-                      textAlign: TextAlign.end,
-                    ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(acceso.tipoAcceso == '2' ? 'Persona' : 'Vehiculo',
+                    style: utils.estiloTituloTarjeta(14)),
+                Text(
+                    acceso.tipoAcceso == '2'
+                        ? acceso.nombreAcceso
+                        : '${acceso.marca} ${acceso.modelo} ${acceso.color}',
+                    style: utils.estiloSubtituloTarjeta(17)),
+                Visibility(
+                    visible: acceso.tipoAcceso != '2',
+                    child:
+                        Text('Placas', style: utils.estiloTituloTarjeta(14))),
+                Visibility(
+                    visible: acceso.tipoAcceso != '2',
+                    child: Text('${acceso.placas}',
+                        style: utils.estiloSubtituloTarjeta(17))),
+                SizedBox(height: 5),
+                Text(
+                    acceso.tipoAcceso == '2'
+                        ? 'Acceso con rostro'
+                        : 'Acceso con tag',
+                    style: utils.estiloTituloTarjeta(14)),
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    '${utils.fechaCompleta(acceso.fechaAcceso)} ${acceso.horaAcceso}',
+                    textAlign: TextAlign.left,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -201,7 +202,7 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
           SizedBox(height: 5),
           Icon(
             Icons.arrow_circle_down,
-            color: utils.colorPrincipal,
+            color: utils.colorToastRechazada,
           ),
           Text('Salida')
         ])

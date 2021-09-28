@@ -2,7 +2,9 @@ import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/providers/visitas_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
-import 'package:dostop_v2/src/widgets/dinamic_list_view.dart';
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
+import 'package:dynamic_list_view/dynamic_list.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -16,15 +18,14 @@ class VisitasPage extends StatefulWidget {
 }
 
 class _VisitasPageState extends State<VisitasPage> {
-  final _scrollController = ScrollController();
+  DynamicListController _dynamicListController = DynamicListController();
   final _prefs = PreferenciasUsuario();
   final visitasProvider = VisitasProvider();
   String _fechaTemp = '', _fechaInicio = '', _fechaFinal = '';
   bool _habilitaBtn = false, _filtrado = false;
   Future<List<VisitaModel>> _visitasProvider;
   int _pag = 1;
-  final _key = GlobalKey();
-
+  double opacidad = 1.0;
   @override
   void initState() {
     super.initState();
@@ -32,101 +33,107 @@ class _VisitasPageState extends State<VisitasPage> {
       _visitasProvider =
           visitasProvider.buscarVisitasXFecha(_prefs.usuarioLogged, '', '', 1);
     }
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _dynamicListController.scrollController.addListener(() {
+              setState(() {
+                if (_dynamicListController
+                        .scrollController.position.userScrollDirection ==
+                    ScrollDirection.reverse)
+                  opacidad = 0.0;
+                else
+                  opacidad = 1.0;
+              });
+            }));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: utils.appBarLogo(titulo: 'Visitas'),
-      body: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (context, boxIsScrolled) {
-          return <Widget>[_creaBuscador()];
-        },
-        body: _cargaVisitas(),
+      appBar: utils.appBarLogo(titulo: 'Historial'),
+      body: Stack(
+        children: [
+          Positioned(child: _cargaVisitas()),
+          _elementosBuscador(),
+        ],
       ),
-      floatingActionButton: _creaFAB(),
-    );
-  }
-
-  Widget _creaBuscador() {
-    return SliverAppBar(
-      expandedHeight: 240,
-      elevation: 0.0,
-      centerTitle: false,
-      floating: true,
-      bottom: PreferredSize(
-          child: _elementosBuscador(), preferredSize: Size.fromHeight(150)),
+      //floatingActionButton: _creaFAB(),
     );
   }
 
   Widget _elementosBuscador() {
-    return Container(
-      padding: EdgeInsets.only(left: 20, right: 20),
-      child: Column(
-        children: <Widget>[
-          InkWell(
-              child: _creaCampoFecha(
-                _fechaInicio == '' ? 'Desde' : _fechaInicio,
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 200),
+      opacity: opacidad,
+      child: IgnorePointer(
+        ignoring: opacidad == 0,
+        child: Container(
+          height: 260,
+          color: Theme.of(context).scaffoldBackgroundColor,
+          padding: EdgeInsets.only(left: 20, right: 20),
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 30),
+              GestureDetector(
+                  child: _creaCampoFecha(
+                    _fechaInicio == '' ? 'Desde' : _fechaInicio,
+                  ),
+                  onTap: _filtrado
+                      ? null
+                      : () async {
+                          _fechaInicio = await _selectDate(context,
+                                  fechaFinal: DateTime.tryParse(
+                                      formatoFechaBusqueda(_fechaFinal))) ??
+                              _fechaInicio;
+                          setState(() {
+                            if (_fechaInicio != '' && _fechaFinal != '')
+                              _habilitaBtn = true;
+                          });
+                        }),
+              SizedBox(
+                height: 20,
               ),
-              onTap: _filtrado
-                  ? null
-                  : () async {
-                      _fechaInicio = await _selectDate(context,
-                              fechaFinal: DateTime.tryParse(
-                                  formatoFechaBusqueda(_fechaFinal))) ??
-                          _fechaInicio;
-                      setState(() {
-                        if (_fechaInicio != '' && _fechaFinal != '')
-                          _habilitaBtn = true;
-                      });
-                    }),
-          SizedBox(
-            height: 20,
-          ),
-          InkWell(
-              child: _creaCampoFecha(
-                _fechaFinal == '' ? 'Hasta' : _fechaFinal,
+              GestureDetector(
+                  child: _creaCampoFecha(
+                    _fechaFinal == '' ? 'Hasta' : _fechaFinal,
+                  ),
+                  onTap: _filtrado
+                      ? null
+                      : () async {
+                          _fechaFinal = await _selectDate(context,
+                                  fechaInicial: DateTime.tryParse(
+                                      formatoFechaBusqueda(_fechaInicio))) ??
+                              _fechaFinal;
+                          setState(() {
+                            if (_fechaInicio != '' && _fechaFinal != '')
+                              _habilitaBtn = true;
+                          });
+                        }),
+              SizedBox(
+                height: 30,
               ),
-              onTap: _filtrado
-                  ? null
-                  : () async {
-                      _fechaFinal = await _selectDate(context,
-                              fechaInicial: DateTime.tryParse(
-                                  formatoFechaBusqueda(_fechaInicio))) ??
-                          _fechaFinal;
-                      setState(() {
-                        if (_fechaInicio != '' && _fechaFinal != '')
-                          _habilitaBtn = true;
-                      });
-                    }),
-          SizedBox(
-            height: 30,
+              RaisedButton(
+                color: utils.colorAcentuado,
+                disabledColor: utils.colorSecundario,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                child: Container(
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  height: 60,
+                  child: Text(!_filtrado ? 'Filtrar' : 'Quitar filtro',
+                      style: utils.estiloBotones(15)),
+                ),
+                onPressed: _habilitaBtn
+                    ? () {
+                        // cacheData = [];
+                        _filtrarVisitas();
+                        setState(() {});
+                      }
+                    : null,
+              ),
+            ],
           ),
-          RaisedButton(
-            color: utils.colorPrincipal,
-            disabledColor: utils.colorSecundario,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: Container(
-              alignment: Alignment.center,
-              width: double.infinity,
-              height: 50,
-              child: Text(!_filtrado ? 'Filtrar' : 'Quitar filtro',
-                  style: utils.estiloBotones(18)),
-            ),
-            onPressed: _habilitaBtn
-                ? () {
-                    // cacheData = [];
-                    _filtrarVisitas();
-                    setState(() {});
-                  }
-                : null,
-          ),
-          SizedBox(
-            height: 20,
-          )
-        ],
+        ),
       ),
     );
   }
@@ -147,13 +154,16 @@ class _VisitasPageState extends State<VisitasPage> {
                         fontSize: 16,
                         color: contenido.contains(RegExp('Desde|Hasta'))
                             ? Colors.grey
-                            : Colors.black)),
-                Icon(Icons.calendar_today),
+                            : Theme.of(context).textTheme.bodyText2.color)),
+                Icon(
+                  Icons.calendar_today,
+                  size: 35,
+                ),
               ],
             ),
           ),
           Divider(
-            thickness: 2,
+            thickness: 1.5,
           )
         ],
       ),
@@ -172,7 +182,7 @@ class _VisitasPageState extends State<VisitasPage> {
         builder: (context, widget) {
           return Theme(
             data: ThemeData(
-                splashColor: Colors.green,
+                primaryColor: utils.colorCalendario,
                 primarySwatch: utils.colorCalendario,
                 accentColor: utils.colorSecundario),
             child: widget,
@@ -185,14 +195,21 @@ class _VisitasPageState extends State<VisitasPage> {
     return null;
   }
 
-  _cargaVisitas() {
-    return DynamicListView.build(
-        key: _key,
+  Widget _cargaVisitas() {
+    return DynamicList.build(
+        controller: _dynamicListController,
         dataRequester: _dataRequester,
         initRequester: _initRequester,
         itemBuilder: (List dataList, BuildContext context, int index) {
-          if (dataList.length > 0)
-            return _crearItem(context, dataList[index], index);
+          if (dataList.length > 0) if (index == 0)
+            return Container(
+                padding: EdgeInsets.only(top: 260, bottom: 20),
+                child: _crearItem(context, dataList[index], index));
+          else
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: _crearItem(context, dataList[index], index),
+            );
           else
             return Center(
               child: Text('No se encontraron visitas'),
@@ -213,99 +230,71 @@ class _VisitasPageState extends State<VisitasPage> {
     return Future.value(_visitasProvider);
   }
 
-  _crearItem(BuildContext context, VisitaModel visita, int index) {
-    return Column(
-      children: <Widget>[
-        GestureDetector(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              elevation: 4,
-              child: Column(
-                children: <Widget>[
-                  Stack(
-                    alignment: Alignment.bottomLeft,
-                    children: <Widget>[
-                      _cargaImagenesVisita(
-                          visita.idVisitas,
-                          utils.validaImagenes([
-                            visita.imgRostro,
-                            visita.imgId,
-                            visita.imgPlaca
-                          ])),
-                      Container(
-                          padding: EdgeInsets.only(left: 10, bottom: 10),
-                          child: Hero(
-                            tag: visita.idVisitas + visita.visitante,
-                            child: Text(
-                              '${visita.visitante}',
-                              style: utils.estiloTextoBlancoSombreado(18),
-                              overflow: TextOverflow.fade,
-                            ),
-                          )),
-                    ],
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(right: 15),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20)),
-                        color: utils.colorPrincipal),
-                    width: double.infinity,
-                    height: 25,
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.fade,
-                          )
-                        ]),
-                  )
-                ],
-              ),
-            ),
+  Widget _crearItem(BuildContext context, VisitaModel visita, int index) {
+    return GestureDetector(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: ElevatedContainer(
+          child: Stack(
+            alignment: Alignment.bottomLeft,
+            children: <Widget>[
+              _cargaImagenesVisita(
+                  visita.idVisitas,
+                  utils.validaImagenes(
+                      [visita.imgRostro, visita.imgId, visita.imgPlaca])),
+              Container(
+                  padding: EdgeInsets.only(left: 10, bottom: 40),
+                  child: Hero(
+                    tag: visita.idVisitas + visita.visitante,
+                    child: Text(
+                      '${visita.visitante}',
+                      style: utils.estiloTextoSombreado(18),
+                      overflow: TextOverflow.fade,
+                    ),
+                  )),
+              Container(
+                  padding: EdgeInsets.only(left: 10, bottom: 10),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                  width: double.infinity,
+                  height: 25,
+                  child: Text(
+                    '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}',
+                    style: utils.estiloTextoSombreado(11),
+                    overflow: TextOverflow.fade,
+                  ))
+            ],
           ),
-          onTap: () => _abrirVisitaDetalle(visita, context),
         ),
-        SizedBox(
-          height: 10,
-        )
-      ],
+      ),
+      onTap: () => _abrirVisitaDetalle(visita, context),
     );
   }
 
   Widget _cargaImagenesVisita(String id, List<String> imagenes) {
     if (imagenes.length == 0) {
       return Container(
-        height: 200,
+        height: 230,
         child: Center(child: Icon(Icons.broken_image)),
       );
     } else {
       return Container(
-          height: 200,
+          height: 230,
           child: Hero(
             tag: id,
             child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              borderRadius: BorderRadius.circular(20.0),
               child: Swiper(
                 loop: imagenes.length > 1 ? true : false,
                 scrollDirection: Axis.horizontal,
                 containerHeight: 130,
                 pagination: imagenes.length > 1
                     ? SwiperPagination(
-                        margin: EdgeInsets.all(2),
-                        alignment: Alignment.topCenter)
+                        alignment: Alignment.topCenter,
+                        builder: DotSwiperPaginationBuilder(
+                            color: Colors.white60,
+                            activeColor: Colors.white60,
+                            activeSize: 20.0))
                     : null,
                 itemCount: imagenes.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -349,7 +338,6 @@ class _VisitasPageState extends State<VisitasPage> {
           formatoFechaBusqueda(_fechaFinal),
           _pag);
       _filtrado = true;
-      _key.currentState.didUpdateWidget(_key.currentWidget);
     } else {
       _pag = 1;
       _visitasProvider = visitasProvider.buscarVisitasXFecha(
@@ -360,6 +348,7 @@ class _VisitasPageState extends State<VisitasPage> {
       _fechaFinal = '';
       _fechaTemp = '';
     }
+    _dynamicListController.refresh();
   }
 
   _abrirVisitaDetalle(VisitaModel visita, BuildContext context) {
@@ -369,27 +358,5 @@ class _VisitasPageState extends State<VisitasPage> {
   @override
   void dispose() {
     super.dispose();
-    _scrollController.dispose();
-  }
-
-  Widget _creaFAB() {
-    return FloatingActionButton(
-      child: Icon(Icons.search),
-      backgroundColor: utils.colorPrincipal,
-      onPressed: () {
-        if (_scrollController.position.pixels !=
-            _scrollController.position.maxScrollExtent) {
-          _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              curve: Curves.easeIn,
-              duration: Duration(milliseconds: 300));
-        } else {
-          _scrollController.animateTo(
-              _scrollController.position.minScrollExtent,
-              curve: Curves.easeIn,
-              duration: Duration(milliseconds: 300));
-        }
-      },
-    );
   }
 }
