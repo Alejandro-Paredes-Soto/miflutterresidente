@@ -11,7 +11,6 @@ class EmergenciasPage extends StatelessWidget {
   final _prefs = PreferenciasUsuario();
   @override
   Widget build(BuildContext context) {
-    //final _screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: utils.appBarLogo(titulo:'Emergencias'),
       body: _crearBotonesEmergencia(context),
@@ -20,12 +19,12 @@ class EmergenciasPage extends StatelessWidget {
 
   Widget _crearBotonesEmergencia(BuildContext context) {
     return Container(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            RaisedButton(
+      padding: EdgeInsets.symmetric(horizontal:15.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            child: RaisedButton(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
               child: Container(
@@ -40,10 +39,12 @@ class EmergenciasPage extends StatelessWidget {
               onPressed: () => _confirmaApoyoCaseta(context),
               color: utils.colorPrincipal,
             ),
-            SizedBox(
-              height: 20,
-            ),
-            RaisedButton(
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Expanded(
+            child: RaisedButton(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
               child: Container(
@@ -59,11 +60,11 @@ class EmergenciasPage extends StatelessWidget {
               onPressed: () => _llama911(),
               color: utils.colorPrincipal,
             ),
-            SizedBox(
-              height: 20,
-            ),
-          ],
-        ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+        ],
       ),
     );
   }

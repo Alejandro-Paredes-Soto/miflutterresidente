@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:dostop_v2/src/providers/visitantes_frecuentes_provider.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart' as picker;
@@ -37,7 +38,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
     _tipoRostro = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       key: _scaffoldKey,
-      appBar: utils.appBarLogoD(
+      appBar: utils.appBarLogo(
           titulo: 'Agregar',
           backbtn: BackButton(
             onPressed: () {
@@ -62,6 +63,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaCampoNombre('Nombre(s)', 'Ej. Luis'),
               _creaCampoApellidoPat('Apellido paterno', 'Ej. Fernández'),
               _creaCampoApellidoMat('Apellido materno', 'Ej. Herrera'),
+              SizedBox(height: 10.0),
               _creaBtnAgregaImagen(),
               _creaTextoErrorImg(),
               SizedBox(height: 10.0),
@@ -80,10 +82,10 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       width: double.infinity,
       child: Text(
         _tipoRostro == 1
-            ? 'Nuevo colono con rotro'
+            ? 'Nuevo colono con rostro'
             : 'Nuevo visitante con rostro',
         textAlign: TextAlign.left,
-        style: utils.estiloTextoAppBar(24),
+        style: utils.estiloTextoAppBar(25),
       ),
     );
   }
@@ -95,6 +97,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       maxLength: 30,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.sentences,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
         hintText: hint,
@@ -116,6 +121,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       maxLength: 20,
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.sentences,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       decoration: InputDecoration(
         hintText: hint,
         labelText: label,
@@ -134,6 +142,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       enabled: !_registrando,
       controller: _txtApMatCtrl,
       maxLength: 20,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+      ],
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
         hintText: hint,
@@ -151,8 +162,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   Widget _creaBtnAgregaImagen() {
     return GestureDetector(
       onTap: _registrando ? null : _mostrarOpcImagen,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: ElevatedContainer(
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Container(
@@ -233,7 +243,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   void obtenerImagen(picker.ImageSource source) async {
     try {
       if (Platform.isAndroid) {
-        if (!await utils.obtenerPermisosAndroid()) throw 'photo_access_deined';
+        if (!await utils.obtenerPermisosAndroid()) throw 'permission_denied';
       }
       var imgFile = await picker.ImagePicker.pickImage(
           source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
@@ -264,8 +274,15 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     } catch (e) {
+      String mensajeError = '';
+      if (e.toString().contains('permission_denied'))
+        mensajeError = 'Otorga los permisos correspondientes.';
+      else
+        mensajeError = e.toString();
       _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error), 'Ocurrió un error al procesar la imagen. $e', 2));
+          Icon(Icons.error),
+          'Ocurrió un error al procesar la imagen. $mensajeError',
+          2));
     }
   }
 
@@ -300,11 +317,11 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
 
   Widget _creaBtnRegistrar() {
     return RaisedButton(
-        color: utils.colorPrincipal,
+        color: utils.colorAcentuado,
         disabledColor: utils.colorSecundario,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Container(
-            height: 50,
+            height: 60,
             width: double.infinity,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -320,7 +337,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
                 SizedBox(width: 20),
                 Text(
                   'Agregar visitante',
-                  style: utils.estiloBotones(18),
+                  style: utils.estiloBotones(15),
                 )
               ],
             )),

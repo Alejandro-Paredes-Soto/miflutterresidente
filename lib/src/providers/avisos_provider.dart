@@ -24,7 +24,6 @@ class AvisosProvider {
       final List<AvisoModel> avisos = new List();
       if (decodeResp == null) return [];
       decodeResp.forEach((aviso) {
-        //  print('$aviso');
         final tempAviso = AvisoModel.fromJson(aviso);
         avisos.add(tempAviso);
       });

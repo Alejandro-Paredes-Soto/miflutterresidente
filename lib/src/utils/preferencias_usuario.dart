@@ -56,6 +56,14 @@ class PreferenciasUsuario {
     _prefs.setString('usuario', value);
   }
 
+  get themeMode {
+    return _prefs.getString('tema') ?? 'Dark';
+  }
+
+  set themeMode(String value) {
+    _prefs.setString('tema', value);
+  }
+
   borraPrefs() async {
     await _prefs.remove('usuario');
   }

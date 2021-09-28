@@ -1,49 +1,67 @@
-import 'dart:io';
-
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 bool isDebug = !kReleaseMode;
 
-Color colorFondoPrincipalDark = Color.fromRGBO(18, 18, 18, 1.0);
+Color colorFondoPrincipalDark = Color.fromRGBO(22, 29, 40, 1.0);
+Color colorFondoPrincipalLight = Color.fromRGBO(245, 244, 249, 1.0);
 Color colorTextoPrincipalDark = Color.fromRGBO(184, 184, 184, 1.0);
 Color colorIconos = Color.fromRGBO(65, 64, 64, 1.0);
-Color colorPrincipal = Color.fromRGBO(233, 55, 54, 1.0);
+Color colorPrincipal = Color.fromRGBO(2, 69, 232, 1.0);
+Color colorPrincipal2 = Color.fromRGBO(0, 60, 206, 1.0);
+Color colorAcentuado = Color.fromRGBO(2, 183, 84, 1.0);
 Color colorSecundario = Color.fromRGBO(102, 106, 106, 1.0);
+Color colorSecundario2 = Color.fromRGBO(96, 96, 96, 1.0);
 Color colorSecundarioSemi = Color.fromRGBO(102, 106, 106, 0.5);
 Color colorSecundarioSemi08 = Color.fromRGBO(102, 106, 106, 0.8);
-Color colorFondoLoginSemi = Color.fromRGBO(0, 0, 0, 0.75);
-Color colorTextLoginSemi = Color.fromRGBO(255, 255, 255, 0.75);
+Color colorFondoLoginSemi = Color.fromRGBO(0, 0, 0, 0.50);
+Color colorTextLoginSemi = Color.fromRGBO(0, 0, 0, 0.60);
 Color colorSecundarioToggle = Color.fromRGBO(102, 106, 106, 0.2);
 Color colorIndicadorSwiper = Color.fromRGBO(128, 128, 128, 0.8);
 Color colorFondoTarjeta = Color.fromRGBO(244, 244, 244, 1.0);
+Color colorFondoTarjetaDark = Color.fromRGBO(32, 45, 61, 1.0);
 Color colorFondoTarjetaFreq = Color.fromRGBO(226, 226, 226, 1.0);
 Color colorContenedorSaldo = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastAceptada = Color.fromRGBO(25, 163, 14, 1.0);
 Color colorToastRechazada = Color.fromRGBO(233, 55, 54, 1.0);
-MaterialColor colorCalendario = MaterialColor(0xFFDF3736, _colorCalendario);
+Color colorFechaAviso = Color.fromRGBO(146, 152, 160, 1.0);
+Color colorFondoTabs = Color.fromRGBO(173, 176, 180, 1.0);
+
+MaterialColor colorCalendario = MaterialColor(0xFF0245E8, _colorCalendario);
 const Map<int, Color> _colorCalendario = {
-  50: const Color(0xFFDF3736),
-  100: const Color(0xFFDF3736),
-  200: const Color(0xFFDF3736),
-  300: const Color(0xFFDF3736),
-  400: const Color(0xFFDF3736),
-  500: const Color(0xFFDF3736),
-  600: const Color(0xFFDF3736),
-  700: const Color(0xFFDF3736),
-  800: const Color(0xFFDF3736),
-  900: const Color(0xFFDF3736)
+  50: const Color(0xFF0245E8),
+  100: const Color(0xFF0245E8),
+  200: const Color(0xFF0245E8),
+  300: const Color(0xFF0245E8),
+  400: const Color(0xFF0245E8),
+  500: const Color(0xFF003CCE),
+  600: const Color(0xFF003CCE),
+  700: const Color(0xFF003CCE),
+  800: const Color(0xFF003CCE),
+  900: const Color(0xFF003CCE)
 };
+LinearGradient colorGradientePrincipal = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [colorPrincipal, colorPrincipal2]);
+LinearGradient colorGradienteSecundario = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [colorSecundario, colorSecundario2]);
 
 double tamanoIcoNavBar = 28;
 double tamanoIcoModal = 20;
 double tamanoIcoSnackbar = 18;
-String rutaLogoDostopD = 'assets/LogoDostopD.svg';
+String rutaLogoParcoDark='assets/LogoParcoDark.png';
+String rutaLogoParcoLight='assets/LogoParcoLight.png';
+String rutaLogoDostopDPng = 'assets/LogoDostopD.png';
+String rutaLogoLetrasDostopPng = 'assets/LogoLetrasDostop.png';
+String rutaLogoLetrasDostopParco = 'assets/LogoLetrasDostopParco.png';
+
 String rutaIconoInicio = 'assets/IconoInicio.svg';
 String rutaIconoVisitas = 'assets/IconoVisitas.svg';
 String rutaIconoEmergencia = 'assets/IconoEmergencia.svg';
@@ -55,17 +73,21 @@ String rutaIconoMiCasa = 'assets/IconoMiCasa.svg';
 String rutaIconoPromociones = 'assets/IconoPromociones.svg';
 String rutaIconoCerrarSesion = 'assets/IconoCerrarSesion.svg';
 String rutaIconoMenu = 'assets/IconoMenu.svg';
-String rutaGifLoadRed = 'assets/loading-red.gif';
+String rutaIconoCaseta = 'assets/IconoCaseta.svg';
+String rutaGifLoadRed = 'assets/loading-image.gif';
 String rutaGifLoadBanner = 'assets/loading-banner.gif';
 String rutaIconoWhastApp = 'assets/whatsapp.svg';
-String rutaFondoLogin = 'assets/fondo-login.jpg';
-String rutaIconoEntradasTags = 'assets/IconoEntradasTags.svg';
-// String rutaLogoDostopPNG = 'assets/logo_dostop_d.png';
+String rutaFondoLogin = 'assets/fondo-login-main.jpg';
+String rutaFondoQR = 'assets/FondoQR.png';
+String rutaIconoAccesos = 'assets/IconoAccesos.svg';
 
-AppBar appBarLogo({@required String titulo}) {
+AppBar appBarLogo(
+    {@required String titulo, BackButton backbtn = const BackButton()}) {
   return AppBar(
+    automaticallyImplyLeading: false,
     centerTitle: false,
     elevation: 0.0,
+    leading: backbtn,
     title: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -73,10 +95,7 @@ AppBar appBarLogo({@required String titulo}) {
           child: Text(
             titulo,
             style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                letterSpacing: Platform.isAndroid ? -1 : -1),
+                fontSize: 25, fontWeight: FontWeight.w700, letterSpacing: -1),
             softWrap: false,
             overflow: TextOverflow.fade,
           ),
@@ -88,49 +107,17 @@ AppBar appBarLogo({@required String titulo}) {
   );
 }
 
-AppBar appBarLogoD(
-    {@required String titulo, BackButton backbtn = const BackButton()}) {
-  return AppBar(
-    automaticallyImplyLeading: false,
-    leading: backbtn,
-    title: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(
-        titulo,
-        style: TextStyle(
-            fontFamily: 'Poppins',
-            color: colorPrincipal,
-            fontSize: 28,
-            fontWeight: FontWeight.bold),
-      ),
-      SizedBox(),
-      SvgPicture.asset(
-        rutaLogoDostopD,
-        fit: BoxFit.cover,
-        height: 32,
-      )
-    ]),
-    centerTitle: false,
-    elevation: 0,
-  );
-}
-
 Text dostopLogo() {
   return Text(
-    'Dostop',
-    textScaleFactor: 0.85,
+    'dostop',
     style: TextStyle(
-      fontFamily: 'Play',
-      color: colorPrincipal,
-      fontSize: 22,
-    ),
+        fontFamily: 'Poppins', fontSize: 15, fontWeight: FontWeight.w700),
   );
 }
 
-TextStyle estiloItemsModal(double fontSize) {
+TextStyle estiloFechaAviso(double fontSize) {
   return TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: fontSize,
-  );
+      fontSize: fontSize, fontWeight: FontWeight.w500, color: colorFechaAviso);
 }
 
 TextStyle estiloTextoAppBar(double fontSize) {
@@ -138,30 +125,47 @@ TextStyle estiloTextoAppBar(double fontSize) {
       fontFamily: 'Poppins', fontWeight: FontWeight.bold, fontSize: fontSize);
 }
 
-TextStyle estiloBotones(double fontSize) {
+TextStyle estiloBotones(double fontSize, {Color color = Colors.white}) {
   return TextStyle(
-      color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.bold);
-}
-
-TextStyle estiloTituloTarjeta(double fontSize) {
-  return TextStyle(
+    color: color,
     fontSize: fontSize,
+    fontWeight: FontWeight.w900,
   );
 }
 
-TextStyle estiloSubtituloTarjeta(double fontSize) {
-  return TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold);
+TextStyle estiloTituloTarjeta(double fontSize) {
+  return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w500);
 }
 
-TextStyle estiloTextoBlancoSombreado(double fontSize) {
+TextStyle estiloSubtituloTarjeta(double fontSize) {
+  return TextStyle(fontSize: fontSize, fontWeight: FontWeight.w900);
+}
+
+TextStyle estiloTextoSombreado(double fontSize,
+    {Color color = Colors.white,
+    double blurRadius = 20,
+    double offsetX = 0,
+    double offsetY = 0,
+    bool dobleSombra = true}) {
   return TextStyle(
-      color: Colors.white,
+      color: color,
       fontSize: fontSize,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w900,
       shadows: [
-        Shadow(color: Colors.black, blurRadius: 20, offset: Offset(0, 0)),
-        Shadow(color: Colors.black, blurRadius: 8, offset: Offset(0, 0))
+        Shadow(
+            color: Colors.black,
+            blurRadius: blurRadius,
+            offset: Offset(offsetX, offsetY)),
+        Shadow(
+            color: dobleSombra ? Colors.black : Colors.transparent,
+            blurRadius: blurRadius,
+            offset: Offset(offsetX, offsetY)),
       ]);
+}
+
+TextStyle estiloTituloInfoVisita(double fontSize) {
+  return TextStyle(
+      color: colorAcentuado, fontSize: fontSize, fontWeight: FontWeight.w500);
 }
 
 Brightness temaStatusBar(BuildContext context) {
@@ -180,7 +184,7 @@ bool correoValido(String email) {
 }
 
 bool textoVacio(String text) {
-  if (text.isEmpty) {
+  if (text.trim().isEmpty) {
     return true;
   } else
     return false;

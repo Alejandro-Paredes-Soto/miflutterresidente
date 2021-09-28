@@ -4,9 +4,10 @@ import 'dart:typed_data';
 import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
-// import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:dostop_v2/src/widgets/countdown_timer.dart';
+import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart' as toast;
 import 'package:http/http.dart' as http;
 
@@ -26,7 +27,7 @@ class VisitaNofificacionPage extends StatefulWidget {
 class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   final _notifProvider = NotificacionesProvider();
   final _pushManager = PushNotificationsManager();
-  bool _respuestaEnviada = false;
+  bool _respuestaEnviada = false, _tiempoVencido = false;
   final _prefs = PreferenciasUsuario();
   String id = '';
 
@@ -40,38 +41,70 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   Widget build(BuildContext context) {
     final VisitaModel visita = ModalRoute.of(context).settings.arguments;
     id = visita.idVisitas;
+    if (visita.tipoVisita == 3) {
+      _tiempoVencido = true;
+    }
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        appBar: utils.appBarLogoD(
-            titulo: visita.tipoVisita != 3 ? 'Visita' : 'V. Sin Respuesta',
-            backbtn: null),
-        body: _creaBody(visita),
-        floatingActionButton: visita.tipoVisita == 1
-            ? _creaFABAprobar(context, visita.idVisitas)
-            : _creaFABOK(context),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      ),
+          appBar: utils.appBarLogo(
+              titulo: visita.tipoVisita != 3
+                  ? 'Tienes una visita'
+                  : 'V. sin respuesta',
+              backbtn: null),
+          body: _creaBody(visita),
+          floatingActionButton: visita.tipoVisita == 1 && !_tiempoVencido
+              ? _creaFABAprobar(context, visita.idVisitas)
+              : _creaFABOK(context),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat),
     );
   }
 
   Widget _creaBody(VisitaModel visita) {
-    // HapticFeedback.vibrate();
+    DateTime fecha = visita.fechaCompleta == null
+        ? DateTime.now()
+        : visita.fechaCompleta.add(Duration(minutes: 1));
     return SingleChildScrollView(
       padding: EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Visibility(
-              visible: visita.tipoVisita == 3,
-              child: Text(
-                'El tiempo para responder esta visita ha expirado',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: utils.colorPrincipal,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              )),
+          Padding(
+            padding: EdgeInsets.only(bottom: 10.0),
+            child: Visibility(
+              visible: visita.tipoVisita == 1 || visita.tipoVisita == 3,
+              child: AnimatedCrossFade(
+                duration: Duration(milliseconds: 200),
+                crossFadeState: !_tiempoVencido
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                firstChild: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Tiempo para responder '),
+                    CountdownTimer(
+                      showZeroNumbers: false,
+                      endTime: fecha.millisecondsSinceEpoch,
+                      secSymbol: '',
+                      textStyle: utils.estiloBotones(18,
+                          color: Theme.of(context).textTheme.bodyText2.color),
+                      onEnd: () => setState(() => _tiempoVencido = true),
+                    ),
+                    Text(' seg'),
+                  ],
+                ),
+                secondChild: Text(
+                  'El tiempo para responder esta visita ha expirado',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: utils.colorToastRechazada,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
           _imagenesVisitante(utils.validaImagenes(
               [visita.imgRostro, visita.imgId, visita.imgPlaca])),
           SizedBox(height: 20),
@@ -97,8 +130,11 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                 itemCount: imagenes.length,
                 pagination: imagenes.length > 1
                     ? SwiperPagination(
-                        margin: EdgeInsets.all(2),
-                        alignment: Alignment.topCenter)
+                        alignment: Alignment.bottomCenter,
+                        builder: DotSwiperPaginationBuilder(
+                            color: Colors.white60,
+                            activeColor: Colors.white60,
+                            activeSize: 20.0))
                     : null,
                 scale: 0.8,
                 itemBuilder: (BuildContext context, int index) {
@@ -128,9 +164,6 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                   );
                 }),
           ),
-          SizedBox(height: 10),
-          Text(
-              'Mantén presionada cualquier imagen para guardarla en tu galería'),
         ],
       );
   }
@@ -139,45 +172,34 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Nombre',
-            style: TextStyle(
-                color: utils.colorPrincipal,
-                fontSize: 17,
-                fontWeight: FontWeight.bold)),
+        Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.visitante,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            style: utils.estiloBotones(18,
+                color: Theme.of(context).textTheme.bodyText2.color)),
         SizedBox(
-          height: 30,
+          height: 10,
         ),
-        Text('Placas',
-            style: TextStyle(
-                color: utils.colorPrincipal,
-                fontSize: 17,
-                fontWeight: FontWeight.bold)),
+        Text('Placas', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.placa,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text('Vehículo',
-            style: TextStyle(
-                color: utils.colorPrincipal,
-                fontSize: 17,
-                fontWeight: FontWeight.bold)),
+            style: utils.estiloBotones(18,
+                color: Theme.of(context).textTheme.bodyText2.color)),
+        SizedBox(height: 10),
+        Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.modelo,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text('Marca',
-            style: TextStyle(
-                color: utils.colorPrincipal,
-                fontSize: 17,
-                fontWeight: FontWeight.bold)),
+            style: utils.estiloBotones(18,
+                color: Theme.of(context).textTheme.bodyText2.color)),
+        SizedBox(height: 10),
+        Text('Marca', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.marca,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            style: utils.estiloBotones(18,
+                color: Theme.of(context).textTheme.bodyText2.color)),
+        SizedBox(height: 10),
         Text(visita.tipoVisita == 1 ? 'Motivo' : '',
-            style: TextStyle(
-                color: utils.colorPrincipal,
-                fontSize: 17,
-                fontWeight: FontWeight.bold)),
+            style: utils.estiloTituloInfoVisita(12)),
         Text(visita.tipoVisita == 1 ? visita.motivoVisita : '',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        SizedBox(height: 100)
+            style: utils.estiloBotones(18,
+                color: Theme.of(context).textTheme.bodyText2.color)),
+        SizedBox(height: 120)
       ],
     );
   }
@@ -195,112 +217,70 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             valueColor: AlwaysStoppedAnimation<Color>(utils.colorPrincipal)),
       ),
-      secondChild: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          Container(
-            child: _respuestaEnviada
-                ? CircularProgressIndicator()
-                : MaterialButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    color: utils.colorContenedorSaldo,
-                    height: 90,
-                    child: Container(
-                      width: 90,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Icon(
-                            Icons.transfer_within_a_station,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            'Aceptar',
-                            textAlign: TextAlign.center,
-                            style: utils.estiloBotones(16),
-                          ),
-                        ],
-                      ),
-                    ),
-                    onPressed: _respuestaEnviada
-                        ? null
-                        : () {
-                            setState(() {
-                              _respuestaEnviada = true;
-                            });
-                            _notifProvider
-                                .respuestaVisita(
-                                    _prefs.usuarioLogged, idVisita, 1)
-                                .then((resp) {
-                              toast.showToast(
-                                resp['mensaje'],
-                                backgroundColor: resp['id'] == '0'
-                                    ? utils.colorToastAceptada
-                                    : null,
-                                textStyle: TextStyle(
-                                    fontSize: 24,
-                                    color: Colors.white,
-                                    fontFamily: 'Poppins'),
-                                borderRadius: BorderRadius.circular(20),
-                              );
-                              Navigator.pop(context);
-                            });
-                          },
-                  ),
-          ),
-          MaterialButton(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            color: utils.colorPrincipal,
-            height: 90,
-            child: Container(
-              width: 90,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(
-                    Icons.pan_tool,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    'Rechazar',
-                    textAlign: TextAlign.center,
-                    style: utils.estiloBotones(16),
-                  ),
-                ],
-              ),
-            ),
-            onPressed: _respuestaEnviada
-                ? null
-                : () {
-                    setState(() {
-                      _respuestaEnviada = true;
-                    });
-                    _notifProvider
-                        .respuestaVisita(_prefs.usuarioLogged, idVisita, 2)
-                        .then((resp) {
-                      toast.showToast(
-                        resp['mensaje'],
-                        backgroundColor: resp['id'] == '0'
-                            ? utils.colorToastRechazada
-                            : null,
-                        textStyle: TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            fontFamily: 'Poppins'),
-                        borderRadius: BorderRadius.circular(20),
-                      );
-                      Navigator.pop(context);
-                    });
-                  },
-          ),
-        ],
+      secondChild: Padding(
+        padding: const EdgeInsets.only(bottom: 15.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            _crearBtnRespuesta(
+                titulo: 'Aceptar', idRespuesta: 1, idVisita: idVisita),
+            _crearBtnRespuesta(
+                titulo: 'Rechazar', idRespuesta: 2, idVisita: idVisita)
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _crearBtnRespuesta({
+    String titulo,
+    int idRespuesta,
+    String idVisita,
+  }) {
+    return ElevatedContainer(
+      child: RaisedButton(
+          padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          color: idRespuesta == 1
+              ? utils.colorAcentuado
+              : utils.colorToastRechazada,
+          child: Container(
+              alignment: Alignment.center,
+              width: 100,
+              height: 100,
+              child: Text(
+                titulo,
+                textAlign: TextAlign.center,
+                style: utils.estiloTextoSombreado(22,
+                    blurRadius: 6, offsetY: 3, dobleSombra: false),
+              )),
+          onPressed: _respuestaEnviada
+              ? null
+              : () {
+                  setState(() {
+                    _respuestaEnviada = true;
+                  });
+                  _notifProvider
+                      .respuestaVisita(
+                          _prefs.usuarioLogged, idVisita, idRespuesta)
+                      .then((resp) {
+                    toast.showToast(
+                      resp['mensaje'],
+                      backgroundColor: resp['id'] == '0'
+                          ? idRespuesta == 1
+                              ? utils.colorToastAceptada
+                              : utils.colorToastRechazada
+                          : null,
+                      textStyle: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    );
+                    Navigator.pop(context);
+                  });
+                }),
     );
   }
 
@@ -324,10 +304,13 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   }
 
   Widget _creaFABOK(BuildContext context) {
-    return FloatingActionButton.extended(
-        backgroundColor: utils.colorPrincipal,
-        icon: Icon(Icons.close),
-        label: Text('Cerrar'),
+    return RaisedButton(
+        color: utils.colorPrincipal,
+        child: Container(
+            width: 100,
+            height: 60,
+            alignment: Alignment.center,
+            child: Text('Cerrar', style: utils.estiloBotones(12))),
         onPressed: () => Navigator.pop(context),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)));
   }

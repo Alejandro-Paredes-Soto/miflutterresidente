@@ -33,17 +33,6 @@ class _RestablecerUsuarioPageState extends State<RestablecerUsuarioPage> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          // Hero(
-          //   tag: 'd',
-          //   child: SvgPicture.asset(
-          //     rutaLogoDostopD,
-          //     fit: BoxFit.cover,
-          //     height: 32,
-          //   ),
-          // ),
-          // SizedBox(
-          //   width: 20,
-          // ),
           Flexible(
             child: Text(
               'Restablece tu contraseña',
@@ -111,7 +100,7 @@ class _RestablecerUsuarioPageState extends State<RestablecerUsuarioPage> {
   Widget _crearBotonRest() {
     return MaterialButton(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      height: 50,
+      height: 60,
       minWidth: double.infinity,
       highlightElevation: 1,
       child: Row(
@@ -129,7 +118,7 @@ class _RestablecerUsuarioPageState extends State<RestablecerUsuarioPage> {
               _enviando
                   ? 'Enviando solicitud...'
                   : 'Solicitar nueva contraseña',
-              style: estiloBotones(18),
+              style: estiloBotones(15),
               textAlign: TextAlign.center,
             ),
           ),
