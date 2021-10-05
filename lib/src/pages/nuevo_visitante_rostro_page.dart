@@ -98,7 +98,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.sentences,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
       ],
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
@@ -122,7 +122,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       textInputAction: TextInputAction.next,
       textCapitalization: TextCapitalization.sentences,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
       ],
       decoration: InputDecoration(
         hintText: hint,
@@ -143,7 +143,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       controller: _txtApMatCtrl,
       maxLength: 20,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
       ],
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(

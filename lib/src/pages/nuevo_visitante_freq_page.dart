@@ -254,7 +254,7 @@ class _NuevoVisitanteFrecuentePageState
       maxLength: 30,
       enabled: !_registrando,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
       ],
       textInputAction: TextInputAction.next,
       onEditingComplete: FocusScope.of(context).unfocus,
@@ -283,7 +283,7 @@ class _NuevoVisitanteFrecuentePageState
       focusNode: sigFocusText,
       enabled: !_registrando,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
       ],
       onEditingComplete: FocusScope.of(context).unfocus,
       textInputAction: TextInputAction.next,
@@ -312,7 +312,7 @@ class _NuevoVisitanteFrecuentePageState
       focusNode: sigFocusText2,
       enabled: !_registrando,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z -]+'))
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
       ],
       onEditingComplete: FocusScope.of(context).unfocus,
       textInputAction: TextInputAction.done,
