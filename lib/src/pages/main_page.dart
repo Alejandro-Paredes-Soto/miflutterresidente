@@ -87,46 +87,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     return Scaffold(key: navigatorKey, body: HomePage());
   }
 
-
-  Widget _creaTerminosLegales() {
-    return Container(
-      height: 35,
-      padding: EdgeInsets.symmetric(horizontal: 5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Flexible(
-            fit: FlexFit.tight,
-            child: FlatButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              child: Text('Aviso de privacidad',
-                  textScaleFactor: 0.8,
-                  overflow: TextOverflow.fade,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12)),
-              onPressed: () => utils.abrirPaginaWeb(
-                  url: 'https://dostop.mx/aviso-de-privacidad.html'),
-            ),
-          ),
-          Flexible(
-            fit: FlexFit.tight,
-            child: FlatButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              child: Text('Terms. y condiciones',
-                  textScaleFactor: 0.8,
-                  overflow: TextOverflow.fade,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12)),
-              onPressed: () => utils.abrirPaginaWeb(url: 'https://dostop.mx/'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   void deactivate() {
     super.deactivate();
