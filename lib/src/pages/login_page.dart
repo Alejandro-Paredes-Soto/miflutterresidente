@@ -165,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
             Flexible(
               fit: FlexFit.loose,
               child: Text(
-                _iniciando ? 'Iniciando Sesión...' : 'Iniciar Sesión',
+                _iniciando ? 'Iniciando sesión...' : 'Iniciar sesión',
                 style: utils.estiloBotones(15),
                 textAlign: TextAlign.center,
               ),
