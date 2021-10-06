@@ -138,6 +138,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ],
         ),
         actions: [
+           IconButton(
+            padding: EdgeInsets.all(0),
+            onPressed: () => utils.abrirPaginaWeb(url: 'https://dostop.mx/aviso-de-privacidad.html'),
+            icon: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                    Icons.lock_outlined,
+                    size: 15,
+                  ),
+                SizedBox(height: 2),
+                Text('Privacidad', style: TextStyle(fontSize: 8)),
+              ],
+            ),
+          ),
+          SizedBox(width: 5),
           IconButton(
               padding: EdgeInsets.all(0),
               icon: Column(
