@@ -708,7 +708,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         'Sí',
         'No', () async {
       await _launchWhatsApp(
-          '524779205753', 'Hola. Necesito ayuda con la aplicación Dostop.');
+          '524775872189', 'Hola. Necesito ayuda con la aplicación Dostop.');
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
   }
