@@ -9,6 +9,7 @@ import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart' as picker;
 import 'package:image/image.dart' as imgTools;
 
@@ -212,9 +213,16 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       DropdownMenuItem(
         child: Row(
           children: <Widget>[
-            Icon(Icons.vpn_key),
+            Padding(
+              padding: EdgeInsets.only(left: 3.0),
+              child: SvgPicture.asset(
+                utils.rutaIconTipoAcceso, 
+                height: 19.0,
+                color: Theme.of(context).iconTheme.color
+                ),
+            ),
             SizedBox(width: 10),
-            Text('Vehicular y Peatonal'),
+            Text('Vehicular y peatonal'),
           ],
         ),
         value: '3',
