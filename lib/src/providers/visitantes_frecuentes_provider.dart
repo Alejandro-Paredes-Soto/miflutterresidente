@@ -102,6 +102,7 @@ class VisitantesFreqProvider {
       String apPaterno,
       String apMaterno,
       String imgRostroB64,
+      String tipoAcceso,
       int tipo}) async {
     final visitanteData = {
       'id_colono': idUsuario,
@@ -110,6 +111,7 @@ class VisitantesFreqProvider {
       'ape_materno': apMaterno,
       'img_rostro': imgRostroB64,
       'tipo_frecuente': tipo.toString(),
+      'tipo_acceso': tipoAcceso.toString()
     };
     try {
       final resp = await http.post('${constantes.urlApp}/registrar_rostro.php',

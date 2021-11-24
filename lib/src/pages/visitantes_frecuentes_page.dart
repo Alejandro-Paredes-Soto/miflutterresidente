@@ -290,7 +290,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
       child: Container(
-        height: 120,
+        height: 130,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -317,7 +317,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   Text('Nombre', style: utils.estiloTituloTarjeta(11)),
                   Text(visitante.nombre,
                       style: utils.estiloSubtituloTarjeta(17)),
-                  SizedBox(height: 10),
+                  SizedBox(height: 5),
+                  Text(visitante.tipoAcceso == '1' ? 'Acceso peatonal': visitante.tipoAcceso == '2' 
+                  ? 'Acceso vehicular' : 'Acceso vehicular-peatonal',
+                    ),
+                  SizedBox(height: 5),
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
                   Row(
                     children: [
