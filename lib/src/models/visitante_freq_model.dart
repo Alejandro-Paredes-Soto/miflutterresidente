@@ -11,6 +11,7 @@ class VisitanteFreqModel {
   String fechaAlta;
   String codigo;
   String tipo;
+  String tipoAcceso;
   String idFrecuente;
   DateTime vigencia;
   bool unico;
@@ -25,6 +26,7 @@ class VisitanteFreqModel {
       this.fechaAlta,
       this.codigo,
       this.tipo,
+      this.tipoAcceso,
       this.idFrecuente,
       this.vigencia,
       this.unico,
@@ -40,6 +42,7 @@ class VisitanteFreqModel {
         fechaAlta: json["fecha_alta"],
         codigo: json["codigo"],
         tipo: json["tipo"],
+        tipoAcceso: json["tipo_acceso"] ?? "",
         idFrecuente: json["id_frecuente"],
         vigencia: DateTime.tryParse(json["vigencia"] ?? ""),
         unico: json["tipo"] == 'unico' ? true : false,
