@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dynamic_list_view/dynamic_list.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +12,11 @@ import 'package:dostop_v2/src/providers/mis_accesos_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:flutter/services.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+
+import 'package:http/http.dart' as http;
+import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 
 class MisAccesosPage extends StatefulWidget {
   @override
@@ -180,10 +189,53 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
               ],
             ),
           ),
+          Visibility(
+            visible: acceso.rutaImg != "",
+            child: Expanded(
+                flex: 1,
+                child: GestureDetector(
+                  child: PinchZoomImage(
+                    image: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedNetworkImage(
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              Image.asset(utils.rutaGifLoadRed),
+                          imageUrl: acceso.rutaImg,
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.broken_image)),
+                    ),
+                  ),
+                  onLongPress: () {
+                        HapticFeedback.vibrate();
+                        _descargaImagen(context, acceso.rutaImg);
+                      },
+                ),
+              ),
+          ),
         ],
       ),
     );
   }
+
+  void _descargaImagen(BuildContext context, String url) async {
+  Scaffold.of(context).showSnackBar(
+      utils.creaSnackBarIcon(Icon(Icons.cloud_download), 'Descargando...', 1));
+  try {
+    if (Platform.isAndroid) {
+      if (!await utils.obtenerPermisosAndroid())
+        throw 'No tienes permisos de almacenamiento';
+    }
+    var res = await http.get(url);
+    await ImageGallerySaver.saveImage(Uint8List.fromList(res.bodyBytes));
+    // print(result);
+    Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+        Icon(Icons.file_download), 'Imagen guardada', 2));
+  } catch (e) {
+    Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+        Icon(Icons.error), 'La imagen no pudo ser guardada', 2));
+  }
+}
 
   Widget _creaBannerIconos() {
     return Row(
