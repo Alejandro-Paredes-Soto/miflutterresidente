@@ -138,7 +138,7 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
 
   Widget _crearItem(BuildContext context, AccesoModel acceso, int index) {
     return ElevatedContainer(
-      padding: EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.only(right: 10.0, top: 10.0, bottom:10.0),
       child: Row(
         children: [
           Expanded(
