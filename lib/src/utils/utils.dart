@@ -1,9 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 bool isDebug = !kReleaseMode;
 
@@ -383,6 +388,25 @@ List<String> validaImagenes(List<String> imagenes) {
     if (item == '' || item == null) list.remove(item);
   });
   return list;
+}
+
+void descargaImagen(BuildContext context, String url) async {
+  Scaffold.of(context).showSnackBar(
+      creaSnackBarIcon(Icon(Icons.cloud_download), 'Descargando...', 1));
+  try {
+    if (Platform.isAndroid) {
+      if (!await obtenerPermisosAndroid())
+        throw 'No tienes permisos de almacenamiento';
+    }
+    var res = await http.get(url);
+    await ImageGallerySaver.saveImage(Uint8List.fromList(res.bodyBytes));
+    // print(result);
+    Scaffold.of(context).showSnackBar(creaSnackBarIcon(
+        Icon(Icons.file_download), 'Imagen guardada', 2));
+  } catch (e) {
+    Scaffold.of(context).showSnackBar(creaSnackBarIcon(
+        Icon(Icons.error), 'La imagen no pudo ser guardada', 2));
+  }
 }
 
 Future<bool> obtenerPermisosAndroid() async {
