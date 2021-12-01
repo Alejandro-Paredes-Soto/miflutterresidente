@@ -133,11 +133,11 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
 
   Widget _crearItem(BuildContext context, AccesoModel acceso, int index) {
     return ElevatedContainer(
-      padding: EdgeInsets.only(right: 10.0, top: 10.0, bottom:10.0),
+      padding: EdgeInsets.all(10.0),
       child: Row(
         children: [
-          Expanded(
-            flex: 1,
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0),
             child: Icon(
               acceso.accion == '1'
                   ? Icons.arrow_circle_up
@@ -186,27 +186,20 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
           ),
           Visibility(
             visible: acceso.rutaImg != "",
-            child: Expanded(
-                flex: 1,
-                child: GestureDetector(
-                  child: PinchZoomImage(
-                    image: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: CachedNetworkImage(
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              Image.asset(utils.rutaGifLoadRed),
-                          imageUrl: acceso.rutaImg,
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.broken_image)),
-                    ),
-                  ),
-                  onLongPress: () {
-                        HapticFeedback.vibrate();
-                        utils.descargaImagen(context, acceso.rutaImg);
-                      },
-                ),
+            child: PinchZoomImage(
+              image: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: CachedNetworkImage(
+                    height: 130,
+                    width: 75,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        Image.asset(utils.rutaGifLoadRed),
+                    imageUrl: acceso.rutaImg,
+                    errorWidget: (context, url, error) =>
+                        Icon(Icons.broken_image)),
               ),
+            ),
           ),
         ],
       ),
