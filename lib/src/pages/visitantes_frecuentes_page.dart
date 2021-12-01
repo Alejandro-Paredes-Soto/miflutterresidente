@@ -302,7 +302,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
       child: Container(
-        height: 130,
+        height: 138,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
