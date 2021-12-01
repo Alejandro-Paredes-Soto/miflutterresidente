@@ -35,10 +35,17 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   bool _visitanteRegistrado = false;
   File _imgRostro;
   int _tipoRostro = 0;
+  List arg = [];
+  String _tipoAccesoVisitante = '';
+  String _tipoAccesoColono = '';
+  String _tempTipoAccess;
 
   @override
   Widget build(BuildContext context) {
-    _tipoRostro = ModalRoute.of(context).settings.arguments;
+    arg = ModalRoute.of(context).settings.arguments;
+    _tipoRostro = arg[0];
+    _tipoAccesoVisitante = arg[1]['acceso_visitante'];
+    _tipoAccesoColono = arg[1]['acceso_colono'];
     return Scaffold(
       key: _scaffoldKey,
       appBar: utils.appBarLogo(
@@ -165,13 +172,19 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   Widget _crearListaTipoAcceso() {
+    if(_tipoRostro == 2){
+      _seleccionTipoAcceso = _tipoAccesoVisitante != '3' ? _tipoAccesoVisitante : _seleccionTipoAcceso;
+    }else{
+      _seleccionTipoAcceso = _tipoAccesoColono != '3' ? _tipoAccesoColono : _seleccionTipoAcceso;
+    }
+
     return IgnorePointer(
       ignoring: _registrando,
       child: Listener(
         onPointerDown: (_) => FocusScope.of(context).unfocus(),
         child: DropdownButton(
           isExpanded: true,
-          value: _seleccionTipoAcceso,
+          value: _seleccionTipoAcceso ,
           hint: Text('Tipo de acceso'),
           underline: Container(
             height: 1,
@@ -189,7 +202,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   List<DropdownMenuItem<String>> getOpcionesDropdown() {
-    return [
+    List<DropdownMenuItem<String>> elementos = [
       DropdownMenuItem(
         child: Row(
           children: <Widget>[
@@ -228,6 +241,20 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         value: '3',
       )
     ];
+
+    if(_tipoRostro == 2)
+      _tempTipoAccess = _tipoAccesoVisitante;
+    else
+      _tempTipoAccess = _tipoAccesoColono;
+    
+    if (_tempTipoAccess == '1') {
+      elementos.removeLast();
+      elementos.removeLast();
+    } else if (_tempTipoAccess == '2') {
+      elementos.removeAt(0);
+      elementos.removeLast();
+    }
+    return elementos;
   }
 
   Widget _creaBtnAgregaImagen() {
