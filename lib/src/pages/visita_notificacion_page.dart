@@ -159,7 +159,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                     ),
                     onLongPress: () {
                       HapticFeedback.vibrate();
-                      _descargaImagen(context, imagenes[index]);
+                      utils.descargaImagen(context, imagenes[index]);
                     },
                   );
                 }),
@@ -282,25 +282,6 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                   });
                 }),
     );
-  }
-
-  void _descargaImagen(BuildContext context, String url) async {
-    Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-        Icon(Icons.cloud_download), 'Descargando...', 1));
-    try {
-      if (Platform.isAndroid) {
-        if (!await utils.obtenerPermisosAndroid())
-          throw 'No tienes permisos de almacenamiento';
-      }
-      var res = await http.get(url);
-      await ImageGallerySaver.saveImage(Uint8List.fromList(res.bodyBytes));
-      // print(result);
-      Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.file_download), 'Imagen guardada', 2));
-    } catch (e) {
-      Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error), 'La imagen no pudo ser guardada', 2));
-    }
   }
 
   Widget _creaFABOK(BuildContext context) {

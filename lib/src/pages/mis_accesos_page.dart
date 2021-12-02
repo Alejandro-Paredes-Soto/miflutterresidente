@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dynamic_list_view/dynamic_list.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +9,9 @@ import 'package:dostop_v2/src/providers/mis_accesos_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:flutter/services.dart';
+
+import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 
 class MisAccesosPage extends StatefulWidget {
   @override
@@ -129,11 +133,11 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
 
   Widget _crearItem(BuildContext context, AccesoModel acceso, int index) {
     return ElevatedContainer(
-      padding: EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.all(10.0),
       child: Row(
         children: [
-          Expanded(
-            flex: 1,
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0),
             child: Icon(
               acceso.accion == '1'
                   ? Icons.arrow_circle_up
@@ -178,6 +182,23 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
                   ),
                 ),
               ],
+            ),
+          ),
+          Visibility(
+            visible: acceso.rutaImg != "",
+            child: PinchZoomImage(
+              image: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: CachedNetworkImage(
+                    height: 130,
+                    width: 75,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        Image.asset(utils.rutaGifLoadRed),
+                    imageUrl: acceso.rutaImg,
+                    errorWidget: (context, url, error) =>
+                        Icon(Icons.broken_image)),
+              ),
             ),
           ),
         ],

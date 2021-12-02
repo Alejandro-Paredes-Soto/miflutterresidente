@@ -7,10 +7,8 @@ import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:flutter_svg/svg.dart';
 
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -120,7 +118,7 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                       ),
                       onLongPress: () {
                         HapticFeedback.vibrate();
-                        _descargaImagen(context, imagenes[index]);
+                        utils.descargaImagen(context, imagenes[index]);
                       },
                     );
                   }),
@@ -264,25 +262,6 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
         await Navigator.of(context).pushNamed('Incidente', arguments: datos) ??
             false;
     if (result) setState(() {});
-  }
-}
-
-void _descargaImagen(BuildContext context, String url) async {
-  Scaffold.of(context).showSnackBar(
-      utils.creaSnackBarIcon(Icon(Icons.cloud_download), 'Descargando...', 1));
-  try {
-    if (Platform.isAndroid) {
-      if (!await utils.obtenerPermisosAndroid())
-        throw 'No tienes permisos de almacenamiento';
-    }
-    var res = await http.get(url);
-    await ImageGallerySaver.saveImage(Uint8List.fromList(res.bodyBytes));
-    // print(result);
-    Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-        Icon(Icons.file_download), 'Imagen guardada', 2));
-  } catch (e) {
-    Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-        Icon(Icons.error), 'La imagen no pudo ser guardada', 2));
   }
 }
 

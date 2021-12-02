@@ -15,7 +15,8 @@ class AccesoModel {
         this.fechaAcceso,
         this.horaAcceso,
         this.tipoAcceso,
-        this.nombreAcceso
+        this.nombreAcceso,
+        this.rutaImg
     });
 
     String idEntradaSalida;
@@ -29,6 +30,7 @@ class AccesoModel {
     String horaAcceso;
     String tipoAcceso;
     String nombreAcceso;
+    String rutaImg;
 
     factory AccesoModel.fromJson(Map<String, dynamic> json) => AccesoModel(
         idEntradaSalida: json["idEntradaSalida"],
@@ -41,6 +43,7 @@ class AccesoModel {
         fechaAcceso: DateTime.parse(json["fecha_acceso"]),
         horaAcceso: json["hora_acceso"],
         tipoAcceso: json["tipo_acceso"]??"",
-        nombreAcceso: json["nombre_acceso"]??""
+        nombreAcceso: json["nombre_acceso"]??"",
+        rutaImg: json["urlImg"]??""
     );
 }

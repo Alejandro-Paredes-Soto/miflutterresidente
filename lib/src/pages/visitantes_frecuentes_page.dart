@@ -37,12 +37,23 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   int _tabIndex = 0;
   int _obteniendoConfig = 0;
   String _tipoServicio = '';
+  Map<String, dynamic> _tipoAcceso;
   Timer timer;
   bool _dialogAbierto = false;
 
   @override
   void initState() {
     super.initState();
+    _configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 5)
+        .then((resultado) {
+        if (!mounted) return;
+          setState(() {
+            _tipoAcceso = resultado['valor'];
+            print(resultado['valor']);
+          });
+    });
+
     _configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 4)
         .then((resultado) {
@@ -52,6 +63,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         _tipoServicio = resultado['valor'];
       });
     });
+
     timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
       if (!_dialogAbierto && _tabIndex > 0) setState(() {});
     });
@@ -290,7 +302,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
       child: Container(
-        height: 120,
+        height: 138,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -317,7 +329,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   Text('Nombre', style: utils.estiloTituloTarjeta(11)),
                   Text(visitante.nombre,
                       style: utils.estiloSubtituloTarjeta(17)),
-                  SizedBox(height: 10),
+                  SizedBox(height: 5),
+                  Text(visitante.tipoAcceso == '1' ? 'Acceso peatonal': visitante.tipoAcceso == '2' 
+                  ? 'Acceso vehicular' : 'Acceso vehicular-peatonal',
+                    ),
+                  SizedBox(height: 5),
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
                   Row(
                     children: [
@@ -504,12 +520,14 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           titulo: 'Nuevo visitante rostro',
           icon: Icon(Icons.person_add),
           pageRoute: 'NuevoVisitRostro',
-          tipoRostro: 2),
+          tipoRostro: 2,
+          tipoAcceso: _tipoAcceso),
       _elementoFAB(
           titulo: 'Nuevo colono rostro',
           icon: Icon(Icons.home),
           pageRoute: 'NuevoVisitRostro',
-          tipoRostro: 1),
+          tipoRostro: 1,
+          tipoAcceso: _tipoAcceso),
     ];
     if (valor == '0') {
       elementos.removeLast();
@@ -527,7 +545,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       {String titulo,
       Widget icon,
       @required String pageRoute,
-      int tipoRostro}) {
+      int tipoRostro,
+      Map tipoAcceso}) {
     return SpeedDialChild(
         child: Container(padding: EdgeInsets.all(10), child: icon),
         backgroundColor: utils.colorPrincipal,
@@ -535,16 +554,16 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         label: titulo,
         labelStyle: TextStyle(fontSize: 18.0),
         onTap: () {
-          _navegaPaginaRespuesta(context, pageRoute, tipoRostro);
+          _navegaPaginaRespuesta(context, pageRoute, tipoRostro, tipoAcceso);
         });
   }
 
   _navegaPaginaRespuesta(
-      BuildContext context, String pageRoute, int tipoRostro) async {
+      BuildContext context, String pageRoute, int tipoRostro, Map tipoAcceso) async {
     //Agregamos argumento para saber que tipo de pantalla de rostro mostrar, si el argumento se pasa
     //a otra pantalla este es ignorado
     final result = await Navigator.of(context)
-            .pushNamed(pageRoute, arguments: tipoRostro) ??
+            .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]) ??
         false;
     if (result) {
       setState(() {});

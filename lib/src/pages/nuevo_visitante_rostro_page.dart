@@ -9,6 +9,7 @@ import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart' as picker;
 import 'package:image/image.dart' as imgTools;
 
@@ -27,15 +28,24 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   final _txtApPatCtrl = TextEditingController();
   final _txtApMatCtrl = TextEditingController();
   final visitanteProvider = VisitantesFreqProvider();
+  String _seleccionTipoAcceso;
   bool _registrando = false;
   bool _imagenLista = false, _mostrarErrorImg = false;
+  bool _mostrarErrorAcceso = false;
   bool _visitanteRegistrado = false;
   File _imgRostro;
   int _tipoRostro = 0;
+  List arg = [];
+  String _tipoAccesoVisitante = '';
+  String _tipoAccesoColono = '';
+  String _tempTipoAccess;
 
   @override
   Widget build(BuildContext context) {
-    _tipoRostro = ModalRoute.of(context).settings.arguments;
+    arg = ModalRoute.of(context).settings.arguments;
+    _tipoRostro = arg[0];
+    _tipoAccesoVisitante = arg[1]['acceso_visitante'];
+    _tipoAccesoColono = arg[1]['acceso_colono'];
     return Scaffold(
       key: _scaffoldKey,
       appBar: utils.appBarLogo(
@@ -63,6 +73,8 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaCampoNombre('Nombre(s)', 'Ej. Luis'),
               _creaCampoApellidoPat('Apellido paterno', 'Ej. Fernández'),
               _creaCampoApellidoMat('Apellido materno', 'Ej. Herrera'),
+              _crearListaTipoAcceso(),
+              _creaTextoErrorAcceso(),
               SizedBox(height: 10.0),
               _creaBtnAgregaImagen(),
               _creaTextoErrorImg(),
@@ -157,6 +169,92 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           return null;
       },
     );
+  }
+
+  Widget _crearListaTipoAcceso() {
+    if(_tipoRostro == 2){
+      _seleccionTipoAcceso = _tipoAccesoVisitante != '3' ? _tipoAccesoVisitante : _seleccionTipoAcceso;
+    }else{
+      _seleccionTipoAcceso = _tipoAccesoColono != '3' ? _tipoAccesoColono : _seleccionTipoAcceso;
+    }
+
+    return IgnorePointer(
+      ignoring: _registrando,
+      child: Listener(
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+        child: DropdownButton(
+          isExpanded: true,
+          value: _seleccionTipoAcceso ,
+          hint: Text('Tipo de acceso'),
+          underline: Container(
+            height: 1,
+            color: _mostrarErrorAcceso ? utils.colorToastRechazada : Theme.of(context).disabledColor,
+          ),
+          items: getOpcionesDropdown(),
+          onChanged: (opc) {
+            setState(() {
+              _seleccionTipoAcceso = opc;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> getOpcionesDropdown() {
+    List<DropdownMenuItem<String>> elementos = [
+      DropdownMenuItem(
+        child: Row(
+          children: <Widget>[
+            Icon(Icons.directions_walk),
+            SizedBox(width: 10),
+            Text('Peatonal'),
+          ],
+        ),
+        value: '1',
+      ),
+      DropdownMenuItem(
+        child: Row(
+          children: <Widget>[
+            Icon(Icons.directions_car_sharp),
+            SizedBox( width: 10),
+            Text('Vehicular'),
+          ],
+        ),
+        value: '2',
+      ),
+      DropdownMenuItem(
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(left: 3.0),
+              child: SvgPicture.asset(
+                utils.rutaIconTipoAcceso, 
+                height: 19.0,
+                color: Theme.of(context).iconTheme.color
+                ),
+            ),
+            SizedBox(width: 10),
+            Text('Vehicular y peatonal'),
+          ],
+        ),
+        value: '3',
+      )
+    ];
+
+    if(_tipoRostro == 2)
+      _tempTipoAccess = _tipoAccesoVisitante;
+    else
+      _tempTipoAccess = _tipoAccesoColono;
+    
+    if (_tempTipoAccess == '1') {
+      elementos.removeLast();
+      elementos.removeLast();
+    } else if (_tempTipoAccess == '2') {
+      elementos.removeAt(0);
+      elementos.removeLast();
+    }
+    return elementos;
   }
 
   Widget _creaBtnAgregaImagen() {
@@ -307,6 +405,20 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
     );
   }
 
+  Widget _creaTextoErrorAcceso() {
+    return Visibility(
+      visible: _mostrarErrorAcceso,
+      child: Container(
+        width: double.infinity,
+        child: Text(
+          'Selecciona el tipo de acceso',
+          style: TextStyle(color: utils.colorToastRechazada, fontSize: 12.0),
+          textAlign: TextAlign.left,
+        ),
+      ),
+    );
+  }
+
   Widget _creaRecomendacionImg() {
     return Text(
       'Por favor, usa una imagen en formato vertical. No usar lentes o algún accesorio que pueda cubrir parte del rostro.',
@@ -345,17 +457,26 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   _submitForm() {
-    if (_formKey.currentState.validate()) {
-      if (_imgRostro != null) {
+    if (_formKey.currentState.validate() && _seleccionTipoAcceso != null
+        && _imgRostro != null) {
         _formKey.currentState.save();
         _mostrarErrorImg = false;
+        _mostrarErrorAcceso = false;
         _registrando = true;
         _registrarAcceso();
-      } else {
+    }else{
+      if(_seleccionTipoAcceso == null)
+        _mostrarErrorAcceso = true;
+      else 
+        _mostrarErrorAcceso = false;
+
+      if(_imgRostro == null)
         _mostrarErrorImg = true;
-      }
-      setState(() {});
+      else
+        _mostrarErrorImg = false;
     }
+    
+    setState(() {});
   }
 
   void _registrarAcceso() async {
@@ -364,6 +485,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       nombre: _txtNombreCtrl.text,
       apPaterno: _txtApPatCtrl.text,
       apMaterno: _txtApMatCtrl.text,
+      tipoAcceso: _seleccionTipoAcceso,
       imgRostroB64: base64Encode(_imgRostro.readAsBytesSync()),
       tipo: _tipoRostro,
     );
