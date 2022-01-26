@@ -1,4 +1,8 @@
 PODS:
+  - agora_rtc_engine (3.4.6):
+    - AgoraRtcEngine_iOS (= 3.4.6)
+    - Flutter
+  - AgoraRtcEngine_iOS (3.4.6)
   - dynamic_list_view (0.0.1):
     - Flutter
   - Firebase/CoreOnly (6.33.0):
@@ -75,6 +79,8 @@ PODS:
   - nanopb/encode (1.30906.0)
   - path_provider (0.0.1):
     - Flutter
+  - "permission_handler (5.1.0+2)":
+    - Flutter
   - permissions_plugin (0.0.1):
     - Flutter
   - PromisesObjC (1.2.12)
@@ -90,6 +96,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - agora_rtc_engine (from `.symlinks/plugins/agora_rtc_engine/ios`)
   - dynamic_list_view (from `.symlinks/plugins/dynamic_list_view/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
@@ -97,6 +104,7 @@ DEPENDENCIES:
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - permissions_plugin (from `.symlinks/plugins/permissions_plugin/ios`)
   - share_extend (from `.symlinks/plugins/share_extend/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
@@ -105,6 +113,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AgoraRtcEngine_iOS
     - Firebase
     - FirebaseCore
     - FirebaseCoreDiagnostics
@@ -119,6 +128,8 @@ SPEC REPOS:
     - Protobuf
 
 EXTERNAL SOURCES:
+  agora_rtc_engine:
+    :path: ".symlinks/plugins/agora_rtc_engine/ios"
   dynamic_list_view:
     :path: ".symlinks/plugins/dynamic_list_view/ios"
   firebase_core:
@@ -133,6 +144,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
   permissions_plugin:
     :path: ".symlinks/plugins/permissions_plugin/ios"
   share_extend:
@@ -145,6 +158,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher/ios"
 
 SPEC CHECKSUMS:
+  agora_rtc_engine: ac3bd29e98aa98043b55d8fa92289630ffd93e5e
+  AgoraRtcEngine_iOS: 8aa4a8e46bd81963607857b1d46703b93e4de156
   dynamic_list_view: 715e9a7369dc2340db9a3fd4dd54134cfca4bf8f
   Firebase: 8db6f2d1b2c5e2984efba4949a145875a8f65fe5
   firebase_core: 5d6a02f3d85acd5f8321c2d6d62877626a670659
@@ -162,6 +177,7 @@ SPEC CHECKSUMS:
   image_picker: 9c3312491f862b28d21ecd8fdf0ee14e601b3f09
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
+  permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   permissions_plugin: 98cd73ca0d2e7ab845e3d0efdd29ef2737ffa27c
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   Protobuf: 1a37ebea1338949e9ac35a3f06e80b3f536eec8d

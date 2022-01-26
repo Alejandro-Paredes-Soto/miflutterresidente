@@ -433,6 +433,30 @@ Future<bool> obtenerPermisosAndroid() async {
   }
 }
 
+Future<bool> obtenerPermisosAndroidMic() async {
+  Map<Permission, PermissionState> permission =
+      await PermissionsPlugin.checkPermissions(
+          [Permission.RECORD_AUDIO]);
+
+  if (permission[Permission.RECORD_AUDIO] !=
+      PermissionState.GRANTED) {
+    try {
+      permission = await PermissionsPlugin.requestPermissions(
+          [Permission.RECORD_AUDIO]);
+    } on Exception {
+      return false;
+    }
+
+    if (permission[Permission.RECORD_AUDIO] ==
+        PermissionState.GRANTED)
+      return true;
+    else
+      return false;
+  } else {
+    return true;
+  }
+}
+
 String obtenerIDPlataforma(BuildContext context) {
   switch (Theme.of(context).platform) {
     case TargetPlatform.iOS:

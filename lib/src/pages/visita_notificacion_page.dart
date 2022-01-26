@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
+import 'package:dostop_v2/src/providers/visitas_provider.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
@@ -27,6 +28,7 @@ class VisitaNofificacionPage extends StatefulWidget {
 class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   final _notifProvider = NotificacionesProvider();
   final _pushManager = PushNotificationsManager();
+  final _serviceCall = VisitasProvider();
   bool _respuestaEnviada = false, _tiempoVencido = false;
   final _prefs = PreferenciasUsuario();
   String id = '';
@@ -54,7 +56,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
               backbtn: null),
           body: _creaBody(visita),
           floatingActionButton: visita.tipoVisita == 1 && !_tiempoVencido
-              ? _creaFABAprobar(context, visita.idVisitas)
+              ? _creaFABAprobar(context, visita.idVisitas, visita.fechaCompleta)
               : _creaFABOK(context),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat),
@@ -204,7 +206,8 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
     );
   }
 
-  Widget _creaFABAprobar(BuildContext context, String idVisita) {
+  Widget _creaFABAprobar(
+      BuildContext context, String idVisita, DateTime fecha) {
     return AnimatedCrossFade(
       sizeCurve: Curves.bounceInOut,
       duration: Duration(milliseconds: 200),
@@ -219,13 +222,50 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
       ),
       secondChild: Padding(
         padding: const EdgeInsets.only(bottom: 15.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            _crearBtnRespuesta(
-                titulo: 'Aceptar', idRespuesta: 1, idVisita: idVisita),
-            _crearBtnRespuesta(
-                titulo: 'Rechazar', idRespuesta: 2, idVisita: idVisita)
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                RawMaterialButton(
+                  onPressed: _respuestaEnviada
+                      ? null
+                      : () {
+                        _serviceCall.serviceCall(idVisita);
+                        Navigator.pushNamed(context, 'agora', arguments: [fecha, idVisita]);
+                      
+                      } ,
+                  child: new Icon(
+                    Icons.call,
+                    color: Colors.white,
+                    size: 35.0,
+                  ),
+                  shape: new CircleBorder(),
+                  elevation: 8.0,
+                  fillColor: utils.colorPrincipal,
+                  padding: const EdgeInsets.all(15.0),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                _crearBtnRespuesta(
+                    titulo: 'Aceptar', idRespuesta: 1, idVisita: idVisita),
+                _crearBtnRespuesta(
+                    titulo: 'Rechazar', idRespuesta: 2, idVisita: idVisita),
+              ],
+            ),
+            // const SizedBox(height: 20),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //   children: [
+            //     _crearBtnLlamada(),
+            //   ],
+            // )
           ],
         ),
       ),

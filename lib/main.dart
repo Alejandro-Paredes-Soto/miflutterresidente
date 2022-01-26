@@ -1,3 +1,4 @@
+import 'package:dostop_v2/src/pages/agora.dart';
 import 'package:dostop_v2/src/pages/areas_comunes_page.dart';
 import 'package:dostop_v2/src/pages/aviso_detalle_page.dart';
 import 'package:dostop_v2/src/pages/avisos_page.dart';
@@ -124,6 +125,7 @@ class _MyAppState extends State<MyApp> {
             'SeguimientoInc': (BuildContext context) =>
                 SeguimientoIncidentePage(),
             'misAccesos': (BuildContext context) => MisAccesosPage(),
+            'agora': (BuildContext context) => Agora(),
           },
           themeMode:
               prefs.themeMode == 'Dark' ? ThemeMode.dark : ThemeMode.light,
