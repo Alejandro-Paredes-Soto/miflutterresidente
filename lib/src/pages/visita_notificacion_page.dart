@@ -1,7 +1,5 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:dostop_v2/src/models/visita_model.dart';
+import 'package:dostop_v2/src/pages/agora_page.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
 import 'package:dostop_v2/src/providers/visitas_provider.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
@@ -10,14 +8,12 @@ import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:dostop_v2/src/widgets/countdown_timer.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart' as toast;
-import 'package:http/http.dart' as http;
 
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 
 class VisitaNofificacionPage extends StatefulWidget {
@@ -29,7 +25,9 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   final _notifProvider = NotificacionesProvider();
   final _pushManager = PushNotificationsManager();
   final _serviceCall = VisitasProvider();
-  bool _respuestaEnviada = false, _tiempoVencido = false;
+  bool _respuestaEnviada = false,
+      _tiempoVencido = false,
+      _conectandoLlamada = false;
   final _prefs = PreferenciasUsuario();
   String id = '';
 
@@ -56,7 +54,10 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
               backbtn: null),
           body: _creaBody(visita),
           floatingActionButton: visita.tipoVisita == 1 && !_tiempoVencido
-              ? _creaFABAprobar(context, visita.idVisitas, visita.fechaCompleta)
+              ? _creaFABAprobar(context, visita.idVisitas, visita.fechaCompleta,
+                  servicioLlamada: visita.servicioLlamada,
+                  appIdAgora: visita.appIdAgora,
+                  channelCall: visita.channelCall)
               : _creaFABOK(context),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat),
@@ -107,107 +108,128 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
               ),
             ),
           ),
-          _imagenesVisitante(utils.validaImagenes(
-              [visita.imgRostro, visita.imgId, visita.imgPlaca])),
-          SizedBox(height: 20),
-          _datosVisitante(visita),
+          _imagenesVisitante(
+              utils.validaImagenes(
+                  [visita.imgRostro, visita.imgId, visita.imgPlaca]),
+              visita),
+          SizedBox(height: _tiempoVencido ? 70 : 140),
+          // _datosVisitante(visita),
         ],
       ),
     );
   }
 
-  Widget _imagenesVisitante(List<String> imagenes) {
+  Widget _imagenesVisitante(List<String> imagenes, VisitaModel visita) {
+    double height = MediaQuery.of(context).size.height;
+    print(height);
+    height = height < 600
+        ? 420
+        : height > 800
+            ? 500
+            : 500;
     if (imagenes.length == 0)
-      return Container(
-        height: 200,
-        child: Center(child: Text('No hay imagenes para mostrar')),
-      );
-    else
       return Column(
-        children: <Widget>[
+        children: [
           Container(
             height: 200,
-            child: Swiper(
-                loop: false,
-                itemCount: imagenes.length,
-                pagination: imagenes.length > 1
-                    ? SwiperPagination(
-                        alignment: Alignment.bottomCenter,
-                        builder: DotSwiperPaginationBuilder(
-                            color: Colors.white60,
-                            activeColor: Colors.white60,
-                            activeSize: 20.0))
-                    : null,
-                scale: 0.8,
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    child: PinchZoomImage(
-                      image: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          width: double.infinity,
-                          child: CachedNetworkImage(
-                            placeholder: (context, url) =>
-                                Image.asset(utils.rutaGifLoadRed),
-                            errorWidget: (context, url, error) => Container(
-                                height: 200,
-                                child: Center(child: Icon(Icons.broken_image))),
-                            imageUrl: imagenes[index],
-                            fit: BoxFit.cover,
-                            fadeInDuration: Duration(milliseconds: 300),
+            child: Center(child: Text('No hay imagenes para mostrar')),
+          ),
+          _datosVisitante(visita),
+        ],
+      );
+    else
+      return Column(children: [
+        Stack(
+          children: <Widget>[
+            Container(
+              height: height,
+              child: Swiper(
+                  loop: false,
+                  itemCount: imagenes.length,
+                  pagination: imagenes.length > 1
+                      ? SwiperPagination(
+                          alignment: Alignment.topCenter,
+                          builder: DotSwiperPaginationBuilder(
+                              color: Colors.white60,
+                              activeColor: Colors.white60,
+                              activeSize: 20.0))
+                      : null,
+                  scale: 0.8,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      child: PinchZoomImage(
+                        image: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            width: double.infinity,
+                            alignment: Alignment.topCenter,
+                            child: CachedNetworkImage(
+                              alignment: Alignment.topCenter,
+                              placeholder: (context, url) =>
+                                  Image.asset(utils.rutaGifLoadRed, alignment: Alignment.topCenter,),
+                              errorWidget: (context, url, error) => Container(
+                                  height: 200,
+                                  child:
+                                      Center(child: Icon(Icons.broken_image))),
+                              imageUrl: imagenes[index],
+                              fit: BoxFit.cover,
+                              fadeInDuration: Duration(milliseconds: 300),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    onLongPress: () {
-                      HapticFeedback.vibrate();
-                      utils.descargaImagen(context, imagenes[index]);
-                    },
-                  );
-                }),
-          ),
-        ],
-      );
+                      onLongPress: () {
+                        HapticFeedback.vibrate();
+                        utils.descargaImagen(context, imagenes[index]);
+                      },
+                    );
+                  }),
+            ),
+            Container(
+              height: height,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: _datosVisitante(visita),
+            ),
+          ],
+        ),
+        SizedBox(height: height == 460 ? 50 : 0)
+      ]);
   }
 
   Widget _datosVisitante(VisitaModel visita) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.visitante,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
         SizedBox(
           height: 10,
         ),
         Text('Placas', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.placa,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
         SizedBox(height: 10),
         Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.modelo,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
         SizedBox(height: 10),
         Text('Marca', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.marca,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
         SizedBox(height: 10),
         Text(visita.tipoVisita == 1 ? 'Motivo' : '',
             style: utils.estiloTituloInfoVisita(12)),
         Text(visita.tipoVisita == 1 ? visita.motivoVisita : '',
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 120)
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+            SizedBox(height: 20)
       ],
     );
   }
 
-  Widget _creaFABAprobar(
-      BuildContext context, String idVisita, DateTime fecha) {
+  Widget _creaFABAprobar(BuildContext context, String idVisita, DateTime fecha,
+      {String servicioLlamada = '0', String appIdAgora, String channelCall}) {
     return AnimatedCrossFade(
       sizeCurve: Curves.bounceInOut,
       duration: Duration(milliseconds: 200),
@@ -226,28 +248,18 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                RawMaterialButton(
-                  onPressed: _respuestaEnviada
-                      ? null
-                      : () {
-                        _serviceCall.serviceCall(idVisita);
-                        Navigator.pushNamed(context, 'agora', arguments: [fecha, idVisita]);
-                      
-                      } ,
-                  child: new Icon(
-                    Icons.call,
-                    color: Colors.white,
-                    size: 35.0,
-                  ),
-                  shape: new CircleBorder(),
-                  elevation: 8.0,
-                  fillColor: utils.colorPrincipal,
-                  padding: const EdgeInsets.all(15.0),
-                ),
-              ],
+            Visibility(
+              visible: servicioLlamada == '1',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _crearBtnLlamada(
+                      idVisita: idVisita,
+                      channelCall: channelCall,
+                      appIdAgora: appIdAgora,
+                      fecha: fecha),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             Row(
@@ -259,16 +271,48 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                     titulo: 'Rechazar', idRespuesta: 2, idVisita: idVisita),
               ],
             ),
-            // const SizedBox(height: 20),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-            //   children: [
-            //     _crearBtnLlamada(),
-            //   ],
-            // )
           ],
         ),
       ),
+    );
+  }
+
+  Widget _crearBtnLlamada({String idVisita, channelCall, appIdAgora, fecha}) {
+    return RawMaterialButton(
+      onPressed: _respuestaEnviada || _conectandoLlamada
+          ? null
+          : () async {
+              setState(() {
+                _conectandoLlamada = true;
+              });
+              final resp = await _serviceCall.serviceCall(idVisita);
+
+              setState(() {
+                _conectandoLlamada = false;
+              });
+
+              if (resp['status'] == 'OK') {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => AgoraPage(
+                            channelCall: channelCall,
+                            appIdAgora: appIdAgora,
+                            fecha: fecha,
+                            idVisita: idVisita)));
+              } else {
+                toast.showToast(
+                  resp['message'],
+                  textStyle: TextStyle(fontSize: 24, color: Colors.white),
+                  borderRadius: BorderRadius.circular(20),
+                );
+              }
+            },
+      child: new Icon(Icons.call, color: Colors.white, size: 35.0),
+      shape: new CircleBorder(),
+      elevation: 8.0,
+      fillColor: utils.colorPrincipal,
+      padding: const EdgeInsets.all(15.0),
     );
   }
 

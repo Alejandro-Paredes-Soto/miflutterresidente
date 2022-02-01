@@ -66,7 +66,7 @@ class VisitasProvider {
     }
   }
 
-  Future<String> serviceCall(String idVisit, {int status = 1}) async {
+  Future<Map<String, dynamic>> serviceCall(String idVisit, {int status = 1}) async {
     try {
       final Map<String, String> headers = {
         'Content-Type': 'application/json',
@@ -75,12 +75,15 @@ class VisitasProvider {
       final resp = await http.post('https://dostop.mx/api/serviceCall',
           headers: headers, body: json.encode({'idVisit': idVisit, 'status': status}));
       final Map<String, dynamic> decodeResp = json.decode(resp.body);
-      if (decodeResp == null) return '';
+      return decodeResp;
 
-      return 'OK';
     } catch (e) {
       print('Ocurrió un error en la llamada al servicio:\n $e');
-      return '';
+      return {
+        'status': 'ERROR',
+        'statusCode': 0,
+        'message': 'Ocurrió un error al intentar realizar la llamada.'
+      };
     }
   }
 }

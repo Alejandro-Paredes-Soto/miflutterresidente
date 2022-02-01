@@ -1,6 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/providers/reporte_incidente_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
@@ -56,77 +53,107 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
             ),
           ),
           SizedBox(height: 10),
+
           _imagenesVisitante(
               visita.idVisitas,
               utils.validaImagenes(
-                  [visita.imgRostro, visita.imgId, visita.imgPlaca])),
+                  [visita.imgRostro, visita.imgId, visita.imgPlaca]),
+              visita),
           SizedBox(height: 30),
-          _datosVisitante(visita, context),
+          // _datosVisitante(visita, context),
         ],
       ),
     );
   }
 
-  Widget _imagenesVisitante(String id, List<String> imagenes) {
+  Widget _imagenesVisitante(
+      String id, List<String> imagenes, VisitaModel visita) {
+    double height = MediaQuery.of(context).size.height;
+    print(height);
+    height = height < 600
+        ? 460
+        : height > 800
+            ? 500
+            : 500;
     if (imagenes.length == 0)
-      return Container(
-        height: 240,
-        child: Center(child: Text('No hay imagenes para mostrar')),
+      return Column(
+        children: [
+          Container(
+            height: 240,
+            child: Center(child: Text('No hay imagenes para mostrar')),
+          ),
+          _datosVisitante(visita, context)
+        ],
       );
     else
       return Column(
         children: <Widget>[
-          Hero(
-            tag: id,
-            child: Container(
-              height: 220,
-              child: Swiper(
-                  loop: false,
-                  itemHeight: 240,
-                  itemCount: imagenes.length,
-                  pagination: imagenes.length > 1
-                      ? SwiperPagination(
-                          margin: EdgeInsets.all(2),
-                          alignment: Alignment.bottomCenter,
-                          builder: DotSwiperPaginationBuilder(
-                              color: Colors.white60,
-                              activeColor: Colors.white60,
-                              activeSize: 20.0))
-                      : null,
-                  scale: 0.85,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      child: PinchZoomImage(
-                        image: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: double.infinity,
-                            child: CachedNetworkImage(
-                              height: 220,
-                              placeholder: (context, url) =>
-                                  Image.asset(utils.rutaGifLoadRed),
-                              errorWidget: (context, url, error) => Container(
-                                  height: 240,
-                                  child:
-                                      Center(child: Icon(Icons.broken_image))),
-                              imageUrl: imagenes[index],
-                              fit: BoxFit.cover,
-                              fadeInDuration: Duration(milliseconds: 300),
+          Stack(
+            children: [
+              Hero(
+                tag: id,
+                child: Container(
+                  height: height,
+                  child: Swiper(
+                      loop: false,
+                      itemHeight: 240,
+                      itemCount: imagenes.length,
+                      pagination: imagenes.length > 1
+                          ? SwiperPagination(
+                              margin: EdgeInsets.all(2),
+                              alignment: Alignment.topCenter,
+                              builder: DotSwiperPaginationBuilder(
+                                  color: Colors.white60,
+                                  activeColor: Colors.white60,
+                                  activeSize: 20.0))
+                          : null,
+                      scale: 0.85,
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                          child: PinchZoomImage(
+                            image: Container(
+                              width: double.infinity,
+                              alignment: Alignment.topCenter,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: CachedNetworkImage(
+                                  width: double.infinity,
+                                  alignment: Alignment.topCenter,
+                                  placeholder: (context, url) =>
+                                      Image.asset(utils.rutaGifLoadRed, alignment: Alignment.topCenter),
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                          height: 240,
+                                          child: Center(
+                                              child: Icon(Icons.broken_image))),
+                                  imageUrl: imagenes[index],
+                                  fit: BoxFit.cover,
+                                  fadeInDuration: Duration(milliseconds: 0),
+                                  placeholderFadeInDuration: Duration(milliseconds: 0),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      onLongPress: () {
-                        HapticFeedback.vibrate();
-                        utils.descargaImagen(context, imagenes[index]);
-                      },
-                    );
-                  }),
-            ),
+                          onLongPress: () {
+                            HapticFeedback.vibrate();
+                            utils.descargaImagen(context, imagenes[index]);
+                          },
+                        );
+                      }),
+                ),
+              ),
+              Container(
+                height: height,
+                alignment: Alignment.bottomCenter,
+                padding: const EdgeInsets.all(8.0),
+                child: _datosVisitante(visita, context),
+              ),
+            ],
           ),
           SizedBox(height: 0),
           Text(
               'Mantén presionada cualquier imagen para guardarla en tu galería.'),
+          SizedBox(height: height == 460 ? 50 : 0)
         ],
       );
   }
@@ -135,6 +162,7 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
     final colorIcon = getColorEstatus(visita.estatus);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         visita.codigo != ''
             ? Container(
@@ -161,41 +189,35 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                     width: 2,
                   ),
                   Text('${visita.estatus}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: colorIcon['color'],
-                      )),
+                      // style: TextStyle(
+                      //   fontSize: 18,
+                      //   color: colorIcon['color'],
+                      style: utils.estiloTextoSombreado(18,
+                          dobleSombra: false, color: colorIcon['color'])),
                 ],
               )),
         SizedBox(height: 5),
         Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.visitante,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(
-          height: 10,
-        ),
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+        SizedBox(height: 10),
         Text('Placas', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.placa,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
         SizedBox(height: 10),
         Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.modelo,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
         SizedBox(height: 10),
         Text('Marca', style: utils.estiloTituloInfoVisita(12)),
         Text(visita.marca,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
         SizedBox(height: 10),
         Text(visita.codigo == '' ? 'Motivo' : '',
             style: utils.estiloTituloInfoVisita(12)),
         Text(visita.codigo == '' ? visita.motivoVisita : '',
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 70)
+            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+        SizedBox(height: 20)
       ],
     );
   }

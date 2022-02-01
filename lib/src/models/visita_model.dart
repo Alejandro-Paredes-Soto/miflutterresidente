@@ -24,29 +24,34 @@ class VisitaModel {
   String reporte;
   String noMolestar;
   DateTime fechaCompleta;
+  String servicioLlamada;
+  String appIdAgora;
+  String channelCall;
 
-  VisitaModel({
-    this.idVisitas,
-    this.fechaEntrada,
-    this.horaEntrada,
-    this.fechaSalida,
-    this.horaSalida,
-    this.placa,
-    this.color,
-    this.marca,
-    this.modelo,
-    this.visitante,
-    this.motivoVisita,
-    this.imgPlaca,
-    this.imgId,
-    this.imgRostro,
-    this.tipoVisita,
-    this.codigo,
-    this.estatus,
-    this.reporte,
-    this.noMolestar,
-    this.fechaCompleta,
-  });
+  VisitaModel(
+      {this.idVisitas,
+      this.fechaEntrada,
+      this.horaEntrada,
+      this.fechaSalida,
+      this.horaSalida,
+      this.placa,
+      this.color,
+      this.marca,
+      this.modelo,
+      this.visitante,
+      this.motivoVisita,
+      this.imgPlaca,
+      this.imgId,
+      this.imgRostro,
+      this.tipoVisita,
+      this.codigo,
+      this.estatus,
+      this.reporte,
+      this.noMolestar,
+      this.fechaCompleta,
+      this.servicioLlamada,
+      this.appIdAgora,
+      this.channelCall});
 
   factory VisitaModel.fromJson(Map<String, dynamic> json) => VisitaModel(
       idVisitas: json["idVisitas"],
@@ -67,5 +72,8 @@ class VisitaModel {
       estatus: json["estatus"],
       reporte: json["reporte"],
       noMolestar: json["no_molestar"],
-      fechaCompleta: DateTime.tryParse(json["fecha_completa"]??""));
+      fechaCompleta: DateTime.tryParse(json["fecha_completa"] ?? ""),
+      servicioLlamada: json["servicio_llamada"] ?? '0',
+      appIdAgora: json['appIdAgora'] ?? '',
+      channelCall: json['channelCall'] ?? '');
 }
