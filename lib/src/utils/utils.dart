@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
@@ -171,7 +173,13 @@ TextStyle estiloTextoSombreado(double fontSize,
 
 TextStyle estiloTituloInfoVisita(double fontSize) {
   return TextStyle(
-      color: colorAcentuado, fontSize: fontSize, fontWeight: FontWeight.w500);
+      color: colorAcentuado, fontSize: fontSize, fontWeight: FontWeight.w900,
+      shadows: [
+        Shadow(
+            color: Colors.black,
+            blurRadius: 5,
+            offset: Offset(0, 0)),
+      ]);
 }
 
 Brightness temaStatusBar(BuildContext context) {
@@ -383,12 +391,39 @@ String fechaCompletaFuturo(DateTime tm, {String articuloDef = ''}) {
 
 List<String> validaImagenes(List<String> imagenes) {
   List<String> list = [];
+  
   list.addAll(imagenes);
   imagenes.forEach((item) {
     if (item == '' || item == null) list.remove(item);
   });
   return list;
 }
+
+Future<List<Map<String, dynamic>>> validaImagenesOrientacion(List<String> imagenes) async {
+  List<Map<String, dynamic>> list = [];
+
+  for (var i = 0; i < imagenes.length; i++) {
+    if(imagenes[i] != '' && imagenes[i] != null){
+      ui.Image img = await getImage(imagenes[i]);
+      list.add({'img': imagenes[i], 'isVertical': img.height > img.width});
+    }
+  }
+ 
+  return list;
+}
+
+Future<ui.Image> getImage(String path) async {
+    var completer = Completer<ImageInfo>();
+    var img = new NetworkImage(path);
+    img
+        .resolve(const ImageConfiguration())
+        .addListener(ImageStreamListener((info, _) {
+      completer.complete(info);
+    }));
+    ImageInfo imageInfo = await completer.future;
+   
+    return imageInfo.image;
+  }
 
 void descargaImagen(BuildContext context, String url) async {
   Scaffold.of(context).showSnackBar(

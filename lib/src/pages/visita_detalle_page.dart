@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/providers/reporte_incidente_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
@@ -19,12 +23,46 @@ class VisitaDetallePage extends StatefulWidget {
 class _VisitaDetallePageState extends State<VisitaDetallePage> {
   final ReportesProvider _reportesProvider = ReportesProvider();
   final _prefs = PreferenciasUsuario();
+  AppBar appBar;
+  double availableHeight;
+  bool _isVertical = false;
+  List imagenes = [];
+  bool loadImg = false;
+
+  @override
+  void initState() {
+    super.initState();
+    imagenes = [];
+  }
+
   @override
   Widget build(BuildContext context) {
+    appBar = utils.appBarLogo(titulo: 'Visita');
     final VisitaModel _visita = ModalRoute.of(context).settings.arguments;
+    availableHeight = MediaQuery.of(context).size.height -
+        appBar.preferredSize.height -
+        MediaQuery.of(context).padding.top -
+        MediaQuery.of(context).padding.bottom;
+
+    if (Platform.isIOS) {
+      availableHeight =
+          availableHeight == 492 ? (availableHeight - 15) : availableHeight;
+    }
+
+    if (!_isVertical) {
+      availableHeight = 240;
+    }
+
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'Visita'),
-      body: _creaBody(_visita, context),
+      body: Platform.isIOS
+          ? _creaBody(_visita, context)
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                availableHeight = constraints.maxHeight - 20;
+                return _creaBody(_visita, context);
+              },
+            ),
       floatingActionButton:
           _cargaFABIncidente(context, [_visita.idVisitas, _visita.visitante]),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -34,126 +72,153 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
   Widget _creaBody(VisitaModel visita, BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: <Widget>[
-          Text(
-            visita.fechaEntrada.isNotEmpty && visita.fechaEntrada != null
-                ? '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}'
-                : '',
-            style: utils.estiloTextoAppBar(20),
+          imagenes.length == 0
+              ? FutureBuilder(
+                  future: utils.validaImagenesOrientacion(
+                      [visita.imgRostro, visita.imgId, visita.imgPlaca]),
+                  builder:
+                      (BuildContext context, AsyncSnapshot<List> snapshot) {
+                    if (snapshot.hasData) {
+                      imagenes = snapshot.data;
+                      return _imagenesVisitante(
+                          visita.idVisitas, snapshot.data, visita);
+                    } else {
+                      return Image.asset(utils.rutaGifLoadRed,
+                          alignment: Alignment.topCenter);
+                    }
+                  })
+              : _imagenesVisitante(visita.idVisitas, imagenes, visita),
+          Column(
+            children: [
+              Container(
+                height: availableHeight,
+                alignment: Alignment.bottomLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 30),
+                    Text(
+                      visita.fechaEntrada.isNotEmpty &&
+                              visita.fechaEntrada != null
+                          ? '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}'
+                          : '',
+                      style: utils.estiloTextoSombreado(20, dobleSombra: false),
+                    ),
+                    const SizedBox(height: 10),
+                    Visibility(
+                      visible: visita.fechaSalida.isNotEmpty &&
+                          visita.fechaSalida != null,
+                      child: Text(
+                        'Salida: ${utils.fechaCompleta(DateTime.tryParse(visita.fechaSalida))} ${visita.horaSalida}',
+                        style:
+                            utils.estiloTextoSombreado(18, dobleSombra: false),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Visibility(
+                        visible: _isVertical,
+                        child:
+                            Expanded(child: _datosVisitante(visita, context))),
+                    Visibility(
+                        visible: _isVertical,
+                        child: const SizedBox(height: 100)),
+                  ],
+                ),
+              ),
+              Visibility(
+                  visible: !_isVertical,
+                  child: _datosVisitante(visita, context))
+            ],
           ),
-          SizedBox(height: 10),
-          Visibility(
-            visible:
-                visita.fechaSalida.isNotEmpty && visita.fechaSalida != null,
-            child: Text(
-              'Salida: ${utils.fechaCompleta(DateTime.tryParse(visita.fechaSalida))} ${visita.horaSalida}',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-          SizedBox(height: 10),
-
-          _imagenesVisitante(
-              visita.idVisitas,
-              utils.validaImagenes(
-                  [visita.imgRostro, visita.imgId, visita.imgPlaca]),
-              visita),
-          SizedBox(height: 30),
           // _datosVisitante(visita, context),
         ],
       ),
     );
   }
 
-  Widget _imagenesVisitante(
-      String id, List<String> imagenes, VisitaModel visita) {
-    double height = MediaQuery.of(context).size.height;
-    print(height);
-    height = height < 600
-        ? 460
-        : height > 800
-            ? 500
-            : 500;
+  void _cambiarOrientacion(bool isVertical) {
+    setState(() {
+      _isVertical = isVertical;
+    });
+  }
+
+  Widget _imagenesVisitante(String id, List<Map> imagenes, VisitaModel visita) {
     if (imagenes.length == 0)
       return Column(
         children: [
           Container(
             height: 240,
             child: Center(child: Text('No hay imagenes para mostrar')),
-          ),
-          _datosVisitante(visita, context)
+          )
         ],
       );
     else
       return Column(
         children: <Widget>[
-          Stack(
-            children: [
-              Hero(
-                tag: id,
-                child: Container(
-                  height: height,
-                  child: Swiper(
-                      loop: false,
-                      itemHeight: 240,
-                      itemCount: imagenes.length,
-                      pagination: imagenes.length > 1
-                          ? SwiperPagination(
-                              margin: EdgeInsets.all(2),
-                              alignment: Alignment.topCenter,
-                              builder: DotSwiperPaginationBuilder(
-                                  color: Colors.white60,
-                                  activeColor: Colors.white60,
-                                  activeSize: 20.0))
-                          : null,
-                      scale: 0.85,
-                      itemBuilder: (BuildContext context, int index) {
-                        return GestureDetector(
+          Hero(
+            tag: id,
+            child: Container(
+              height: availableHeight,
+              child: Swiper(
+                  loop: false,
+                  itemHeight: 240,
+                  itemCount: imagenes.length,
+                  pagination: imagenes.length > 1
+                      ? SwiperPagination(
+                          margin: EdgeInsets.all(2),
+                          alignment: Alignment.topCenter,
+                          builder: DotSwiperPaginationBuilder(
+                              color: Colors.white60,
+                              activeColor: Colors.white60,
+                              activeSize: 20.0))
+                      : null,
+                  scale: 0.85,
+                  itemBuilder: (BuildContext context, int index) {
+                    bool orientacion = imagenes[index]['isVertical'];
+                    Future.microtask(() => _cambiarOrientacion(orientacion));
+                    return Column(
+                      children: [
+                        GestureDetector(
                           child: PinchZoomImage(
                             image: Container(
                               width: double.infinity,
-                              alignment: Alignment.topCenter,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
                                 child: CachedNetworkImage(
                                   width: double.infinity,
+                                  height: orientacion ? availableHeight : 240,
                                   alignment: Alignment.topCenter,
-                                  placeholder: (context, url) =>
-                                      Image.asset(utils.rutaGifLoadRed, alignment: Alignment.topCenter),
+                                  placeholder: (context, url) => Image.asset(
+                                      utils.rutaGifLoadRed,
+                                      alignment: Alignment.topCenter),
                                   errorWidget: (context, url, error) =>
                                       Container(
                                           height: 240,
                                           child: Center(
                                               child: Icon(Icons.broken_image))),
-                                  imageUrl: imagenes[index],
+                                  imageUrl: imagenes[index]['img'],
                                   fit: BoxFit.cover,
                                   fadeInDuration: Duration(milliseconds: 0),
-                                  placeholderFadeInDuration: Duration(milliseconds: 0),
+                                  placeholderFadeInDuration:
+                                      Duration(milliseconds: 0),
                                 ),
                               ),
                             ),
                           ),
                           onLongPress: () {
                             HapticFeedback.vibrate();
-                            utils.descargaImagen(context, imagenes[index]);
+                            utils.descargaImagen(
+                                context, imagenes[index]['img']);
                           },
-                        );
-                      }),
-                ),
-              ),
-              Container(
-                height: height,
-                alignment: Alignment.bottomCenter,
-                padding: const EdgeInsets.all(8.0),
-                child: _datosVisitante(visita, context),
-              ),
-            ],
+                        ),
+                      ],
+                    );
+                  }),
+            ),
           ),
-          SizedBox(height: 0),
-          Text(
-              'Mantén presionada cualquier imagen para guardarla en tu galería.'),
-          SizedBox(height: height == 460 ? 50 : 0)
         ],
       );
   }
