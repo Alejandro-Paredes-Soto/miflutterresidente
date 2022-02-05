@@ -69,7 +69,14 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
       onWillPop: () async => false,
       child: Scaffold(
           appBar: _appBar(visita),
-          body: _creaBody(visita),
+          body: Platform.isIOS
+          ? _creaBody(visita)
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                availableHeight =  !_isVertical ? 240 :(constraints.maxHeight - 20);
+                return _creaBody(visita);
+              },
+            ),
           floatingActionButton: visita.tipoVisita == 1 && !_tiempoVencido
               ? _creaFABAprobar(context, visita.idVisitas, visita.fechaCompleta,
                   servicioLlamada: visita.servicioLlamada,
@@ -108,7 +115,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                           snapshot.data, visita);
                     } else {
                       return Image.asset(utils.rutaGifLoadRed,
-                          alignment: Alignment.topCenter);
+                          alignment: Alignment.center);
                     }
                   })
               : _imagenesVisitante(imagenes, visita),

@@ -86,7 +86,7 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                           visita.idVisitas, snapshot.data, visita);
                     } else {
                       return Image.asset(utils.rutaGifLoadRed,
-                          alignment: Alignment.topCenter);
+                          alignment: Alignment.center);
                     }
                   })
               : _imagenesVisitante(visita.idVisitas, imagenes, visita),
