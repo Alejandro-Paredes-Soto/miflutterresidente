@@ -91,7 +91,7 @@ class _AgoraPageState extends State<AgoraPage> {
                 child: Stack(
                   children: [
                     Center(
-                      child: _remoteVideo(),
+                      child: !mutedVideo ? _remoteVideo() : Text('Video deshabilitado'),
                     ),
                     _toolbar(widget.idVisita),
                     Padding(

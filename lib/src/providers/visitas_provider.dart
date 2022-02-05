@@ -72,7 +72,7 @@ class VisitasProvider {
         'Content-Type': 'application/json',
       };
 
-      final resp = await http.post('https://dostop.mx/api/serviceCall',
+      final resp = await http.post('${constantes.urlApp}/serviceCall.php',
           headers: headers, body: json.encode({'idVisit': idVisit, 'status': status}));
       final Map<String, dynamic> decodeResp = json.decode(resp.body);
       return decodeResp;
