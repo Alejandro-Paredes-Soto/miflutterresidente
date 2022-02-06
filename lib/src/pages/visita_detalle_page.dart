@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/providers/reporte_incidente_provider.dart';
@@ -25,7 +23,6 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
   final _prefs = PreferenciasUsuario();
   AppBar appBar;
   double availableHeight;
-  bool _isVertical = false;
   List imagenes = [];
   bool loadImg = false;
 
@@ -47,10 +44,6 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
     if (Platform.isIOS) {
       availableHeight =
           availableHeight == 492 ? (availableHeight - 15) : availableHeight;
-    }
-
-    if (!_isVertical) {
-      availableHeight = 240;
     }
 
     return Scaffold(
@@ -85,74 +78,36 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                       return _imagenesVisitante(
                           visita.idVisitas, snapshot.data, visita);
                     } else {
-                      return Image.asset(utils.rutaGifLoadRed,
-                          alignment: Alignment.center);
+                      return Stack(children: [
+                        Image.asset(utils.rutaGifLoadRed,
+                            alignment: Alignment.center),
+                        _datosVisita(visita)
+                      ]);
                     }
                   })
               : _imagenesVisitante(visita.idVisitas, imagenes, visita),
-          Column(
-            children: [
-              Container(
-                height: availableHeight,
-                alignment: Alignment.bottomLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 30),
-                    Text(
-                      visita.fechaEntrada.isNotEmpty &&
-                              visita.fechaEntrada != null
-                          ? '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}'
-                          : '',
-                      style: utils.estiloTextoSombreado(20, dobleSombra: false),
-                    ),
-                    const SizedBox(height: 10),
-                    Visibility(
-                      visible: visita.fechaSalida.isNotEmpty &&
-                          visita.fechaSalida != null,
-                      child: Text(
-                        'Salida: ${utils.fechaCompleta(DateTime.tryParse(visita.fechaSalida))} ${visita.horaSalida}',
-                        style:
-                            utils.estiloTextoSombreado(18, dobleSombra: false),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Visibility(
-                        visible: _isVertical,
-                        child:
-                            Expanded(child: _datosVisitante(visita, context))),
-                    Visibility(
-                        visible: _isVertical,
-                        child: const SizedBox(height: 100)),
-                  ],
-                ),
-              ),
-              Visibility(
-                  visible: !_isVertical,
-                  child: _datosVisitante(visita, context))
-            ],
-          ),
-          // _datosVisitante(visita, context),
         ],
       ),
     );
-  }
-
-  void _cambiarOrientacion(bool isVertical) {
-    setState(() {
-      _isVertical = isVertical;
-    });
   }
 
   Widget _imagenesVisitante(String id, List<Map> imagenes, VisitaModel visita) {
     if (imagenes.length == 0)
       return Column(
         children: [
-          Container(
-            height: 240,
-            child: Center(child: Text('No hay imagenes para mostrar')),
-          )
+          Stack(
+            children: [
+              Container(
+                height: 240,
+                child: Center(child: Text('No hay imagenes para mostrar')),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: _fechaVisita(visita),
+              )
+            ],
+          ),
+          _datosVisitante(visita, context)
         ],
       );
     else
@@ -177,45 +132,33 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                       : null,
                   scale: 0.85,
                   itemBuilder: (BuildContext context, int index) {
-                    bool orientacion = imagenes[index]['isVertical'];
-                    Future.microtask(() => _cambiarOrientacion(orientacion));
-                    return Column(
-                      children: [
-                        GestureDetector(
-                          child: PinchZoomImage(
-                            image: Container(
-                              width: double.infinity,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: CachedNetworkImage(
-                                  width: double.infinity,
-                                  height: orientacion ? availableHeight : 240,
-                                  alignment: Alignment.topCenter,
-                                  placeholder: (context, url) => Image.asset(
-                                      utils.rutaGifLoadRed,
-                                      alignment: Alignment.topCenter),
-                                  errorWidget: (context, url, error) =>
-                                      Container(
-                                          height: 240,
-                                          child: Center(
-                                              child: Icon(Icons.broken_image))),
-                                  imageUrl: imagenes[index]['img'],
-                                  fit: BoxFit.cover,
-                                  fadeInDuration: Duration(milliseconds: 0),
-                                  placeholderFadeInDuration:
-                                      Duration(milliseconds: 0),
-                                ),
+                    bool isVertical = imagenes[index]['isVertical'];
+                    return isVertical
+                        ? Stack(
+                            children: [
+                              _imgOrientacion(context, availableHeight,
+                                  imagenes[index]['img']),
+                              _datosVisita(visita),
+                            ],
+                          )
+                        : SingleChildScrollView(
+                            child: Column(children: [
+                              Stack(
+                                children: [
+                                  _imgOrientacion(
+                                      context, 240, imagenes[index]['img']),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: _fechaVisita(visita),
+                                  )
+                                ],
                               ),
-                            ),
-                          ),
-                          onLongPress: () {
-                            HapticFeedback.vibrate();
-                            utils.descargaImagen(
-                                context, imagenes[index]['img']);
-                          },
-                        ),
-                      ],
-                    );
+                              Text(
+                                  'Mantén presionada cualquier imagen para guardarla en tu galería.'),
+                              _datosVisitante(visita, context)
+                            ]),
+                          );
                   }),
             ),
           ),
@@ -223,67 +166,142 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
       );
   }
 
-  Widget _datosVisitante(VisitaModel visita, BuildContext context) {
-    final colorIcon = getColorEstatus(visita.estatus);
+  Widget _fechaVisita(VisitaModel visita) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        visita.codigo != ''
-            ? Container(
-                child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  SvgPicture.asset(
-                    utils.rutaIconoVisitantesFrecuentes,
-                    height: utils.tamanoIcoNavBar,
-                    color: Theme.of(context).iconTheme.color,
-                  ),
-                ],
-              ))
-            : Container(
-                child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Icon(
-                    colorIcon['icono'],
-                    color: colorIcon['color'],
-                    size: 22,
-                  ),
-                  SizedBox(
-                    width: 2,
-                  ),
-                  Text('${visita.estatus}',
-                      // style: TextStyle(
-                      //   fontSize: 18,
-                      //   color: colorIcon['color'],
-                      style: utils.estiloTextoSombreado(18,
-                          dobleSombra: false, color: colorIcon['color'])),
-                ],
-              )),
-        SizedBox(height: 5),
-        Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.visitante,
-            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
-        SizedBox(height: 10),
-        Text('Placas', style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.placa,
-            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
-        SizedBox(height: 10),
-        Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.modelo,
-            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
-        SizedBox(height: 10),
-        Text('Marca', style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.marca,
-            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
-        SizedBox(height: 10),
-        Text(visita.codigo == '' ? 'Motivo' : '',
-            style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.codigo == '' ? visita.motivoVisita : '',
-            style: utils.estiloTextoSombreado(18, dobleSombra: false)),
-        SizedBox(height: 20)
+      children: [
+        const SizedBox(height: 30),
+        Text(
+          visita.fechaEntrada.isNotEmpty && visita.fechaEntrada != null
+              ? '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}'
+              : '',
+          style: utils.estiloTextoSombreado(20, dobleSombra: false),
+        ),
+        const SizedBox(height: 10),
+        Visibility(
+          visible: visita.fechaSalida.isNotEmpty && visita.fechaSalida != null,
+          child: Text(
+            'Salida: ${utils.fechaCompleta(DateTime.tryParse(visita.fechaSalida))} ${visita.horaSalida}',
+            style: utils.estiloTextoSombreado(16, dobleSombra: false, fontWeight: FontWeight.w500),
+          ),
+        ),
+        const SizedBox(height: 10),
       ],
+    );
+  }
+
+  Widget _datosVisita(VisitaModel visita) {
+    return Column(
+      children: [
+        Container(
+          height: availableHeight,
+          alignment: Alignment.bottomLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _fechaVisita(visita),
+              Expanded(child: _datosVisitante(visita, context)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _imgOrientacion(
+      BuildContext context, double availableHeight, String img) {
+    return Column(
+      children: [
+        GestureDetector(
+          child: PinchZoomImage(
+            image: Container(
+              width: double.infinity,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: CachedNetworkImage(
+                  width: double.infinity,
+                  height: availableHeight,
+                  alignment: Alignment.topCenter,
+                  placeholder: (context, url) => Image.asset(
+                      utils.rutaGifLoadRed,
+                      alignment: Alignment.topCenter),
+                  errorWidget: (context, url, error) => Container(
+                      height: 240,
+                      child: Center(child: Icon(Icons.broken_image))),
+                  imageUrl: img,
+                  fit: BoxFit.cover,
+                  fadeInDuration: Duration(milliseconds: 0),
+                  placeholderFadeInDuration: Duration(milliseconds: 0),
+                ),
+              ),
+            ),
+          ),
+          onLongPress: () {
+            HapticFeedback.vibrate();
+            utils.descargaImagen(context, img);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _datosVisitante(VisitaModel visita, BuildContext context) {
+    final colorIcon = getColorEstatus(visita.estatus);
+    return SingleChildScrollView(
+      reverse: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          visita.codigo != ''
+              ? Container(
+                  child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    SvgPicture.asset(
+                      utils.rutaIconoVisitantesFrecuentes,
+                      height: utils.tamanoIcoNavBar,
+                      color: Theme.of(context).iconTheme.color,
+                    ),
+                  ],
+                ))
+              : Container(
+                  child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Icon(colorIcon['icono'],
+                        color: colorIcon['color'], size: 22),
+                    SizedBox(width: 2),
+                    Text('${visita.estatus}',
+                        style: utils.estiloTextoSombreado(18,
+                            dobleSombra: false, color: colorIcon['color'])),
+                  ],
+                )),
+          SizedBox(height: 5),
+          Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.visitante,
+              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+          SizedBox(height: 10),
+          Text('Placas', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.placa,
+              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+          SizedBox(height: 10),
+          Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.modelo,
+              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+          SizedBox(height: 10),
+          Text('Marca', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.marca,
+              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+          SizedBox(height: 10),
+          Text(visita.codigo == '' ? 'Motivo' : '',
+              style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.codigo == '' ? visita.motivoVisita : '',
+              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+          SizedBox(height: 80)
+        ],
+      ),
     );
   }
 

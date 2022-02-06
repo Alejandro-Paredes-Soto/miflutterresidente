@@ -154,11 +154,12 @@ TextStyle estiloTextoSombreado(double fontSize,
     double blurRadius = 20,
     double offsetX = 0,
     double offsetY = 0,
-    bool dobleSombra = true}) {
+    bool dobleSombra = true,
+    FontWeight fontWeight = FontWeight.w900}) {
   return TextStyle(
       color: color,
       fontSize: fontSize,
-      fontWeight: FontWeight.w900,
+      fontWeight: fontWeight,
       shadows: [
         Shadow(
             color: Colors.black,
