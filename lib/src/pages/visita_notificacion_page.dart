@@ -174,9 +174,10 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
       List<Map> imagenes, VisitaModel visita, DateTime fecha) {
     if (imagenes.length == 0)
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 200,
+            height: 150,
             child: Center(child: Text('No hay imagenes para mostrar')),
           ),
           _datosVisitante(visita)
