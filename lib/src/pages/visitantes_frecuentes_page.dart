@@ -47,11 +47,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     _configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 5)
         .then((resultado) {
-        if (!mounted) return;
-          setState(() {
-            _tipoAcceso = resultado['valor'];
-            print(resultado['valor']);
-          });
+      if (!mounted) return;
+      setState(() {
+        _tipoAcceso = resultado['valor'];
+        print(resultado['valor']);
+      });
     });
 
     _configUsuarioProvider
@@ -202,7 +202,18 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   '${visitante.nombre}',
                   style: utils.estiloSubtituloTarjeta(15),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
+                Visibility(
+                  visible: visitante.tipoVisitante != '',
+                  child: Text(
+                    visitante.tipoVisitante == '1'
+                        ? 'Visita'
+                        : visitante.tipoVisitante == '2'
+                            ? 'Proveedor'
+                            : 'Empleado',
+                  ),
+                ),
+                SizedBox(height: 10),
                 Text(visitante.unico ? 'QR de única ocasión:' : 'Vence en:',
                     style: visitante.unico
                         ? TextStyle(
@@ -302,7 +313,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
       child: Container(
-        height: 138,
+        height: visitante.tipoVisitante != '' ? 158 : 138,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -329,10 +340,27 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   Text('Nombre', style: utils.estiloTituloTarjeta(11)),
                   Text(visitante.nombre,
                       style: utils.estiloSubtituloTarjeta(17)),
-                  SizedBox(height: 5),
-                  Text(visitante.tipoAcceso == '1' ? 'Acceso peatonal': visitante.tipoAcceso == '2' 
-                  ? 'Acceso vehicular' : 'Acceso vehicular-peatonal',
+                  Visibility(
+                      visible: visitante.tipoVisitante != '',
+                      child: SizedBox(height: 5)),
+                  Visibility(
+                    visible: visitante.tipoVisitante != '',
+                    child: Text(
+                      visitante.tipoVisitante == '1'
+                          ? 'Visita'
+                          : visitante.tipoVisitante == '2'
+                              ? 'Proveedor'
+                              : 'Empleado',
                     ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    visitante.tipoAcceso == '1'
+                        ? 'Acceso peatonal'
+                        : visitante.tipoAcceso == '2'
+                            ? 'Acceso vehicular'
+                            : 'Acceso vehicular-peatonal',
+                  ),
                   SizedBox(height: 5),
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
                   Row(
@@ -558,8 +586,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         });
   }
 
-  _navegaPaginaRespuesta(
-      BuildContext context, String pageRoute, int tipoRostro, Map tipoAcceso) async {
+  _navegaPaginaRespuesta(BuildContext context, String pageRoute, int tipoRostro,
+      Map tipoAcceso) async {
     //Agregamos argumento para saber que tipo de pantalla de rostro mostrar, si el argumento se pasa
     //a otra pantalla este es ignorado
     final result = await Navigator.of(context)
