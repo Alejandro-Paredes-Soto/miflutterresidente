@@ -172,9 +172,18 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         separatorBuilder: (context, index) => SizedBox(height: 15),
         padding: EdgeInsets.only(top: 15.0),
         itemCount: lista.length,
-        itemBuilder: (context, index) => _tabIndex == 0
-            ? _crearItem(context, lista[index])
-            : _crearItemRostro(context, lista[index]),
+        itemBuilder: (context, index) => Column(
+          children: [
+            _tabIndex == 0
+                ? _crearItem(context, lista[index])
+                : _crearItemRostro(context, lista[index]),
+            Visibility(
+                visible: index == (lista.length - 1),
+                child: SizedBox(
+                  height: 70,
+                ))
+          ],
+        ),
       ));
     } else {
       return Center(
