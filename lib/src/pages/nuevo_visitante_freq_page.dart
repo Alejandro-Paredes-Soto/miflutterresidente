@@ -22,6 +22,7 @@ class NuevoVisitanteFrecuentePage extends StatefulWidget {
 class _NuevoVisitanteFrecuentePageState
     extends State<NuevoVisitanteFrecuentePage> {
   String _seleccionVigencia = '1';
+  String _seleccionTipoVisitante = '1';
   final formKey = GlobalKey<FormState>();
   final _txtNombreCtrl = TextEditingController();
   final _txtApPatCtrl = TextEditingController();
@@ -79,6 +80,8 @@ class _NuevoVisitanteFrecuentePageState
                 _crearTextNombre('Nombre(s)', 'Ej. Luis'),
                 _crearTextApellidoP('Apellido paterno', 'Ej. Fernández'),
                 _crearTextApellidoM('Apellido materno', 'Ej. Herrera'),
+                SizedBox(height: 10.0),
+                _crearListaTipoVisitante(),
                 SizedBox(height: 10.0),
                 _crearListaVigencia(),
                 SizedBox(height: 10.0),
@@ -331,6 +334,43 @@ class _NuevoVisitanteFrecuentePageState
     );
   }
 
+  Widget _crearListaTipoVisitante() {
+    return IgnorePointer(
+      ignoring: _registrando,
+      child: Listener(
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+        child: DropdownButton(
+          isExpanded: true,
+          value: _seleccionTipoVisitante,
+          items: getOpcionesTipoVisita(),
+          onChanged: (opc) {
+            setState(() {
+              _seleccionTipoVisitante = opc;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> getOpcionesTipoVisita() {
+    return [
+      DropdownMenuItem(
+        child: Text('Visita'),
+        value: '1',
+      ),
+      DropdownMenuItem(
+        child: Text('Proveedor'),
+        value: '2',
+      ),
+      DropdownMenuItem(
+        child: Text('Empleado'),
+        value: '3',
+      ),
+    ];
+  }
+
+
   Widget _crearListaVigencia() {
     return IgnorePointer(
       ignoring: _registrando,
@@ -371,6 +411,7 @@ class _NuevoVisitanteFrecuentePageState
     //   ),
     // );
   }
+
 
   List<DropdownMenuItem<String>> getOpcionesDropdown() {
     return [
@@ -526,7 +567,8 @@ class _NuevoVisitanteFrecuentePageState
         apPaterno: _txtApPatCtrl.text,
         apMaterno: _txtApMatCtrl.text,
         vigencia: _seleccionVigencia,
-        esUnico: _esCodigoUnico);
+        esUnico: _esCodigoUnico,
+        tipoVisitante: _seleccionTipoVisitante);
     switch (estatus['OK']) {
       case 1:
         //

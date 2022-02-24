@@ -97,7 +97,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       )),
       Container(
           child: Text(
-        'Colonos\nRostros',
+        'Residentes\nRostros',
         textAlign: TextAlign.center,
         style: utils.estiloBotones(15),
       ))
@@ -523,7 +523,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           tipoRostro: 2,
           tipoAcceso: _tipoAcceso),
       _elementoFAB(
-          titulo: 'Nuevo colono rostro',
+          titulo: 'Nuevo residente rostro',
           icon: Icon(Icons.home),
           pageRoute: 'NuevoVisitRostro',
           tipoRostro: 1,
@@ -573,7 +573,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 height: utils.tamanoIcoSnackbar,
                 color: Theme.of(context).snackBarTheme.actionTextColor),
             tipoRostro == 1
-                ? 'Acceso colono creado'
+                ? 'Acceso residente creado'
                 : 'Visitante frecuente creado',
             5));
       });

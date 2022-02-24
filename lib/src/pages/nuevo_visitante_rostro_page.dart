@@ -29,6 +29,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   final _txtApMatCtrl = TextEditingController();
   final visitanteProvider = VisitantesFreqProvider();
   String _seleccionTipoAcceso;
+  String _seleccionTipoVisitante = "1";
   bool _registrando = false;
   bool _imagenLista = false, _mostrarErrorImg = false;
   bool _mostrarErrorAcceso = false;
@@ -73,6 +74,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaCampoNombre('Nombre(s)', 'Ej. Luis'),
               _creaCampoApellidoPat('Apellido paterno', 'Ej. Fernández'),
               _creaCampoApellidoMat('Apellido materno', 'Ej. Herrera'),
+              Visibility(
+                visible: _tipoRostro != 1,
+                child: _crearListaTipoVisitante()),
               _crearListaTipoAcceso(),
               _creaTextoErrorAcceso(),
               SizedBox(height: 10.0),
@@ -94,7 +98,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       width: double.infinity,
       child: Text(
         _tipoRostro == 1
-            ? 'Nuevo colono con rostro'
+            ? 'Nuevo residente con rostro'
             : 'Nuevo visitante con rostro',
         textAlign: TextAlign.left,
         style: utils.estiloTextoAppBar(25),
@@ -169,6 +173,42 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           return null;
       },
     );
+  }
+
+  Widget _crearListaTipoVisitante() {
+    return IgnorePointer(
+      ignoring: _registrando,
+      child: Listener(
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+        child: DropdownButton(
+          isExpanded: true,
+          value: _seleccionTipoVisitante,
+          items: getOpcionesTipoVisita(),
+          onChanged: (opc) {
+            setState(() {
+              _seleccionTipoVisitante = opc;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  List<DropdownMenuItem<String>> getOpcionesTipoVisita() {
+    return [
+      DropdownMenuItem(
+        child: Text('Visita'),
+        value: '1',
+      ),
+      DropdownMenuItem(
+        child: Text('Proveedor'),
+        value: '2',
+      ),
+      DropdownMenuItem(
+        child: Text('Empleado'),
+        value: '3',
+      ),
+    ];
   }
 
   Widget _crearListaTipoAcceso() {
@@ -488,6 +528,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       tipoAcceso: _seleccionTipoAcceso,
       imgRostroB64: base64Encode(_imgRostro.readAsBytesSync()),
       tipo: _tipoRostro,
+      tipoVisitante: _tipoRostro != 1 ? _seleccionTipoAcceso : ""
     );
     switch (estatus['OK']) {
       case 1:
