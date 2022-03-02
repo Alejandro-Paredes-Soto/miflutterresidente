@@ -27,6 +27,7 @@ class VisitaModel {
   String servicioLlamada;
   String appIdAgora;
   String channelCall;
+  String tipoVisitante;
 
   VisitaModel(
       {this.idVisitas,
@@ -51,7 +52,8 @@ class VisitaModel {
       this.fechaCompleta,
       this.servicioLlamada,
       this.appIdAgora,
-      this.channelCall});
+      this.channelCall,
+      this.tipoVisitante});
 
   factory VisitaModel.fromJson(Map<String, dynamic> json) => VisitaModel(
       idVisitas: json["idVisitas"],
@@ -75,5 +77,6 @@ class VisitaModel {
       fechaCompleta: DateTime.tryParse(json["fecha_completa"] ?? ""),
       servicioLlamada: json["servicio_llamada"] ?? '0',
       appIdAgora: json['appIdAgora'] ?? '',
-      channelCall: json['channelCall'] ?? '');
+      channelCall: json['channelCall'] ?? '',
+      tipoVisitante: json['tipoVisitante'] ?? '');
 }
