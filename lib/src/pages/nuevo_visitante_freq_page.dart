@@ -1,3 +1,5 @@
+import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
+import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imageTools;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -32,12 +34,41 @@ class _NuevoVisitanteFrecuentePageState
   final _prefs = PreferenciasUsuario();
   final visitanteProvider = VisitantesFreqProvider();
   final _validaSesion = LoginValidator();
+  final _configUsuarioProvider = ConfigUsuarioProvider();
   bool _registrando = false;
   bool _visitanteRegistrado = false;
   bool _bloqueaCompartir = false;
   bool _esCodigoUnico = false;
   bool _bloqueaUnicaOcasion = false;
   String _codigo = '00000000';
+  List<TipoVisitanteModel> tipoVisita = new List();
+  List<DropdownMenuItem<String>>  listTipo = new List();
+
+  @override
+  void initState() {
+    super.initState();
+    _configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 6)
+        .then((resultado) {
+        if (!mounted) return;
+          for (Map<String, dynamic> tipo in resultado['valor']) {
+            print(tipo);
+            final tempTipo = TipoVisitanteModel.fromJson(tipo);
+            listTipo.add(
+              DropdownMenuItem(
+                child: Text(tempTipo.tipo),
+                value: tempTipo.idTipoVisitante,
+              )
+            );
+            tipoVisita.add(tempTipo);
+          }
+          
+        setState(() {});
+        _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
+    });
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     _validaSesion.verificaSesion();
@@ -82,7 +113,7 @@ class _NuevoVisitanteFrecuentePageState
                 _crearTextApellidoM('Apellido materno', 'Ej. Herrera'),
                 SizedBox(height: 10.0),
                 _crearListaTipoVisitante(),
-                SizedBox(height: 10.0),
+                SizedBox(height: 20.0),
                 _crearListaVigencia(),
                 SizedBox(height: 10.0),
                 _creaSwitchUnicaOc(),
@@ -342,7 +373,7 @@ class _NuevoVisitanteFrecuentePageState
         child: DropdownButton(
           isExpanded: true,
           value: _seleccionTipoVisitante,
-          items: getOpcionesTipoVisita(),
+          items: listTipo,
           onChanged: (opc) {
             setState(() {
               _seleccionTipoVisitante = opc;
@@ -352,24 +383,6 @@ class _NuevoVisitanteFrecuentePageState
       ),
     );
   }
-
-  List<DropdownMenuItem<String>> getOpcionesTipoVisita() {
-    return [
-      DropdownMenuItem(
-        child: Text('Visita'),
-        value: '1',
-      ),
-      DropdownMenuItem(
-        child: Text('Proveedor'),
-        value: '2',
-      ),
-      DropdownMenuItem(
-        child: Text('Empleado'),
-        value: '3',
-      ),
-    ];
-  }
-
 
   Widget _crearListaVigencia() {
     return IgnorePointer(
