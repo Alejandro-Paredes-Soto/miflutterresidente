@@ -215,11 +215,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 Visibility(
                   visible: visitante.tipoVisitante != '',
                   child: Text(
-                    visitante.tipoVisitante == '1'
-                        ? 'Visita'
-                        : visitante.tipoVisitante == '2'
-                            ? 'Proveedor'
-                            : 'Empleado',
+                    visitante.tipoVisitante ,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -322,7 +318,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
       child: Container(
-        height: visitante.tipoVisitante != '' ? 158 : 138,
+        height: visitante.tipoVisitante != '' ? 168 : 138,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -379,8 +375,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                           ? Icon(Icons.check_circle_outline,
                               color: utils.colorContenedorSaldo)
                           : Container(
-                              height: 20,
-                              width: 20,
+                              height: 15,
+                              width: 15,
                               child: CircularProgressIndicator()),
                       SizedBox(width: 5),
                       Text(visitante.estatusDispositivo == '1'
