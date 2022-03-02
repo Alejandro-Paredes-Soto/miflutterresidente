@@ -32,7 +32,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   final visitanteProvider = VisitantesFreqProvider();
   final _configUsuarioProvider = ConfigUsuarioProvider();
   String _seleccionTipoAcceso;
-  String _seleccionTipoVisitante = "1";
+  String _seleccionTipoVisitante;
   bool _registrando = false;
   bool _imagenLista = false, _mostrarErrorImg = false;
   bool _mostrarErrorAcceso = false;
@@ -544,7 +544,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       tipoAcceso: _seleccionTipoAcceso,
       imgRostroB64: base64Encode(_imgRostro.readAsBytesSync()),
       tipo: _tipoRostro,
-      tipoVisitante: _tipoRostro != 1 ? _seleccionTipoAcceso : ""
+      tipoVisitante: _tipoRostro != 1 ? _seleccionTipoVisitante : ""
     );
     switch (estatus['OK']) {
       case 1:
