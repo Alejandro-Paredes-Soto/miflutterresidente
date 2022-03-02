@@ -54,7 +54,6 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         .then((resultado) {
         if (!mounted) return;
           for (Map<String, dynamic> tipo in resultado['valor']) {
-            print(tipo);
             final tempTipo = TipoVisitanteModel.fromJson(tipo);
             listTipo.add(
               DropdownMenuItem(

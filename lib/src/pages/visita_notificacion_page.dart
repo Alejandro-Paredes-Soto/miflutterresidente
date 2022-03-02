@@ -33,7 +33,6 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   final _prefs = PreferenciasUsuario();
   double availableHeight;
   String id = '';
-  bool _isVertical = false;
   List imagenes = [];
   bool loadImg = false;
 
