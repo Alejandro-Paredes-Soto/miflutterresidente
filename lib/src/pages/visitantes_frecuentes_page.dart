@@ -351,11 +351,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   Visibility(
                     visible: visitante.tipoVisitante != '',
                     child: Text(
-                      visitante.tipoVisitante == '1'
-                          ? 'Visita'
-                          : visitante.tipoVisitante == '2'
-                              ? 'Proveedor'
-                              : 'Empleado',
+                      visitante.tipoVisitante
                     ),
                   ),
                   SizedBox(height: 5),
