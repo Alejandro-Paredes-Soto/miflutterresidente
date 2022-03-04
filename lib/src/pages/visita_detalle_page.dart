@@ -142,22 +142,24 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                             ],
                           )
                         : SingleChildScrollView(
-                            child: Column(children: [
-                              Stack(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _imgOrientacion(
-                                      context, 240, imagenes[index]['img']),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10),
                                     child: _fechaVisita(visita),
-                                  )
-                                ],
-                              ),
-                              Text(
-                                  'Mantén presionada cualquier imagen para guardarla en tu galería.'),
-                              _datosVisitante(visita, context)
-                            ]),
+                                  ),
+                                  _imgOrientacion(
+                                      context, 240, imagenes[index]['img']),
+                                  Text(
+                                      'Mantén presionada cualquier imagen para guardarla en tu galería.',
+                                      style: TextStyle(
+                                        fontSize: 12
+                                      ),
+                                      ),
+                                  _datosVisitante(visita, context)
+                                ]),
                           );
                   }),
             ),
@@ -175,14 +177,15 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
           visita.fechaEntrada.isNotEmpty && visita.fechaEntrada != null
               ? '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}'
               : '',
-          style: utils.estiloTextoSombreado(20, dobleSombra: false),
+          style: utils.estiloTextoSombreado(18, dobleSombra: false),
         ),
         const SizedBox(height: 10),
         Visibility(
           visible: visita.fechaSalida.isNotEmpty && visita.fechaSalida != null,
           child: Text(
             'Salida: ${utils.fechaCompleta(DateTime.tryParse(visita.fechaSalida))} ${visita.horaSalida}',
-            style: utils.estiloTextoSombreado(16, dobleSombra: false, fontWeight: FontWeight.w500),
+            style: utils.estiloTextoSombreado(14,
+                dobleSombra: false, fontWeight: FontWeight.w500),
           ),
         ),
         const SizedBox(height: 10),
@@ -281,28 +284,30 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
           SizedBox(height: 5),
           Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
           Text(visita.visitante,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 10),
           Text('Placas', style: utils.estiloTituloInfoVisita(12)),
           Text(visita.placa,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 10),
           Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
           Text(visita.modelo,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 10),
           Text('Marca', style: utils.estiloTituloInfoVisita(12)),
           Text(visita.marca,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 10),
           Text('Tipo', style: utils.estiloTituloInfoVisita(12)),
-          Text(visita.tipoVisitante == '' ? 'Visita': visita.tipoVisitante,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
-          SizedBox(height: 10),
+          Text(visita.tipoVisitante == '' ? 'Visita' : visita.tipoVisitante,
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
+          Visibility(
+            visible: visita.codigo == '',
+            child: SizedBox(height: 10)),
           Text(visita.codigo == '' ? 'Motivo' : '',
               style: utils.estiloTituloInfoVisita(12)),
           Text(visita.codigo == '' ? visita.motivoVisita : '',
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 80)
         ],
       ),

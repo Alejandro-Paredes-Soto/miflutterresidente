@@ -210,24 +210,20 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                         ],
                       )
                     : SingleChildScrollView(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Stack(
-                                children: [
-                                  _imgOrientacion(
-                                      context, 240, imagenes[index]['img']),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: _fechaVisita(fecha, visita),
-                                  )
-                                ],
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: _fechaVisita(fecha, visita),
                               ),
+                              _imgOrientacion(
+                                  context, 240, imagenes[index]['img']),
                               const SizedBox(height: 20),
                               _datosVisitante(visita)
                             ]),
-                    );
+                      );
               }),
         ),
       ]);
@@ -298,28 +294,31 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
         children: <Widget>[
           Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
           Text(visita.visitante,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 10),
           Text('Placas', style: utils.estiloTituloInfoVisita(12)),
           Text(visita.placa,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 10),
           Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
           Text(visita.modelo,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 10),
           Text('Marca', style: utils.estiloTituloInfoVisita(12)),
           Text(visita.marca,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: 10),
           Text('Tipo', style: utils.estiloTituloInfoVisita(12)),
           SizedBox(height: 10),
-          Text(visita.tipoVisitante == '' ? 'Visita': visita.tipoVisitante,
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+          Text(visita.tipoVisitante == '' ? 'Visita' : visita.tipoVisitante,
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
+          Visibility(
+            visible:visita.tipoVisita == 1,
+            child: SizedBox(height: 10)),
           Text(visita.tipoVisita == 1 ? 'Motivo' : '',
               style: utils.estiloTituloInfoVisita(12)),
           Text(visita.tipoVisita == 1 ? visita.motivoVisita : '',
-              style: utils.estiloTextoSombreado(18, dobleSombra: false)),
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           SizedBox(height: _tiempoVencido ? 70 : 140)
         ],
       ),
