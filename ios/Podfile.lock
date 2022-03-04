@@ -84,7 +84,7 @@ PODS:
   - permissions_plugin (0.0.1):
     - Flutter
   - PromisesObjC (1.2.12)
-  - Protobuf (3.18.0)
+  - Protobuf (3.19.4)
   - share_extend (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
@@ -180,12 +180,12 @@ SPEC CHECKSUMS:
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   permissions_plugin: 98cd73ca0d2e7ab845e3d0efdd29ef2737ffa27c
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
-  Protobuf: 1a37ebea1338949e9ac35a3f06e80b3f536eec8d
+  Protobuf: 235750e4696ff59fb07d949a9dbbc92b3c0700fe
   share_extend: b6748dc53695587891126a89533b862b92548c7b
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
-PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+PODFILE CHECKSUM: 2035d5941c34abbf62ae937e8a3cc0b5886307aa
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.2
