@@ -63,7 +63,8 @@ class VisitantesFreqProvider {
       String apPaterno,
       String apMaterno,
       String vigencia,
-      bool esUnico}) async {
+      bool esUnico,
+      String tipoVisitante}) async {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
     final visitanteData = {
       'colono': idUsuario,
@@ -72,6 +73,7 @@ class VisitantesFreqProvider {
       'ape_materno': apMaterno,
       'tipo': esUnico ? 'unico' : '',
       'vigencia': vigencia,
+      'tipo_visitante': tipoVisitante
     };
     try {
       final resp = await http.post(
@@ -103,7 +105,8 @@ class VisitantesFreqProvider {
       String apMaterno,
       String imgRostroB64,
       String tipoAcceso,
-      int tipo}) async {
+      int tipo,
+      String tipoVisitante = ""}) async {
     final visitanteData = {
       'id_colono': idUsuario,
       'nombre': nombre,
@@ -111,7 +114,8 @@ class VisitantesFreqProvider {
       'ape_materno': apMaterno,
       'img_rostro': imgRostroB64,
       'tipo_frecuente': tipo.toString(),
-      'tipo_acceso': tipoAcceso.toString()
+      'tipo_acceso': tipoAcceso.toString(),
+      'tipo_visitante': tipoVisitante.toString()
     };
     try {
       final resp = await http.post('${constantes.urlApp}/registrar_rostro.php',

@@ -47,11 +47,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     _configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 5)
         .then((resultado) {
-        if (!mounted) return;
-          setState(() {
-            _tipoAcceso = resultado['valor'];
-            print(resultado['valor']);
-          });
+      if (!mounted) return;
+      setState(() {
+        _tipoAcceso = resultado['valor'];
+        print(resultado['valor']);
+      });
     });
 
     _configUsuarioProvider
@@ -97,7 +97,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       )),
       Container(
           child: Text(
-        'Colonos\nRostros',
+        'Residentes\nRostros',
         textAlign: TextAlign.center,
         style: utils.estiloBotones(15),
       ))
@@ -172,9 +172,18 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         separatorBuilder: (context, index) => SizedBox(height: 15),
         padding: EdgeInsets.only(top: 15.0),
         itemCount: lista.length,
-        itemBuilder: (context, index) => _tabIndex == 0
-            ? _crearItem(context, lista[index])
-            : _crearItemRostro(context, lista[index]),
+        itemBuilder: (context, index) => Column(
+          children: [
+            _tabIndex == 0
+                ? _crearItem(context, lista[index])
+                : _crearItemRostro(context, lista[index]),
+            Visibility(
+                visible: index == (lista.length - 1),
+                child: SizedBox(
+                  height: 70,
+                ))
+          ],
+        ),
       ));
     } else {
       return Center(
@@ -202,7 +211,14 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   '${visitante.nombre}',
                   style: utils.estiloSubtituloTarjeta(15),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
+                Visibility(
+                  visible: visitante.tipoVisitante != '',
+                  child: Text(
+                    visitante.tipoVisitante ,
+                  ),
+                ),
+                SizedBox(height: 10),
                 Text(visitante.unico ? 'QR de única ocasión:' : 'Vence en:',
                     style: visitante.unico
                         ? TextStyle(
@@ -302,7 +318,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
       child: Container(
-        height: 138,
+        height: visitante.tipoVisitante != '' ? 168 : 138,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -329,10 +345,23 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   Text('Nombre', style: utils.estiloTituloTarjeta(11)),
                   Text(visitante.nombre,
                       style: utils.estiloSubtituloTarjeta(17)),
-                  SizedBox(height: 5),
-                  Text(visitante.tipoAcceso == '1' ? 'Acceso peatonal': visitante.tipoAcceso == '2' 
-                  ? 'Acceso vehicular' : 'Acceso vehicular-peatonal',
+                  Visibility(
+                      visible: visitante.tipoVisitante != '',
+                      child: SizedBox(height: 5)),
+                  Visibility(
+                    visible: visitante.tipoVisitante != '',
+                    child: Text(
+                      visitante.tipoVisitante
                     ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    visitante.tipoAcceso == '1'
+                        ? 'Acceso peatonal'
+                        : visitante.tipoAcceso == '2'
+                            ? 'Acceso vehicular'
+                            : 'Acceso vehicular-peatonal',
+                  ),
                   SizedBox(height: 5),
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
                   Row(
@@ -342,8 +371,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                           ? Icon(Icons.check_circle_outline,
                               color: utils.colorContenedorSaldo)
                           : Container(
-                              height: 20,
-                              width: 20,
+                              height: 15,
+                              width: 15,
                               child: CircularProgressIndicator()),
                       SizedBox(width: 5),
                       Text(visitante.estatusDispositivo == '1'
@@ -523,7 +552,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           tipoRostro: 2,
           tipoAcceso: _tipoAcceso),
       _elementoFAB(
-          titulo: 'Nuevo colono rostro',
+          titulo: 'Nuevo residente rostro',
           icon: Icon(Icons.home),
           pageRoute: 'NuevoVisitRostro',
           tipoRostro: 1,
@@ -558,8 +587,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         });
   }
 
-  _navegaPaginaRespuesta(
-      BuildContext context, String pageRoute, int tipoRostro, Map tipoAcceso) async {
+  _navegaPaginaRespuesta(BuildContext context, String pageRoute, int tipoRostro,
+      Map tipoAcceso) async {
     //Agregamos argumento para saber que tipo de pantalla de rostro mostrar, si el argumento se pasa
     //a otra pantalla este es ignorado
     final result = await Navigator.of(context)
@@ -573,7 +602,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 height: utils.tamanoIcoSnackbar,
                 color: Theme.of(context).snackBarTheme.actionTextColor),
             tipoRostro == 1
-                ? 'Acceso colono creado'
+                ? 'Acceso residente creado'
                 : 'Visitante frecuente creado',
             5));
       });

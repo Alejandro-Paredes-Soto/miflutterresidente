@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
+import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -28,7 +30,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   final _txtApPatCtrl = TextEditingController();
   final _txtApMatCtrl = TextEditingController();
   final visitanteProvider = VisitantesFreqProvider();
+  final _configUsuarioProvider = ConfigUsuarioProvider();
   String _seleccionTipoAcceso;
+  String _seleccionTipoVisitante;
   bool _registrando = false;
   bool _imagenLista = false, _mostrarErrorImg = false;
   bool _mostrarErrorAcceso = false;
@@ -39,6 +43,31 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   String _tipoAccesoVisitante = '';
   String _tipoAccesoColono = '';
   String _tempTipoAccess;
+  List<TipoVisitanteModel> tipoVisita = new List();
+  List<DropdownMenuItem<String>>  listTipo = new List();
+
+  @override
+  void initState() {
+    super.initState();
+    _configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 6)
+        .then((resultado) {
+        if (!mounted) return;
+          for (Map<String, dynamic> tipo in resultado['valor']) {
+            final tempTipo = TipoVisitanteModel.fromJson(tipo);
+            listTipo.add(
+              DropdownMenuItem(
+                child: Text(tempTipo.tipo),
+                value: tempTipo.idTipoVisitante,
+              )
+            );
+            tipoVisita.add(tempTipo);
+          }
+          
+        setState(() {});
+        _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +102,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaCampoNombre('Nombre(s)', 'Ej. Luis'),
               _creaCampoApellidoPat('Apellido paterno', 'Ej. Fernández'),
               _creaCampoApellidoMat('Apellido materno', 'Ej. Herrera'),
+              SizedBox(height: 10.0),
+              Visibility(
+                visible: _tipoRostro != 1,
+                child: _crearListaTipoVisitante()),
+              Visibility(
+                visible: _tipoRostro != 1,
+                child: SizedBox(height: 20.0)),
               _crearListaTipoAcceso(),
               _creaTextoErrorAcceso(),
               SizedBox(height: 10.0),
@@ -94,7 +130,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       width: double.infinity,
       child: Text(
         _tipoRostro == 1
-            ? 'Nuevo colono con rostro'
+            ? 'Nuevo residente con rostro'
             : 'Nuevo visitante con rostro',
         textAlign: TextAlign.left,
         style: utils.estiloTextoAppBar(25),
@@ -168,6 +204,25 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         else
           return null;
       },
+    );
+  }
+
+  Widget _crearListaTipoVisitante() {
+    return IgnorePointer(
+      ignoring: _registrando,
+      child: Listener(
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+        child: DropdownButton(
+          isExpanded: true,
+          value: _seleccionTipoVisitante,
+          items: listTipo,
+          onChanged: (opc) {
+            setState(() {
+              _seleccionTipoVisitante = opc;
+            });
+          },
+        ),
+      ),
     );
   }
 
@@ -488,6 +543,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       tipoAcceso: _seleccionTipoAcceso,
       imgRostroB64: base64Encode(_imgRostro.readAsBytesSync()),
       tipo: _tipoRostro,
+      tipoVisitante: _tipoRostro != 1 ? _seleccionTipoVisitante : ""
     );
     switch (estatus['OK']) {
       case 1:

@@ -9,13 +9,12 @@ import 'constantes_provider.dart' as constantes;
 import 'package:http/http.dart' as http;
 
 class VisitasProvider {
-  
-  final validaSesion  = LoginValidator();
+  final validaSesion = LoginValidator();
 
   Future<List<VisitaModel>> buscarVisitasXFecha(
       String idUsuario, String fechaInicio, String fechaFin, int pagina,
-      {bool vaciarLista = false} ) async {
-      validaSesion.verificaSesion();
+      {bool vaciarLista = false}) async {
+    validaSesion.verificaSesion();
     try {
       final resp =
           await http.post('${constantes.urlApp}/buscador_visitas2.php', body: {
@@ -64,6 +63,27 @@ class VisitasProvider {
       print(
           'Ocurrió un error en la llamada al Servicio de VISITAS - ULTIMAS VISITAS:\n $e');
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> serviceCall(String idVisit, {int status = 1}) async {
+    try {
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+      };
+
+      final resp = await http.post('${constantes.urlApp}/serviceCall.php',
+          headers: headers, body: json.encode({'idVisit': idVisit, 'status': status}));
+      final Map<String, dynamic> decodeResp = json.decode(resp.body);
+      return decodeResp;
+
+    } catch (e) {
+      print('Ocurrió un error en la llamada al servicio:\n $e');
+      return {
+        'status': 'ERROR',
+        'statusCode': 0,
+        'message': 'Ocurrió un error al intentar realizar la llamada.'
+      };
     }
   }
 }

@@ -22,12 +22,28 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Play using while you are hiking</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Uso de calendario</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Uso de la cámara para registro facial</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Contactos</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Uso de ubicación</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Uso de ubicación</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Uso de microfono para integración de visdeollamada</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Uso de movimiento</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Uso de almacenamiento para guardar imagenes</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Uso de almacenamiento para guardar imagenes</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Captura de audio para videollamada</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

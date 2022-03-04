@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/providers/reporte_incidente_provider.dart';
@@ -22,12 +21,41 @@ class VisitaDetallePage extends StatefulWidget {
 class _VisitaDetallePageState extends State<VisitaDetallePage> {
   final ReportesProvider _reportesProvider = ReportesProvider();
   final _prefs = PreferenciasUsuario();
+  AppBar appBar;
+  double availableHeight;
+  List imagenes = [];
+  bool loadImg = false;
+
+  @override
+  void initState() {
+    super.initState();
+    imagenes = [];
+  }
+
   @override
   Widget build(BuildContext context) {
+    appBar = utils.appBarLogo(titulo: 'Visita');
     final VisitaModel _visita = ModalRoute.of(context).settings.arguments;
+    availableHeight = MediaQuery.of(context).size.height -
+        appBar.preferredSize.height -
+        MediaQuery.of(context).padding.top -
+        MediaQuery.of(context).padding.bottom;
+
+    if (Platform.isIOS) {
+      availableHeight =
+          availableHeight == 492 ? (availableHeight - 15) : availableHeight;
+    }
+
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'Visita'),
-      body: _creaBody(_visita, context),
+      body: Platform.isIOS
+          ? _creaBody(_visita, context)
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                availableHeight = constraints.maxHeight - 20;
+                return _creaBody(_visita, context);
+              },
+            ),
       floatingActionButton:
           _cargaFABIncidente(context, [_visita.idVisitas, _visita.visitante]),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -37,41 +65,50 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
   Widget _creaBody(VisitaModel visita, BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: <Widget>[
-          Text(
-            visita.fechaEntrada.isNotEmpty && visita.fechaEntrada != null
-                ? '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}'
-                : '',
-            style: utils.estiloTextoAppBar(20),
-          ),
-          SizedBox(height: 10),
-          Visibility(
-            visible:
-                visita.fechaSalida.isNotEmpty && visita.fechaSalida != null,
-            child: Text(
-              'Salida: ${utils.fechaCompleta(DateTime.tryParse(visita.fechaSalida))} ${visita.horaSalida}',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-          SizedBox(height: 10),
-          _imagenesVisitante(
-              visita.idVisitas,
-              utils.validaImagenes(
-                  [visita.imgRostro, visita.imgId, visita.imgPlaca])),
-          SizedBox(height: 30),
-          _datosVisitante(visita, context),
+          imagenes.length == 0
+              ? FutureBuilder(
+                  future: utils.validaImagenesOrientacion(
+                      [visita.imgRostro, visita.imgId, visita.imgPlaca]),
+                  builder:
+                      (BuildContext context, AsyncSnapshot<List> snapshot) {
+                    if (snapshot.hasData) {
+                      imagenes = snapshot.data;
+                      return _imagenesVisitante(
+                          visita.idVisitas, snapshot.data, visita);
+                    } else {
+                      return Stack(children: [
+                        Image.asset(utils.rutaGifLoadRed,
+                            alignment: Alignment.center),
+                        _datosVisita(visita)
+                      ]);
+                    }
+                  })
+              : _imagenesVisitante(visita.idVisitas, imagenes, visita),
         ],
       ),
     );
   }
 
-  Widget _imagenesVisitante(String id, List<String> imagenes) {
+  Widget _imagenesVisitante(String id, List<Map> imagenes, VisitaModel visita) {
     if (imagenes.length == 0)
-      return Container(
-        height: 240,
-        child: Center(child: Text('No hay imagenes para mostrar')),
+      return Column(
+        children: [
+          Stack(
+            children: [
+              Container(
+                height: 240,
+                child: Center(child: Text('No hay imagenes para mostrar')),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: _fechaVisita(visita),
+              )
+            ],
+          ),
+          _datosVisitante(visita, context)
+        ],
       );
     else
       return Column(
@@ -79,7 +116,7 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
           Hero(
             tag: id,
             child: Container(
-              height: 220,
+              height: availableHeight,
               child: Swiper(
                   loop: false,
                   itemHeight: 240,
@@ -87,7 +124,7 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                   pagination: imagenes.length > 1
                       ? SwiperPagination(
                           margin: EdgeInsets.all(2),
-                          alignment: Alignment.bottomCenter,
+                          alignment: Alignment.topCenter,
                           builder: DotSwiperPaginationBuilder(
                               color: Colors.white60,
                               activeColor: Colors.white60,
@@ -95,108 +132,185 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
                       : null,
                   scale: 0.85,
                   itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      child: PinchZoomImage(
-                        image: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: double.infinity,
-                            child: CachedNetworkImage(
-                              height: 220,
-                              placeholder: (context, url) =>
-                                  Image.asset(utils.rutaGifLoadRed),
-                              errorWidget: (context, url, error) => Container(
-                                  height: 240,
-                                  child:
-                                      Center(child: Icon(Icons.broken_image))),
-                              imageUrl: imagenes[index],
-                              fit: BoxFit.cover,
-                              fadeInDuration: Duration(milliseconds: 300),
-                            ),
-                          ),
-                        ),
-                      ),
-                      onLongPress: () {
-                        HapticFeedback.vibrate();
-                        utils.descargaImagen(context, imagenes[index]);
-                      },
-                    );
+                    bool isVertical = imagenes[index]['isVertical'];
+                    return isVertical
+                        ? Stack(
+                            children: [
+                              _imgOrientacion(context, availableHeight,
+                                  imagenes[index]['img']),
+                              _datosVisita(visita),
+                            ],
+                          )
+                        : SingleChildScrollView(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: _fechaVisita(visita),
+                                  ),
+                                  _imgOrientacion(
+                                      context, 240, imagenes[index]['img']),
+                                  Text(
+                                      'Mantén presionada cualquier imagen para guardarla en tu galería.',
+                                      style: TextStyle(
+                                        fontSize: 12
+                                      ),
+                                      ),
+                                  _datosVisitante(visita, context)
+                                ]),
+                          );
                   }),
             ),
           ),
-          SizedBox(height: 0),
-          Text(
-              'Mantén presionada cualquier imagen para guardarla en tu galería.'),
         ],
       );
   }
 
-  Widget _datosVisitante(VisitaModel visita, BuildContext context) {
-    final colorIcon = getColorEstatus(visita.estatus);
+  Widget _fechaVisita(VisitaModel visita) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        visita.codigo != ''
-            ? Container(
-                child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  SvgPicture.asset(
-                    utils.rutaIconoVisitantesFrecuentes,
-                    height: utils.tamanoIcoNavBar,
-                    color: Theme.of(context).iconTheme.color,
-                  ),
-                ],
-              ))
-            : Container(
-                child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Icon(
-                    colorIcon['icono'],
-                    color: colorIcon['color'],
-                    size: 22,
-                  ),
-                  SizedBox(
-                    width: 2,
-                  ),
-                  Text('${visita.estatus}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: colorIcon['color'],
-                      )),
-                ],
-              )),
-        SizedBox(height: 5),
-        Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.visitante,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(
-          height: 10,
+      children: [
+        const SizedBox(height: 30),
+        Text(
+          visita.fechaEntrada.isNotEmpty && visita.fechaEntrada != null
+              ? '${utils.fechaCompleta(DateTime.tryParse(visita.fechaEntrada))} ${visita.horaEntrada}'
+              : '',
+          style: utils.estiloTextoSombreado(18, dobleSombra: false),
         ),
-        Text('Placas', style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.placa,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 10),
-        Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.modelo,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 10),
-        Text('Marca', style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.marca,
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 10),
-        Text(visita.codigo == '' ? 'Motivo' : '',
-            style: utils.estiloTituloInfoVisita(12)),
-        Text(visita.codigo == '' ? visita.motivoVisita : '',
-            style: utils.estiloBotones(18,
-                color: Theme.of(context).textTheme.bodyText2.color)),
-        SizedBox(height: 70)
+        const SizedBox(height: 10),
+        Visibility(
+          visible: visita.fechaSalida.isNotEmpty && visita.fechaSalida != null,
+          child: Text(
+            'Salida: ${utils.fechaCompleta(DateTime.tryParse(visita.fechaSalida))} ${visita.horaSalida}',
+            style: utils.estiloTextoSombreado(14,
+                dobleSombra: false, fontWeight: FontWeight.w500),
+          ),
+        ),
+        const SizedBox(height: 10),
       ],
+    );
+  }
+
+  Widget _datosVisita(VisitaModel visita) {
+    return Column(
+      children: [
+        Container(
+          height: availableHeight,
+          alignment: Alignment.bottomLeft,
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _fechaVisita(visita),
+              Expanded(child: _datosVisitante(visita, context)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _imgOrientacion(
+      BuildContext context, double availableHeight, String img) {
+    return Column(
+      children: [
+        GestureDetector(
+          child: PinchZoomImage(
+            image: Container(
+              width: double.infinity,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: CachedNetworkImage(
+                  width: double.infinity,
+                  height: availableHeight,
+                  alignment: Alignment.topCenter,
+                  placeholder: (context, url) => Image.asset(
+                      utils.rutaGifLoadRed,
+                      alignment: Alignment.topCenter),
+                  errorWidget: (context, url, error) => Container(
+                      height: 240,
+                      child: Center(child: Icon(Icons.broken_image))),
+                  imageUrl: img,
+                  fit: BoxFit.cover,
+                  fadeInDuration: Duration(milliseconds: 0),
+                  placeholderFadeInDuration: Duration(milliseconds: 0),
+                ),
+              ),
+            ),
+          ),
+          onLongPress: () {
+            HapticFeedback.vibrate();
+            utils.descargaImagen(context, img);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _datosVisitante(VisitaModel visita, BuildContext context) {
+    final colorIcon = getColorEstatus(visita.estatus);
+    return SingleChildScrollView(
+      reverse: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          visita.codigo != ''
+              ? Container(
+                  child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    SvgPicture.asset(
+                      utils.rutaIconoVisitantesFrecuentes,
+                      height: utils.tamanoIcoNavBar,
+                      color: Theme.of(context).iconTheme.color,
+                    ),
+                  ],
+                ))
+              : Container(
+                  child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Icon(colorIcon['icono'],
+                        color: colorIcon['color'], size: 22),
+                    SizedBox(width: 2),
+                    Text('${visita.estatus}',
+                        style: utils.estiloTextoSombreado(18,
+                            dobleSombra: false, color: colorIcon['color'])),
+                  ],
+                )),
+          SizedBox(height: 5),
+          Text('Nombre', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.visitante,
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
+          SizedBox(height: 10),
+          Text('Placas', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.placa,
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
+          SizedBox(height: 10),
+          Text('Vehículo', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.modelo,
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
+          SizedBox(height: 10),
+          Text('Marca', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.marca,
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
+          SizedBox(height: 10),
+          Text('Tipo', style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.tipoVisitante == '' ? 'Visita' : visita.tipoVisitante,
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
+          Visibility(
+            visible: visita.codigo == '',
+            child: SizedBox(height: 10)),
+          Text(visita.codigo == '' ? 'Motivo' : '',
+              style: utils.estiloTituloInfoVisita(12)),
+          Text(visita.codigo == '' ? visita.motivoVisita : '',
+              style: utils.estiloTextoSombreado(16, dobleSombra: false)),
+          SizedBox(height: 80)
+        ],
+      ),
     );
   }
 

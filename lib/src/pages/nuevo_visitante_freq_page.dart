@@ -1,3 +1,5 @@
+import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
+import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imageTools;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -22,6 +24,7 @@ class NuevoVisitanteFrecuentePage extends StatefulWidget {
 class _NuevoVisitanteFrecuentePageState
     extends State<NuevoVisitanteFrecuentePage> {
   String _seleccionVigencia = '1';
+  String _seleccionTipoVisitante = '1';
   final formKey = GlobalKey<FormState>();
   final _txtNombreCtrl = TextEditingController();
   final _txtApPatCtrl = TextEditingController();
@@ -31,12 +34,40 @@ class _NuevoVisitanteFrecuentePageState
   final _prefs = PreferenciasUsuario();
   final visitanteProvider = VisitantesFreqProvider();
   final _validaSesion = LoginValidator();
+  final _configUsuarioProvider = ConfigUsuarioProvider();
   bool _registrando = false;
   bool _visitanteRegistrado = false;
   bool _bloqueaCompartir = false;
   bool _esCodigoUnico = false;
   bool _bloqueaUnicaOcasion = false;
   String _codigo = '00000000';
+  List<TipoVisitanteModel> tipoVisita = new List();
+  List<DropdownMenuItem<String>>  listTipo = new List();
+
+  @override
+  void initState() {
+    super.initState();
+    _configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 6)
+        .then((resultado) {
+        if (!mounted) return;
+          for (Map<String, dynamic> tipo in resultado['valor']) {
+            final tempTipo = TipoVisitanteModel.fromJson(tipo);
+            listTipo.add(
+              DropdownMenuItem(
+                child: Text(tempTipo.tipo),
+                value: tempTipo.idTipoVisitante,
+              )
+            );
+            tipoVisita.add(tempTipo);
+          }
+          
+        setState(() {});
+        _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
+    });
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     _validaSesion.verificaSesion();
@@ -80,6 +111,8 @@ class _NuevoVisitanteFrecuentePageState
                 _crearTextApellidoP('Apellido paterno', 'Ej. Fernández'),
                 _crearTextApellidoM('Apellido materno', 'Ej. Herrera'),
                 SizedBox(height: 10.0),
+                _crearListaTipoVisitante(),
+                SizedBox(height: 20.0),
                 _crearListaVigencia(),
                 SizedBox(height: 10.0),
                 _creaSwitchUnicaOc(),
@@ -331,6 +364,25 @@ class _NuevoVisitanteFrecuentePageState
     );
   }
 
+  Widget _crearListaTipoVisitante() {
+    return IgnorePointer(
+      ignoring: _registrando,
+      child: Listener(
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+        child: DropdownButton(
+          isExpanded: true,
+          value: _seleccionTipoVisitante,
+          items: listTipo,
+          onChanged: (opc) {
+            setState(() {
+              _seleccionTipoVisitante = opc;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _crearListaVigencia() {
     return IgnorePointer(
       ignoring: _registrando,
@@ -371,6 +423,7 @@ class _NuevoVisitanteFrecuentePageState
     //   ),
     // );
   }
+
 
   List<DropdownMenuItem<String>> getOpcionesDropdown() {
     return [
@@ -526,7 +579,8 @@ class _NuevoVisitanteFrecuentePageState
         apPaterno: _txtApPatCtrl.text,
         apMaterno: _txtApMatCtrl.text,
         vigencia: _seleccionVigencia,
-        esUnico: _esCodigoUnico);
+        esUnico: _esCodigoUnico,
+        tipoVisitante: _seleccionTipoVisitante);
     switch (estatus['OK']) {
       case 1:
         //

@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       rutaIcono: utils.rutaIconoEmergencia,
                       titulo: 'SOS',
                       subtitulo: 'Emergencias',
-                      ruta: 'emergencias'),
+                      ruta: 'VisitaNotif'),
                 ),
               ],
             ))

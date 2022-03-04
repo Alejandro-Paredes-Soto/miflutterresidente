@@ -9,7 +9,6 @@ import 'package:dostop_v2/src/providers/mis_accesos_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
-import 'package:flutter/services.dart';
 
 import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 
