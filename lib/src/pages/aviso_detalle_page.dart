@@ -1,7 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/models/aviso_model.dart';
+import 'package:dostop_v2/src/utils/utils.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 
 class AvisoDetallePage extends StatelessWidget {
   @override
@@ -47,6 +52,7 @@ class AvisoDetallePage extends StatelessWidget {
                               ),
                             ),
                           ),
+                          _imagenAviso(aviso.idAviso, [aviso.imgAviso])
                         ],
                       ),
                     ),
@@ -71,5 +77,65 @@ class AvisoDetallePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _imagenAviso(String id, List<String> imagenes) {
+    print(imagenes.toString());
+    if (imagenes.length == 0)
+      return Container();
+    else
+      return Column(
+        children: <Widget>[
+          Container(
+              height: 220,
+              child: Swiper(
+                  loop: false,
+                  itemHeight: 240,
+                  itemCount: imagenes.length,
+                  pagination: imagenes.length > 1
+                      ? SwiperPagination(
+                          margin: EdgeInsets.all(2),
+                          alignment: Alignment.bottomCenter,
+                          builder: DotSwiperPaginationBuilder(
+                              color: Colors.white60,
+                              activeColor: Colors.white60,
+                              activeSize: 20.0))
+                      : null,
+                  scale: 0.85,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      child: PinchZoomImage(
+                        image: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            width: double.infinity,
+                            child: CachedNetworkImage(
+                              height: 220,
+                              placeholder: (context, url) =>
+                                  Image.asset(utils.rutaGifLoadRed),
+                              errorWidget: (context, url, error) => Container(
+                                  height: 240,
+                                  child:
+                                      Center(child: Icon(Icons.broken_image))),
+                              imageUrl: imagenes[index],
+                              fit: BoxFit.cover,
+                              fadeInDuration: Duration(milliseconds: 300),
+                            ),
+                          ),
+                        ),
+                      ),
+                      onLongPress: () {
+                        HapticFeedback.vibrate();
+                        descargaImagen(context, imagenes[index]);
+                      },
+                    );
+                  }),
+            ),
+          
+          SizedBox(height: 0),
+          Text(
+              'Mantén presionada cualquier imagen para guardarla en tu galería.'),
+        ],
+      );
   }
 }
