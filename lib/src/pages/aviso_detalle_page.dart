@@ -12,6 +12,7 @@ class AvisoDetallePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final aviso = ModalRoute.of(context).settings.arguments;
+    print(aviso);
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'Aviso'),
       body: _creaBody(context, aviso),
@@ -45,14 +46,21 @@ class AvisoDetallePage extends StatelessWidget {
                           SizedBox(height: 5),
                           Flexible(
                             child: SingleChildScrollView(
-                              child: Text(
-                                aviso.descripcion,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 15),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    aviso.descripcion,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w700, fontSize: 15),
+                                  ),
+                                  SizedBox(height: 25),
+                                   _imagenAviso(aviso.idAviso, validaImagenes([aviso.imgAviso]))
+                                ],
                               ),
                             ),
                           ),
-                          _imagenAviso(aviso.idAviso, [aviso.imgAviso])
+                          
+                         
                         ],
                       ),
                     ),
@@ -80,17 +88,16 @@ class AvisoDetallePage extends StatelessWidget {
   }
 
   Widget _imagenAviso(String id, List<String> imagenes) {
-    print(imagenes.toString());
+    print(imagenes.length);
     if (imagenes.length == 0)
       return Container();
     else
       return Column(
         children: <Widget>[
           Container(
-              height: 220,
+              height: 500,
               child: Swiper(
                   loop: false,
-                  itemHeight: 240,
                   itemCount: imagenes.length,
                   pagination: imagenes.length > 1
                       ? SwiperPagination(
@@ -106,11 +113,10 @@ class AvisoDetallePage extends StatelessWidget {
                     return GestureDetector(
                       child: PinchZoomImage(
                         image: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
+                          //borderRadius: BorderRadius.circular(20),
                           child: Container(
                             width: double.infinity,
                             child: CachedNetworkImage(
-                              height: 220,
                               placeholder: (context, url) =>
                                   Image.asset(utils.rutaGifLoadRed),
                               errorWidget: (context, url, error) => Container(
@@ -118,7 +124,7 @@ class AvisoDetallePage extends StatelessWidget {
                                   child:
                                       Center(child: Icon(Icons.broken_image))),
                               imageUrl: imagenes[index],
-                              fit: BoxFit.cover,
+                              fit: BoxFit.scaleDown,
                               fadeInDuration: Duration(milliseconds: 300),
                             ),
                           ),
@@ -132,9 +138,6 @@ class AvisoDetallePage extends StatelessWidget {
                   }),
             ),
           
-          SizedBox(height: 0),
-          Text(
-              'Mantén presionada cualquier imagen para guardarla en tu galería.'),
         ],
       );
   }
