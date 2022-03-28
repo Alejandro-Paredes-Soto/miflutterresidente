@@ -38,7 +38,7 @@ android {
         applicationId "com.dostop.dostop"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 46
+        versionCode 47
         versionName flutterVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
