@@ -83,8 +83,9 @@ class _AvisosPageState extends State<AvisosPage> {
                         SizedBox(height: 5),
                         Flexible(
                             flex: 4,
-                            child: Text(
-                              '${aviso.descripcion}',
+                            child: Text( (aviso.descripcion.isEmpty && aviso.imgAviso.isNotEmpty) ?
+                              'Este aviso contiene una imagen, seleccione ver más para visualizarla.'
+                              :'${aviso.descripcion}',
                               overflow: TextOverflow.fade,
                               style: TextStyle(fontWeight: FontWeight.w700),
                             ))

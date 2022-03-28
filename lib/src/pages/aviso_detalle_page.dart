@@ -12,7 +12,6 @@ class AvisoDetallePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final aviso = ModalRoute.of(context).settings.arguments;
-    print(aviso);
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'Aviso'),
       body: _creaBody(context, aviso),
@@ -53,7 +52,9 @@ class AvisoDetallePage extends StatelessWidget {
                                     style: TextStyle(
                                         fontWeight: FontWeight.w700, fontSize: 15),
                                   ),
-                                  SizedBox(height: 25),
+                                  Visibility(
+                                    visible: aviso.descripcion.isNotEmpty && aviso.imgAviso.isNotEmpty,
+                                    child: SizedBox(height: 25)),
                                    _imagenAviso(aviso.idAviso, validaImagenes([aviso.imgAviso]))
                                 ],
                               ),
