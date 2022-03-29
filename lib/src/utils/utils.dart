@@ -123,9 +123,9 @@ Text dostopLogo() {
   );
 }
 
-TextStyle estiloFechaAviso(double fontSize) {
+TextStyle estiloFechaAviso(double fontSize, {Color color = const Color.fromRGBO(146, 152, 160, 1.0)}) {
   return TextStyle(
-      fontSize: fontSize, fontWeight: FontWeight.w500, color: colorFechaAviso);
+      fontSize: fontSize, fontWeight: FontWeight.w500, color: color);
 }
 
 TextStyle estiloTextoAppBar(double fontSize) {

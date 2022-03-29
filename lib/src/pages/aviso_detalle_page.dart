@@ -47,10 +47,13 @@ class AvisoDetallePage extends StatelessWidget {
                             child: SingleChildScrollView(
                               child: Column(
                                 children: [
-                                  Text(
-                                    aviso.descripcion,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700, fontSize: 15),
+                                  Container(
+                                    alignment: Alignment.topLeft,
+                                    child: Text(
+                                      aviso.descripcion,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w700, fontSize: 15),
+                                    ),
                                   ),
                                   Visibility(
                                     visible: aviso.descripcion.isNotEmpty && aviso.imgAviso.isNotEmpty,
