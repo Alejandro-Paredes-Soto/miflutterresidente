@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
@@ -50,12 +51,17 @@ class PushNotificationsManager {
     // detenerTimer();
     String titulo = '';
     String mensaje = '';
+    var data = null;
+    String imgAviso = '';
+    print(info);
     if (Platform.isAndroid) {
       titulo = info['data']['title'].toString().toLowerCase();
       mensaje = info['data']['message'];
+      imgAviso = titulo == 'aviso' ? json.decode(info['data']['data'])['img'] : '';
     } else {
       titulo = info['title'].toString().toLowerCase();
       mensaje = info['message'];
+      imgAviso = titulo == 'aviso' ? json.decode(info['data'])['img'] : '';
     }
     switch (titulo) {
       case 'encuesta':
@@ -64,7 +70,7 @@ class PushNotificationsManager {
       case 'aviso':
         mensajeStream.addMessage({
           'aviso': new AvisoModel(
-              descripcion: mensaje, fecha: DateTime.now().toString())
+              descripcion: mensaje, fecha: DateTime.now().toString(), imgAviso: imgAviso)
         });
         break;
       case 'visita':
