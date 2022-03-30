@@ -80,11 +80,21 @@ class _AvisosPageState extends State<AvisosPage> {
                               '${utils.fechaCompleta(DateTime.tryParse(aviso.fecha))}',
                               style: utils.estiloFechaAviso(12),
                             )),
+                        Visibility(
+                          visible: aviso.imgAviso.isNotEmpty,
+                            child: Flexible(
+                              flex: 1,
+                              child: Text(
+                                'Imagen adjunta',
+                                style: utils.estiloFechaAviso(12, color: utils.colorAcentuado),
+                              )),
+                        ),
                         SizedBox(height: 5),
                         Flexible(
                             flex: 4,
-                            child: Text(
-                              '${aviso.descripcion}',
+                            child: Text( (aviso.descripcion.isEmpty && aviso.imgAviso.isNotEmpty) ?
+                              'Este aviso contiene una imagen, seleccione ver más para visualizarla.'
+                              :'${aviso.descripcion}',
                               overflow: TextOverflow.fade,
                               style: TextStyle(fontWeight: FontWeight.w700),
                             ))

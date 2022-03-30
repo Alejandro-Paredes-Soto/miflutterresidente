@@ -422,6 +422,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         mensajeError = 'Otorga el permiso de almacenamiento por favor';
       else if (e.code.toString().contains('camera_access_denied'))
         mensajeError = 'Otorga el permiso de la cámara por favor';
+      else 
+        mensajeError = e.message;
+
       _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
           Icon(Icons.error),
           'Ocurrió un error al procesar la imagen. $mensajeError',
