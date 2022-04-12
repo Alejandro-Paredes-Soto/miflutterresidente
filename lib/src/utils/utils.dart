@@ -88,6 +88,7 @@ String rutaFondoLogin = 'assets/fondo-login-main.jpg';
 String rutaFondoQR = 'assets/FondoQR.png';
 String rutaIconoAccesos = 'assets/IconoAccesos.svg';
 String rutaIconTipoAcceso = 'assets/accessType.svg';
+String rutaIconQR = 'assets/IconoQR.svg';
 
 AppBar appBarLogo(
     {@required String titulo, BackButton backbtn = const BackButton()}) {

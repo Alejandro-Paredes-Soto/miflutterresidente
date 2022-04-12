@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
@@ -35,6 +36,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _prefs = PreferenciasUsuario();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  List<ItemModel> menuItems;
+  CustomPopupMenuController _controller = CustomPopupMenuController();
   bool _nuevaEncuesta = false, _accesos = false;
   EncuestaModel _datosEncuesta;
   int _noMolestar = 2;
@@ -102,6 +105,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         }
       });
     });
+
+    menuItems = [
+      ItemModel('Caseta', Icons.chat_bubble),
+      ItemModel('Soporte', Icons.group_add)
+    ];
   }
 
   @override
@@ -138,22 +146,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ],
         ),
         actions: [
-           IconButton(
+          IconButton(
             padding: EdgeInsets.all(0),
-            onPressed: () => utils.abrirPaginaWeb(url: 'https://dostop.mx/aviso-de-privacidad.html'),
+            onPressed: () => utils.abrirPaginaWeb(
+                url: 'https://dostop.mx/aviso-de-privacidad.html'),
             icon: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                    Icons.lock_outlined,
-                    size: 15,
-                  ),
+                  Icons.lock_outlined,
+                  size: 15,
+                ),
                 SizedBox(height: 2),
                 Text('Privacidad', style: TextStyle(fontSize: 8)),
               ],
             ),
           ),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           IconButton(
               padding: EdgeInsets.all(0),
               icon: Column(
@@ -169,8 +178,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ],
               ),
               onPressed: MyApp.of(context).changeTheme),
-          SizedBox(width: 10),
-          IconButton(
+          const SizedBox(width: 10),
+          _creaBtnContacto(),
+          const SizedBox(width: 15),
+        ],
+      ),
+      body: _creaBody(),
+    );
+  }
+
+  Widget _creaBtnContacto() {
+    return _numeroCaseta != ''
+        ? _creaMenuContacto()
+        : IconButton(
             padding: EdgeInsets.all(0),
             onPressed: _abrirSoporte,
             icon: Column(
@@ -183,12 +203,97 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ),
                 Text('Soporte', style: TextStyle(fontSize: 10)),
               ],
+            ));
+  }
+
+  Widget _creaMenuContacto() {
+    return CustomPopupMenu(
+        horizontalMargin: 15,
+        verticalMargin: 5,
+        barrierColor: Colors.black45,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              utils.rutaIconoWhastApp,
+              height: 30,
+              color: Theme.of(context).iconTheme.color,
             ),
+            Text('Contacto', style: TextStyle(fontSize: 10)),
+          ],
+        ),
+        menuBuilder: () => ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Container(
+                child: IntrinsicWidth(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _creaItemContacto(
+                          title: 'Caseta',
+                          rutaIcon: utils.rutaIconoCaseta,
+                          onPressed: () {
+                            _launchWhatsApp(_numeroCaseta, '');
+                            _controller.hideMenu();
+                          }),
+                      const SizedBox(height: 15),
+                      _creaItemContacto(
+                          title: 'Soporte app',
+                          icon: Icons.phone_iphone_rounded,
+                          onPressed: () {
+                            _controller.hideMenu();
+                            _abrirSoporte();
+                          }),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        pressType: PressType.singleClick,
+        controller: _controller);
+  }
+
+  Widget _creaItemContacto(
+      {String title,
+      IconData icon,
+      String rutaIcon = '',
+      @required Function onPressed}) {
+    return GestureDetector(
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(
+            child: Container(
+                alignment: Alignment.center,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    width: 180,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(15)),
+                child: Text(title,
+                    textAlign: TextAlign.center,
+                    style:
+                      utils.estiloBotones(16,
+                        color: Theme.of(context).textTheme.bodyText2.color))),
           ),
-          SizedBox(width: 15),
+          const SizedBox(width: 10),
+          Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                color: utils.colorPrincipal, shape: BoxShape.circle),
+            child: rutaIcon == ''
+                ? Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 30,
+                  )
+                : SvgPicture.asset(rutaIcon, height: 30, color: Colors.white),
+          ),
         ],
       ),
-      body: _creaBody(),
+      onTap: onPressed,
     );
   }
 
@@ -329,10 +434,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             child: Container(
               padding: EdgeInsets.only(left: 12),
               child: _creaBtnIconoMini(
-                rutaIcono: utils.rutaIconoPromociones,
-                titulo: 'Promos',
-                ruta: 'promociones',
-              ),
+                  rutaIcono: utils.rutaIconQR,
+                  titulo: 'Código\nresidente',
+                  onPressed: () {}),
             ),
           ),
         ],
@@ -355,13 +459,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       titulo: 'Mis accesos',
                       ruta: 'misAccesos'))),
           Visibility(visible: _accesos, child: SizedBox(width: 20)),
-          Visibility(
+          Expanded(
+            child: _creaBtnIconoMini(
+              rutaIcono: utils.rutaIconoPromociones,
+              titulo: 'Promos',
+              ruta: 'promociones',
+            ),
+          ),
+
+          /*Visibility(
               visible: _numeroCaseta != '',
               child: Expanded(
                   child: _creaBtnIconoMini(
                       rutaIcono: utils.rutaIconoCaseta,
                       titulo: 'Contacto\na caseta',
-                      onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
+                      onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),*/
           Visibility(visible: _numeroCaseta != '', child: SizedBox(width: 20)),
           Expanded(
               child: _creaBtnIconoMini(
@@ -745,4 +857,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void dispose() {
     super.dispose();
   }
+}
+
+class ItemModel {
+  String title;
+  IconData icon;
+  ItemModel(this.title, this.icon);
 }
