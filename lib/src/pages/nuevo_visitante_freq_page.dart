@@ -1,5 +1,6 @@
 import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/widgets/custom_qr.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as imageTools;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -134,7 +135,7 @@ class _NuevoVisitanteFrecuentePageState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _creaQR(_codigo),
+              CustomQr(code: _codigo),
               SizedBox(height: 20),
               RaisedButton(
                 shape: RoundedRectangleBorder(
@@ -159,7 +160,7 @@ class _NuevoVisitanteFrecuentePageState
                 onPressed: _bloqueaCompartir
                     ? null
                     : () {
-                        _compartir(_codigo);
+                        utils.compartir(_codigo);
                         setState(() {
                           _bloqueaCompartir = true;
                         });
@@ -196,77 +197,7 @@ class _NuevoVisitanteFrecuentePageState
           ),
         ));
   }
-
-  Widget _creaQR(String codigo) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-              color: Color.fromRGBO(255, 255, 255, 0.85),
-              borderRadius: BorderRadius.circular(20)),
-          padding: EdgeInsets.all(10),
-          height: 200,
-          width: 200,
-          child: QrImage(
-            data: codigo,
-            version: QrVersions.auto,
-            size: 100,
-          ),
-        ),
-        SelectableText(
-          codigo,
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        )
-      ],
-    );
-  }
-
-  _compartir(String codigo) async {
-    try {
-      Directory dir = await pathProvider.getTemporaryDirectory();
-      File imagenQR = new File("${dir.path}/${codigo}QR.png");
-      if (await imagenQR.exists()) {
-        imagenQR.delete();
-      }
-      await imagenQR.create(recursive: true);
-      imagenQR.writeAsBytes(await toQrImageData(codigo));
-      ShareExtend.share(imagenQR.path, Platform.isAndroid ? 'image' : 'file');
-    } catch (e) {
-      print('Ocurrió un error al compartir:\n $e');
-    }
-  }
-
-  Future<List<int>> toQrImageData(String codigo) async {
-    final imageqr = await QrPainter(
-            data: codigo,
-            version: QrVersions.auto,
-            color: Colors.black,
-            emptyColor: Colors.white,
-            gapless: true)
-        .toImageData(350);
-
-    imageTools.Image image = imageTools.Image(450, 530);
-    imageTools.fill(image, imageTools.getColor(255, 255, 255));
-    imageTools.drawImage(
-        image, imageTools.decodePng(imageqr.buffer.asUint8List()),
-        dstX: 50, dstY: 40);
-    imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 60, 450, 'Presenta este QR en la entrada',
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 15, 470, '                    para acceder',
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 100, 500, '     www.dostop.mx',
-        color: imageTools.getColor(0, 0, 0));
-
-    return imageTools.encodeJpg(image);
-  }
-
+ 
   Widget _creaTitulo() {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,

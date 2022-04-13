@@ -6,9 +6,13 @@ import 'dart:ui' as ui;
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as imageTools;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_extend/share_extend.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
@@ -88,6 +92,7 @@ String rutaFondoLogin = 'assets/fondo-login-main.jpg';
 String rutaFondoQR = 'assets/FondoQR.png';
 String rutaIconoAccesos = 'assets/IconoAccesos.svg';
 String rutaIconTipoAcceso = 'assets/accessType.svg';
+String rutaIconQR = 'assets/IconoQR.svg';
 
 AppBar appBarLogo(
     {@required String titulo, BackButton backbtn = const BackButton()}) {
@@ -503,3 +508,49 @@ String obtenerIDPlataforma(BuildContext context) {
       return '1';
   }
 }
+
+
+void compartir(String codigo) async {
+    try {
+      Directory dir = await getTemporaryDirectory();
+      File imagenQR = new File("${dir.path}/${codigo}QR.png");
+      if (await imagenQR.exists()) {
+        imagenQR.delete();
+      }
+      await imagenQR.create(recursive: true);
+      imagenQR.writeAsBytes(await toQrImageData(codigo));
+      ShareExtend.share(imagenQR.path, Platform.isAndroid ? 'image' : 'file');
+    } catch (e) {
+      print('Ocurrió un error al compartir:\n $e');
+    }
+  }
+
+  Future<List<int>> toQrImageData(String codigo) async {
+    final imageqr = await QrPainter(
+            data: codigo,
+            version: QrVersions.auto,
+            color: Colors.black,
+            emptyColor: Colors.white,
+            gapless: true)
+        .toImageData(350);
+
+    imageTools.Image image = imageTools.Image(450, 530);
+    imageTools.fill(image, imageTools.getColor(255, 255, 255));
+    imageTools.drawImage(
+        image, imageTools.decodePng(imageqr.buffer.asUint8List()),
+        dstX: 50, dstY: 40);
+    imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
+        color: imageTools.getColor(0, 0, 0));
+    imageTools.drawString(
+        image, imageTools.arial_24, 60, 450, 'Presenta este QR en la entrada',
+        color: imageTools.getColor(0, 0, 0));
+    imageTools.drawString(
+        image, imageTools.arial_24, 15, 470, '                    para acceder',
+        color: imageTools.getColor(0, 0, 0));
+    imageTools.drawString(
+        image, imageTools.arial_24, 100, 500, '     www.dostop.mx',
+        color: imageTools.getColor(0, 0, 0));
+
+    return imageTools.encodeJpg(image);
+  }
+
