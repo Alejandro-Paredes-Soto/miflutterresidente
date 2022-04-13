@@ -180,8 +180,10 @@ void creaDialogQR(
     String textOpcionPos,
     String textOpcionNeg,
     Function funcionPos,
-    Function funcionNeg) {
+    Function funcionNeg,
+    {bool barrierDismissible = true}) {
   showDialog(
+    barrierDismissible: barrierDismissible,
       context: context,
       builder: (ctx) {
         return AlertDialog(
@@ -223,6 +225,7 @@ void creaDialogQR(
                           child: Container(
                             alignment: Alignment.center,
                             height: 60,
+                            width: 220,
                             child: AutoSizeText(
                               textOpcionPos,
                               maxLines: 1,
@@ -242,6 +245,7 @@ void creaDialogQR(
                           child: Container(
                             alignment: Alignment.center,
                             height: 60,
+                            width: 220,
                             child: AutoSizeText(
                               textOpcionNeg,
                               maxLines: 1,

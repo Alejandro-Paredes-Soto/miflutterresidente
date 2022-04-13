@@ -1,12 +1,15 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
+import 'package:dostop_v2/src/providers/codigos_residente_provider.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
+import 'package:dostop_v2/src/widgets/custom_qr.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pie_chart/pie_chart.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
@@ -35,6 +38,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _loginProvider = LoginProvider();
   final _prefs = PreferenciasUsuario();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _residenteProvider = CodigosResidenteProvider();
 
   List<ItemModel> menuItems;
   CustomPopupMenuController _controller = CustomPopupMenuController();
@@ -267,14 +271,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 alignment: Alignment.center,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    width: 180,
+                width: 180,
                 decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(15)),
                 child: Text(title,
                     textAlign: TextAlign.center,
-                    style:
-                      utils.estiloBotones(16,
+                    style: utils.estiloBotones(16,
                         color: Theme.of(context).textTheme.bodyText2.color))),
           ),
           const SizedBox(width: 10),
@@ -436,7 +439,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               child: _creaBtnIconoMini(
                   rutaIcono: utils.rutaIconQR,
                   titulo: 'Código\nresidente',
-                  onPressed: () {}),
+                  onPressed: () {
+                    _generarCodigo();
+                  }),
             ),
           ),
         ],
@@ -823,6 +828,63 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           '524775872189', 'Hola. Necesito ayuda con la aplicación Dostop.');
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
+  }
+
+  _generarCodigo() async {
+    creaDialogProgress(context, 'Generando código...');
+    final codeResponse =
+        await _residenteProvider.newCodigoResidente(_prefs.usuarioLogged);
+    Navigator.pop(context);
+    if (codeResponse['statusCode'] == 201) {
+      creaDialogQR(
+          _scaffoldKey.currentContext,
+          '',
+          CustomQr(code: codeResponse['codigo']),
+          'Compartir',
+          'Cancelar',
+          () => utils.compartir(codeResponse['codigo']),
+          () => Navigator.of(_scaffoldKey.currentContext).pop('dialog'),
+          barrierDismissible: false);
+    } else {
+      creaDialogSimple(
+          context,
+          '¡Ups! algo salió mal',
+          'Estatus: ${codeResponse['status']}. código de error: ${codeResponse['statusCode']}',
+          'Aceptar',
+          () => Navigator.pop(context));
+    }
+  }
+
+  Widget _creaQR(String codigo) {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(10),
+            height: 200,
+            width: 200,
+            child: QrImage(
+              data: codigo,
+              version: QrVersions.auto,
+              size: 100,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: SelectableText(
+              codigo,
+              style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   _cerrarSesion() {

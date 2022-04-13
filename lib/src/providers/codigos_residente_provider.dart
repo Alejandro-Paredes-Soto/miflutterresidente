@@ -6,18 +6,27 @@ class CodigosResidenteProvider {
   final validaSesion = LoginValidator();
   final urlAPI = 'https://dostop.mx/dostop/api/v1';
 
-  Future<String> newCodigoResidente(String idUsuario) async {
+  Future<Map<String, dynamic>> newCodigoResidente(String idUsuario) async {
     try{
       final resp = await http.post('$urlAPI/visita/extraordinaria/',
       body: json.encode({'idColonos' : idUsuario}));
 
       if(resp.statusCode == 201){
         Map<String, dynamic> decodeResp = json.decode(resp.body);
-        return decodeResp['codigo'];
+        return decodeResp;
       }
-      return '';
+
+      return {
+        'statusCode': resp.statusCode,
+        'status': resp.reasonPhrase
+      };
+
     }catch(e){
-      return '';
+      return {
+        'statusCode': 0,
+        'status': e.toString(),
+        'codigo': '' 
+      };
     }
   }
 }
