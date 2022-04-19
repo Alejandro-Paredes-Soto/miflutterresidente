@@ -311,6 +311,10 @@ class _NuevoVisitanteFrecuentePageState
   Widget _crearTextTelefono(String label, String hint) {
     return IntlPhoneField(
       controller: _txtTelefono,
+      keyboardType: TextInputType.phone,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[0-9]+'))
+      ],
       searchText: 'Buscar país/región',
       maxLength: 10,
       decoration: InputDecoration(
