@@ -291,7 +291,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                             _creaQR(visitante.codigo),
                             'Compartir',
                             'Cancelar',
-                            () => _compartir(visitante.codigo),
+                            () => utils.compartir(visitante.codigo),
                             () => Navigator.of(_scaffoldKey.currentContext)
                                 .pop('dialog'));
                       }
@@ -333,13 +333,13 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
-        Text('Nombre', style: utils.estiloTituloTarjeta(12)),
+        Text('Nombre', style: utils.estiloTextoSombreado(12, dobleSombra: false, fontWeight: FontWeight.w500)),
         Text(visitante.nombre, style: utils.estiloTextoSombreado(15, dobleSombra: false)),
         const SizedBox(height: 10),
-        Text('Teléfono', style: utils.estiloTituloTarjeta(12)),
+        Text('Teléfono', style: utils.estiloTextoSombreado(12, dobleSombra: false, fontWeight: FontWeight.w500)),
         Text(visitante.telefono, style: utils.estiloTextoSombreado(15, dobleSombra: false)),
         const SizedBox(height: 10),
-        Text('Tipo visitante', style: utils.estiloTituloTarjeta(12)),
+        Text('Tipo visitante', style: utils.estiloTextoSombreado(12, dobleSombra: false, fontWeight: FontWeight.w500)),
         Text(visitante.tipoVisitante, style: utils.estiloTextoSombreado(15, dobleSombra: false)),
         const SizedBox(height: 10),
         Text(visitante.unico ? 'QR de única ocasión:' : 'Vence en:',
@@ -348,9 +348,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                     color: utils.colorAcentuado,
                     fontSize: 12,
                     fontWeight: FontWeight.w500)
-                : utils.estiloTituloTarjeta(
-                    12,
-                  )),
+                : utils.estiloTextoSombreado(12, dobleSombra: false, fontWeight: FontWeight.w500)),
         visitante.vigencia.isBefore(DateTime.now().add(Duration(days: 31)))
             ? CountdownTimer(
                 endTime: visitante.vigencia.millisecondsSinceEpoch,
@@ -507,50 +505,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         ],
       ),
     );
-  }
-
-  _compartir(String codigo) async {
-    try {
-      Directory dir = await pathProvider.getTemporaryDirectory();
-      File imagenQR = new File("${dir.path}/${codigo}QR.png");
-      if (await imagenQR.exists()) {
-        imagenQR.delete();
-      }
-      await imagenQR.create(recursive: true);
-      imagenQR.writeAsBytes(await toQrImageData(codigo));
-      ShareExtend.share(imagenQR.path, Platform.isAndroid ? 'image' : 'file');
-    } catch (e) {
-      print('Ocurrió un error al compartir:\n $e');
-    }
-  }
-
-  Future<List<int>> toQrImageData(String codigo) async {
-    final imageqr = await QrPainter(
-            data: codigo,
-            version: QrVersions.auto,
-            color: Colors.black,
-            emptyColor: Colors.white,
-            gapless: true)
-        .toImageData(350);
-
-    imageTools.Image image = imageTools.Image(450, 530);
-    imageTools.fill(image, imageTools.getColor(255, 255, 255));
-    imageTools.drawImage(
-        image, imageTools.decodePng(imageqr.buffer.asUint8List()),
-        dstX: 50, dstY: 40);
-    imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 60, 450, 'Presenta este QR en la entrada',
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 15, 470, '                    para acceder',
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 100, 500, '     www.dostop.mx',
-        color: imageTools.getColor(0, 0, 0));
-
-    return imageTools.encodeJpg(image);
   }
 
   void _eliminaVisitanteFreq(
