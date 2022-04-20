@@ -372,7 +372,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
               ),
         const SizedBox(height: 10),
         Text('Recuerda que el código es dinámico'
-        ' y podrá ser consultado desde la app Parco.', style: utils.estiloTextoSombreado(12, 
+        ' y podrá ser consultado desde la cuenta asociada al teléfono en la app Parco.', style: utils.estiloTextoSombreado(12, 
         fontWeight: FontWeight.normal,
         dobleSombra: false)),
       ],
