@@ -346,7 +346,7 @@ class _NuevoVisitanteFrecuentePageState
           value: _seleccionTipoInvite,
           items: _returnDropdownMenuItem([
             {'text': 'Invitar con Parco', 'value': 'parco'},
-            {'text': 'QR Dostop', 'value': 'dostop'}
+            {'text': 'QR de única ocasión', 'value': 'dostop'}
           ]),
           onChanged: (opc) {
             setState(() {
@@ -530,7 +530,7 @@ class _NuevoVisitanteFrecuentePageState
       children: <Widget>[
         Text(_seleccionTipoInvite == 'parco' ? 'Invitar con Parco son códigos dinámicos'
         ' que el visitante podrá consultar desde su cuenta de Parco vinculada al teléfono.' :
-            'QR Dostop son códigos de única ocasión que tendrán una vigencia 24hrs.'),
+            'Los códigos de única ocasión tendrán una vigencia 24hrs.'),
         const SizedBox(height: 10),
         Text('El tiempo de validez comienza a partir de seleccionar "Crear invitación"',
             style: utils.estiloTextoAppBar(16)),

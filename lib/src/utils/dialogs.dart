@@ -264,3 +264,75 @@ void creaDialogQR(
         );
       });
 }
+
+
+void creaDialogInvite(
+    BuildContext context,
+    String titulo,
+    Widget contenido,
+    String textOpcionNeg,
+    Function funcionPos,
+    Function funcionNeg,
+    {bool barrierDismissible = true}) {
+  showDialog(
+    barrierDismissible: barrierDismissible,
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20))),
+          backgroundColor: Theme.of(context).cardColor,
+          contentPadding: EdgeInsets.all(0),
+          content: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.asset(
+                      rutaFondoQR,
+                      fit: BoxFit.fill,
+                    )),
+              ),
+              Padding(
+                padding: EdgeInsets.all(10.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Container(
+                        width: 220,
+                        child: contenido),
+                      SizedBox(height: 20),
+                      Flexible(
+                        child: RaisedButton(
+                          color: colorPrincipal,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Container(
+                            alignment: Alignment.center,
+                            height: 60,
+                            width: 220,
+                            child: AutoSizeText(
+                              textOpcionNeg,
+                              maxLines: 1,
+                              style: estiloBotones(13),
+                            ),
+                          ),
+                          onPressed: funcionNeg,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      });
+}
