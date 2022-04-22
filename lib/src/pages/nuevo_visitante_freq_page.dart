@@ -20,7 +20,7 @@ class NuevoVisitanteFrecuentePage extends StatefulWidget {
 
 class _NuevoVisitanteFrecuentePageState
     extends State<NuevoVisitanteFrecuentePage> {
-  String _seleccionVigencia = '1';
+  String _seleccionVigencia = '1 hour';
   String _seleccionTipoVisitante = '1';
   String _seleccionTipoInvite = 'parco';
   final formKey = GlobalKey<FormState>();
@@ -38,8 +38,7 @@ class _NuevoVisitanteFrecuentePageState
   bool _registrando = false;
   bool _visitanteRegistrado = false;
   bool _bloqueaCompartir = false;
-  bool _esCodigoUnico = false;
-  bool _bloqueaUnicaOcasion = false;
+  String phone;
   String _codigo = '00000000';
   List<TipoVisitanteModel> tipoVisita = new List();
   List<DropdownMenuItem<String>> listTipo = new List();
@@ -162,7 +161,9 @@ class _NuevoVisitanteFrecuentePageState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              CustomQr(code: _codigo),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: CustomQr(code: _codigo)),
               SizedBox(height: 20),
               RaisedButton(
                 shape: RoundedRectangleBorder(
@@ -291,11 +292,13 @@ class _NuevoVisitanteFrecuentePageState
       validator: (number) {
         if (utils.textoVacio(number))
           return 'Ingresa el teléfono';
+        if(number.length < 10)
+          return 'Ingrese el teléfono correctamente';
         else
           return null;
       },
-      onChanged: (phone) {
-        print(phone.completeNumber);
+      onChanged: (_phone) {
+        phone = _phone.completeNumber;
       },
     );
   }
@@ -367,11 +370,6 @@ class _NuevoVisitanteFrecuentePageState
           onChanged: (opc) {
             setState(() {
               _seleccionVigencia = opc;
-              if (int.parse(opc) > 3) {
-                _bloqueaUnicaOcasion = true;
-                _esCodigoUnico = false;
-              } else
-                _bloqueaUnicaOcasion = false;
             });
           },
         ),
@@ -381,9 +379,11 @@ class _NuevoVisitanteFrecuentePageState
 
   List<DropdownMenuItem<String>> getOpcionesDropdown() {
     List<Map<String, dynamic>> listItems = [
-      {'text': '1 Hora', 'value':'1'}, {'text': '24 Horas', 'value':'2'}, 
-      {'text': '1 Semana', 'value':'3'}, {'text': '1 Mes', 'value':'4'},  
-      {'text': 'Indefinido', 'value':'5'}, 
+      {'text': '1 Hora', 'value': '1 hour'},
+      {'text': '24 Horas', 'value': '24 hours'},
+      {'text': '1 Semana', 'value': '1 week'},
+      {'text': '1 Mes', 'value': 'next month'},
+      {'text': 'Indefinido', 'value': 'indefinido'},
     ];
     List<DropdownMenuItem<String>> listDropdownMenuItem = new List();
 
@@ -472,18 +472,27 @@ class _NuevoVisitanteFrecuentePageState
         apPaterno: _txtApPatCtrl.text,
         apMaterno: _txtApMatCtrl.text,
         vigencia: _seleccionVigencia,
-        esUnico: _esCodigoUnico,
-        tipoVisitante: _seleccionTipoVisitante);
-    switch (estatus['OK']) {
-      case 1:
-        //
-        setState(() {
-          _visitanteRegistrado = true;
-          _codigo = estatus['codigo'] ?? '00000000';
-        });
+        tipoVisitante: _seleccionTipoVisitante,
+        telefono: phone,
+        flagOrigen: _seleccionTipoInvite);
+    switch (estatus['statusCode']) {
+      case 200:
+        if (estatus['codigo']!= null && estatus['codigo'].isNotEmpty) {
+          setState(() {
+            _visitanteRegistrado = true;
+            _codigo = estatus['codigo'] ?? '00000000';
+          });
+        }else{
+          Navigator.pop(context, true);
+        }
+
         break;
-      case 2:
-        creaDialogSimple(context, '¡Ups! Algo salió mal', '', 'Aceptar', () {
+      default:
+        creaDialogSimple(
+            context,
+            '¡Ups! algo salió mal',
+            'Estatus: ${estatus['status']}. código de error: ${estatus['statusCode']}',
+            'Aceptar', () {
           Navigator.pop(context);
           Navigator.pop(context, false);
         });

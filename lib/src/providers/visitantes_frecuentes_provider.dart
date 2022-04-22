@@ -63,38 +63,44 @@ class VisitantesFreqProvider {
       String apPaterno,
       String apMaterno,
       String vigencia,
-      bool esUnico,
-      String tipoVisitante}) async {
-    Map<String, dynamic> mapResp = Map<String, dynamic>();
+      String tipoVisitante,
+      String flagOrigen,
+      String telefono}) async {
     final visitanteData = {
-      'colono': idUsuario,
+      'idColonos': 3756,
       'nombre': nombre,
       'ape_paterno': apPaterno,
       'ape_materno': apMaterno,
-      'tipo': esUnico ? 'unico' : '',
-      'vigencia': vigencia,
-      'tipo_visitante': tipoVisitante
+      'idTipoVisitante': tipoVisitante,
+      'tipo': flagOrigen == 'dostop' ? 'unico' : '',
+      'vigencia': vigencia == 'indefinido' ? '' : (flagOrigen == 'parco' ? '24 hours' : vigencia),
+      'flagPerpetual': vigencia == 'indefinido' ? true : false,
+      'flagOrigen': flagOrigen,
+      'telefono': flagOrigen == 'parco' ? telefono : '',
+      'usosParco': -1
     };
     try {
-      final resp = await http.post(
-          '${constantes.urlApp}/registrar_frecuente2.php',
-          body: visitanteData);
-      List decodeResp = json.decode(resp.body);
-      decodeResp[0].forEach((k, v) => mapResp[k] = v);
-      // print(decodeResp);
-      if (mapResp['estatus'].toString().contains('1')) {
-        return {
-          'OK': 1,
-          'message': 'Visitante frecuente creado',
-          'codigo': mapResp['codigo']
-        };
-      } else {
-        return {'OK': 2, 'message': mapResp['message']};
+      final resp = await http.post('${constantes.ulrApiProd}/visita/nueva/',
+      headers: {'Content-Type': 'application/json'},
+          body: json.encode(visitanteData));
+      
+      if(resp.statusCode == 404){
+        return {'statusCode': resp.statusCode, 'status': resp.reasonPhrase};
       }
+
+      Map<String, dynamic> decodeResp = json.decode(resp.body);
+
+      if(decodeResp.containsKey('message') && resp.statusCode != 200){
+        return {'statusCode': resp.statusCode, 'status': decodeResp['message']};
+      }
+
+      return decodeResp;
+
     } catch (e) {
-      print(
-          'Ocurrió un error en la llamada al Servicio de VISITANTES FRECUENTES - NUEVO VISITANTE:\n $e');
-      return {'OK': 2};
+      var message = e.runtimeType == 'SocketException'
+          ? 'Ha ocurrido un error, favor verificar conexión a internet.'
+          : e.message;
+      return {'statusCode': 0, 'status': e.runtimeType, 'codigo': message};
     }
   }
 
