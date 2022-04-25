@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   List<ItemModel> menuItems;
   CustomPopupMenuController _controller = CustomPopupMenuController();
-  bool _nuevaEncuesta = false, _accesos = false;
+  bool _nuevaEncuesta = false, _accesos = false, _qrResidente = false;
   EncuestaModel _datosEncuesta;
   int _noMolestar = 2;
   String _numeroCaseta = '';
@@ -87,6 +87,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         });
       }
     });
+
+    configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 7)
+        .then((estadoAccesos) {
+      ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
+      if (!mounted) return;
+      setState(() {
+        if (estadoAccesos.containsKey('valor')) {
+          _qrResidente = estadoAccesos['valor'] == '1';
+        }
+      });
+    });
+
     configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 2)
         .then((estadoAccesos) {
