@@ -20,6 +20,7 @@ class VisitanteFreqModel {
   String estatusDispositivo;
   bool expiroTolerancia;
   String tipoVisitante;
+  String telefono;
 
   VisitanteFreqModel(
       {this.nombre,
@@ -35,11 +36,13 @@ class VisitanteFreqModel {
       this.activo,
       this.estatusDispositivo,
       this.expiroTolerancia,
-      this.tipoVisitante});
+      this.tipoVisitante,
+      this.telefono});
 
   factory VisitanteFreqModel.fromJson(Map<String, dynamic> json) =>
       VisitanteFreqModel(
         nombre: json["nombre"],
+        telefono: json["tel"] ?? "",
         descripcion: json["descripcion"],
         fechaAlta: json["fecha_alta"],
         codigo: json["codigo"],

@@ -2,10 +2,7 @@ import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/widgets/custom_qr.dart';
 import 'package:flutter/services.dart';
-import 'package:image/image.dart' as imageTools;
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_extend/share_extend.dart';
-import 'package:path_provider/path_provider.dart' as pathProvider;
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 import 'package:dostop_v2/src/providers/login_validator.dart';
 import 'package:dostop_v2/src/providers/visitantes_frecuentes_provider.dart';
@@ -14,7 +11,6 @@ import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
 import 'package:flutter/material.dart';
-import 'dart:io';
 
 class NuevoVisitanteFrecuentePage extends StatefulWidget {
   @override
@@ -24,12 +20,15 @@ class NuevoVisitanteFrecuentePage extends StatefulWidget {
 
 class _NuevoVisitanteFrecuentePageState
     extends State<NuevoVisitanteFrecuentePage> {
-  String _seleccionVigencia = '1';
+  String _seleccionVigencia = '1 hour';
   String _seleccionTipoVisitante = '1';
+  String _seleccionTipoInvite = 'parco';
   final formKey = GlobalKey<FormState>();
   final _txtNombreCtrl = TextEditingController();
   final _txtApPatCtrl = TextEditingController();
   final _txtApMatCtrl = TextEditingController();
+  final _txtTelefono = TextEditingController();
+  final focusText = FocusNode();
   final sigFocusText = FocusNode();
   final sigFocusText2 = FocusNode();
   final _prefs = PreferenciasUsuario();
@@ -39,11 +38,10 @@ class _NuevoVisitanteFrecuentePageState
   bool _registrando = false;
   bool _visitanteRegistrado = false;
   bool _bloqueaCompartir = false;
-  bool _esCodigoUnico = false;
-  bool _bloqueaUnicaOcasion = false;
+  String phone;
   String _codigo = '00000000';
   List<TipoVisitanteModel> tipoVisita = new List();
-  List<DropdownMenuItem<String>>  listTipo = new List();
+  List<DropdownMenuItem<String>> listTipo = new List();
 
   @override
   void initState() {
@@ -51,22 +49,19 @@ class _NuevoVisitanteFrecuentePageState
     _configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 6)
         .then((resultado) {
-        if (!mounted) return;
-          for (Map<String, dynamic> tipo in resultado['valor']) {
-            final tempTipo = TipoVisitanteModel.fromJson(tipo);
-            listTipo.add(
-              DropdownMenuItem(
-                child: Text(tempTipo.tipo),
-                value: tempTipo.idTipoVisitante,
-              )
-            );
-            tipoVisita.add(tempTipo);
-          }
-          
-        setState(() {});
-        _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
+      if (!mounted) return;
+      for (Map<String, dynamic> tipo in resultado['valor']) {
+        final tempTipo = TipoVisitanteModel.fromJson(tipo);
+        listTipo.add(DropdownMenuItem(
+          child: Text(tempTipo.tipo),
+          value: tempTipo.idTipoVisitante,
+        ));
+        tipoVisita.add(tempTipo);
+      }
+
+      setState(() {});
+      _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
     });
-    
   }
 
   @override
@@ -108,22 +103,53 @@ class _NuevoVisitanteFrecuentePageState
               children: <Widget>[
                 _creaTitulo(),
                 SizedBox(height: 10.0),
-                _crearTextNombre('Nombre(s)', 'Ej. Luis'),
-                _crearTextApellidoP('Apellido paterno', 'Ej. Fernández'),
-                _crearTextApellidoM('Apellido materno', 'Ej. Herrera'),
-                SizedBox(height: 10.0),
+                _crearText(
+                    controller: _txtNombreCtrl,
+                    focus: focusText,
+                    focusNext: sigFocusText,
+                    label: 'Nombre(s)',
+                    hint: 'Ej. Luis',
+                    maxLength: 30,
+                    textValidate: 'Ingresa el nombre'),
+                _crearText(
+                    controller: _txtApPatCtrl,
+                    focus: sigFocusText,
+                    focusNext: sigFocusText2,
+                    label: 'Apellido paterno',
+                    hint: 'Ej. Fernández',
+                    maxLength: 20,
+                    textValidate: 'Ingresa el apellido paterno'),
+                _crearText(
+                    controller: _txtApMatCtrl,
+                    focus: sigFocusText2,
+                    label: 'Apellido materno',
+                    hint: 'Ej. Herrera',
+                    maxLength: 20,
+                    textValidate: 'Ingresa el apellido materno'),
                 _crearListaTipoVisitante(),
-                SizedBox(height: 20.0),
-                _crearListaVigencia(),
-                SizedBox(height: 10.0),
-                _creaSwitchUnicaOc(),
-                SizedBox(height: 30.0),
+                const SizedBox(height: 15.0),
+                _crearListaTipoQr(),
+                Visibility(
+                    visible: _seleccionTipoInvite == 'parco',
+                    child: _crearFieldParco()),
+                SizedBox(height: 15.0),
                 _creaAvisoBoton()
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _crearFieldParco() {
+    return Column(
+      children: [
+        const SizedBox(height: 5.0),
+        _crearTextTelefono('Teléfono', '4775872189'),
+        SizedBox(height: 5.0),
+        _crearListaVigencia(),
+      ],
     );
   }
 
@@ -135,7 +161,9 @@ class _NuevoVisitanteFrecuentePageState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              CustomQr(code: _codigo),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: CustomQr(code: _codigo)),
               SizedBox(height: 20),
               RaisedButton(
                 shape: RoundedRectangleBorder(
@@ -197,7 +225,7 @@ class _NuevoVisitanteFrecuentePageState
           ),
         ));
   }
- 
+
   Widget _creaTitulo() {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,10 +240,18 @@ class _NuevoVisitanteFrecuentePageState
         ]);
   }
 
-  Widget _crearTextNombre(String label, String hint) {
+  Widget _crearText(
+      {TextEditingController controller,
+      FocusNode focus,
+      FocusNode focusNext,
+      String label,
+      String hint,
+      String textValidate,
+      int maxLength}) {
     return TextFormField(
-      controller: _txtNombreCtrl,
-      maxLength: 30,
+      controller: controller,
+      focusNode: focus,
+      maxLength: maxLength,
       enabled: !_registrando,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
@@ -225,74 +261,82 @@ class _NuevoVisitanteFrecuentePageState
       textCapitalization: TextCapitalization.sentences,
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
-        hintText: hint,
-        labelText: label,
-      ),
+          hintText: hint,
+          labelText: label,
+          contentPadding: const EdgeInsets.all(0)),
       onFieldSubmitted: (valor) {
-        FocusScope.of(context).requestFocus(sigFocusText);
+        if (focusNext != null) FocusScope.of(context).requestFocus(focusNext);
       },
       validator: (texto) {
         if (utils.textoVacio(texto))
-          return 'Ingresa el nombre';
+          return textValidate;
         else
           return null;
       },
     );
   }
 
-  Widget _crearTextApellidoP(String label, String hint) {
-    return TextFormField(
-      controller: _txtApPatCtrl,
-      maxLength: 20,
-      focusNode: sigFocusText,
-      enabled: !_registrando,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
-      ],
-      onEditingComplete: FocusScope.of(context).unfocus,
-      textInputAction: TextInputAction.next,
-      textCapitalization: TextCapitalization.sentences,
-      keyboardType: TextInputType.text,
+  Widget _crearTextTelefono(String label, String hint) {
+    return IntlPhoneField(
+      controller: _txtTelefono,
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9]+'))],
+      searchText: 'Buscar país/región',
+      maxLength: 10,
       decoration: InputDecoration(
-        hintText: hint,
-        labelText: label,
-      ),
-      onFieldSubmitted: (valor) {
-        FocusScope.of(context).requestFocus(sigFocusText2);
-      },
-      validator: (texto) {
-        if (utils.textoVacio(texto))
-          return 'Ingresa el apellido paterno';
+          labelText: label,
+          hintText: hint,
+          contentPadding: const EdgeInsets.all(0)),
+      initialCountryCode: 'MX',
+      autoValidate: false,
+      validator: (number) {
+        if (utils.textoVacio(number))
+          return 'Ingresa el teléfono';
+        if(number.length < 10)
+          return 'Ingrese el teléfono correctamente';
         else
           return null;
+      },
+      onChanged: (_phone) {
+        phone = _phone.completeNumber;
       },
     );
   }
 
-  Widget _crearTextApellidoM(String label, String hint) {
-    return TextFormField(
-      controller: _txtApMatCtrl,
-      maxLength: 20,
-      focusNode: sigFocusText2,
-      enabled: !_registrando,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
-      ],
-      onEditingComplete: FocusScope.of(context).unfocus,
-      textInputAction: TextInputAction.done,
-      textCapitalization: TextCapitalization.sentences,
-      keyboardType: TextInputType.text,
-      decoration: InputDecoration(
-        hintText: hint,
-        labelText: label,
+  Widget _crearListaTipoQr() {
+    return IgnorePointer(
+      ignoring: _registrando,
+      child: Listener(
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+        child: DropdownButton(
+          isExpanded: true,
+          value: _seleccionTipoInvite,
+          items: _returnDropdownMenuItem([
+            {'text': 'Invitar con Parco', 'value': 'parco'},
+            {'text': 'QR de única ocasión', 'value': 'dostop'}
+          ]),
+          onChanged: (opc) {
+            setState(() {
+              _seleccionTipoInvite = opc;
+            });
+          },
+        ),
       ),
-      validator: (texto) {
-        if (utils.textoVacio(texto))
-          return 'Ingresa el apellido materno';
-        else
-          return null;
-      },
     );
+  }
+
+  List<DropdownMenuItem<String>> _returnDropdownMenuItem(
+      List<Map<String, dynamic>> listItems) {
+    List<DropdownMenuItem<String>> listDropdownMenuItem = new List();
+
+    for (var item in listItems) {
+      listDropdownMenuItem.add(DropdownMenuItem(
+        child: Text(item['text']),
+        value: item['value'],
+      ));
+    }
+
+    return listDropdownMenuItem;
   }
 
   Widget _crearListaTipoVisitante() {
@@ -326,134 +370,52 @@ class _NuevoVisitanteFrecuentePageState
           onChanged: (opc) {
             setState(() {
               _seleccionVigencia = opc;
-              if (int.parse(opc) > 3) {
-                _bloqueaUnicaOcasion = true;
-                _esCodigoUnico = false;
-              } else
-                _bloqueaUnicaOcasion = false;
             });
           },
         ),
       ),
     );
-
-    //NO OLVIDAR REMOVER EL COMENTARIO - ESTA DISPONIBLE EN NUEVAS VERSIONES DE SDK DE FLUTTER >= 1.12.13H5
-    // return IgnorePointer(
-    //   ignoring: _registrando,
-    //   child: DropdownButton(
-    //     focusNode: FocusNode(), <- ESTA ES LA LINEA DE CODIGO QUE CAMBIA
-    //     isExpanded: true,
-    //     value: _seleccionVigencia,
-    //     items: getOpcionesDropdown(),
-    //     onChanged: (opc) {
-    //       setState(() {
-    //         _seleccionVigencia = opc;
-
-    //       });
-    //     },
-    //   ),
-    // );
   }
-
 
   List<DropdownMenuItem<String>> getOpcionesDropdown() {
-    return [
-      DropdownMenuItem(
-        child: Row(
-          children: <Widget>[
-            Icon(Icons.access_time),
-            SizedBox(
-              width: 10,
-            ),
-            Text('1 Hora'),
-          ],
-        ),
-        value: '1',
-      ),
-      DropdownMenuItem(
-        child: Row(
-          children: <Widget>[
-            Icon(Icons.access_time),
-            SizedBox(
-              width: 10,
-            ),
-            Text('24 Horas'),
-          ],
-        ),
-        value: '2',
-      ),
-      DropdownMenuItem(
-        child: Row(
-          children: <Widget>[
-            Icon(Icons.access_time),
-            SizedBox(
-              width: 10,
-            ),
-            Text('1 Semana'),
-          ],
-        ),
-        value: '3',
-      ),
-      DropdownMenuItem(
-        child: Row(
-          children: <Widget>[
-            Icon(Icons.access_time),
-            SizedBox(
-              width: 10,
-            ),
-            Text('1 Mes'),
-          ],
-        ),
-        value: '4',
-      ),
-      DropdownMenuItem(
-        child: Row(
-          children: <Widget>[
-            Icon(Icons.av_timer),
-            SizedBox(
-              width: 10,
-            ),
-            Text('Indefinido'),
-          ],
-        ),
-        value: '5',
-      ),
+    List<Map<String, dynamic>> listItems = [
+      {'text': '1 Hora', 'value': '1 hour'},
+      {'text': '24 Horas', 'value': '24 hours'},
+      {'text': '1 Semana', 'value': '1 week'},
+      {'text': '1 Mes', 'value': 'next month'},
+      {'text': 'Indefinido', 'value': 'indefinido'},
     ];
-  }
+    List<DropdownMenuItem<String>> listDropdownMenuItem = new List();
 
-  Widget _creaSwitchUnicaOc() {
-    return Column(
-      children: <Widget>[
-        SwitchListTile(
-          title: Text('Código de única ocasión',
-              style: TextStyle(
-                fontSize: 20,
-              )),
-          activeColor: utils.colorPrincipal,
-          value: _esCodigoUnico,
-          onChanged: _bloqueaUnicaOcasion
-              ? null
-              : (valor) {
-                  setState(() {
-                    _esCodigoUnico = valor;
-                  });
-                },
+    for (var item in listItems) {
+      listDropdownMenuItem.add(DropdownMenuItem(
+        child: Row(
+          children: <Widget>[
+            Icon(Icons.access_time),
+            SizedBox(
+              width: 10,
+            ),
+            Text(item['text']),
+          ],
         ),
-        Visibility(
-          child: Text(
-              '* Los códigos de unica ocasión no pueden durar más de una semana de vigencia'),
-          visible: _bloqueaUnicaOcasion,
-        ),
-      ],
-    );
+        value: item['value'],
+      ));
+    }
+
+    return listDropdownMenuItem;
   }
 
   Widget _creaAvisoBoton() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
+        Text(_seleccionTipoInvite == 'parco'
+            ? 'Invitar con Parco son códigos dinámicos'
+                ' que el visitante podrá consultar desde su cuenta de Parco vinculada al teléfono.'
+            : 'Los códigos de única ocasión tendrán una vigencia 24hrs.'),
+        const SizedBox(height: 10),
         Text(
-            'El tiempo de validez comienza a correr a partir de seleccionar “Crear Invitación”',
+            'El tiempo de validez comienza a partir de seleccionar "Crear invitación"',
             style: utils.estiloTextoAppBar(16)),
         SizedBox(height: 10),
         RaisedButton(
@@ -510,18 +472,27 @@ class _NuevoVisitanteFrecuentePageState
         apPaterno: _txtApPatCtrl.text,
         apMaterno: _txtApMatCtrl.text,
         vigencia: _seleccionVigencia,
-        esUnico: _esCodigoUnico,
-        tipoVisitante: _seleccionTipoVisitante);
-    switch (estatus['OK']) {
-      case 1:
-        //
-        setState(() {
-          _visitanteRegistrado = true;
-          _codigo = estatus['codigo'] ?? '00000000';
-        });
+        tipoVisitante: _seleccionTipoVisitante,
+        telefono: phone,
+        flagOrigen: _seleccionTipoInvite);
+    switch (estatus['statusCode']) {
+      case 200:
+        if (estatus['codigo']!= null && estatus['codigo'].isNotEmpty) {
+          setState(() {
+            _visitanteRegistrado = true;
+            _codigo = estatus['codigo'] ?? '00000000';
+          });
+        }else{
+          Navigator.pop(context, true);
+        }
+
         break;
-      case 2:
-        creaDialogSimple(context, '¡Ups! Algo salió mal', '', 'Aceptar', () {
+      default:
+        creaDialogSimple(
+            context,
+            '¡Ups! algo salió mal',
+            'Estatus: ${estatus['status']}. código de error: ${estatus['statusCode']}',
+            'Aceptar', () {
           Navigator.pop(context);
           Navigator.pop(context, false);
         });
@@ -536,6 +507,7 @@ class _NuevoVisitanteFrecuentePageState
     _txtApMatCtrl.dispose();
     _txtApPatCtrl.dispose();
     _txtNombreCtrl.dispose();
+    focusText.dispose();
     sigFocusText.dispose();
     sigFocusText2.dispose();
   }
