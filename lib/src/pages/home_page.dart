@@ -899,9 +899,3 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.dispose();
   }
 }
-
-class ItemModel {
-  String title;
-  IconData icon;
-  ItemModel(this.title, this.icon);
-}
