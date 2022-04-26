@@ -873,38 +873,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  Widget _creaQR(String codigo) {
-    return Container(
-      color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(10),
-            height: 200,
-            width: 200,
-            child: QrImage(
-              data: codigo,
-              version: QrVersions.auto,
-              size: 100,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: SelectableText(
-              codigo,
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   _cerrarSesion() {
     creaDialogYesNoAlt(
         context,
