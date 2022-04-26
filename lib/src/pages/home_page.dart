@@ -9,7 +9,6 @@ import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pie_chart/pie_chart.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
@@ -40,7 +39,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _residenteProvider = CodigosResidenteProvider();
 
-  List<ItemModel> menuItems;
   CustomPopupMenuController _controller = CustomPopupMenuController();
   bool _nuevaEncuesta = false, _accesos = false, _qrResidente = false;
   EncuestaModel _datosEncuesta;
@@ -122,11 +120,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         }
       });
     });
-
-    menuItems = [
-      ItemModel('Caseta', Icons.chat_bubble),
-      ItemModel('Soporte', Icons.group_add)
-    ];
   }
 
   @override
