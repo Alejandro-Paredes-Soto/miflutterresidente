@@ -205,7 +205,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _creaBtnContacto() {
-    return _numeroCaseta != ''
+    return _numeroCaseta != '' && _qrResidente
         ? _creaMenuContacto()
         : IconButton(
             padding: EdgeInsets.all(0),
@@ -450,10 +450,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             child: Container(
               padding: EdgeInsets.only(left: 12),
               child: _creaBtnIconoMini(
-                  rutaIcono: utils.rutaIconQR,
-                  titulo: 'Código\nresidente',
+                  rutaIcono: _qrResidente
+                      ? utils.rutaIconQR
+                      : utils.rutaIconoPromociones,
+                  titulo: _qrResidente ? 'Código\nresidente' : 'Promos',
+                  ruta: _qrResidente ? null : 'promociones',
                   onPressed: () {
-                    _generarCodigo();
+                    if (_qrResidente) _generarCodigo();
                   }),
             ),
           ),
@@ -477,30 +480,31 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       titulo: 'Mis accesos',
                       ruta: 'misAccesos'))),
           Visibility(visible: _accesos, child: SizedBox(width: 20)),
-          Expanded(
-            child: _creaBtnIconoMini(
+          Visibility(
+            visible: _qrResidente,
+            child: Expanded(
+                child: _creaBtnIconoMini(
               rutaIcono: utils.rutaIconoPromociones,
               titulo: 'Promos',
               ruta: 'promociones',
-            ),
+            )),
           ),
-
-          /*Visibility(
-              visible: _numeroCaseta != '',
+          Visibility(
+              visible: _numeroCaseta != '' && !_qrResidente,
               child: Expanded(
                   child: _creaBtnIconoMini(
                       rutaIcono: utils.rutaIconoCaseta,
                       titulo: 'Contacto\na caseta',
-                      onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),*/
-          Visibility(visible: _numeroCaseta != '', child: SizedBox(width: 20)),
+                      onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
+          Visibility(visible: _numeroCaseta != '' || _qrResidente, child: SizedBox(width: 20)),
           Expanded(
               child: _creaBtnIconoMini(
                   rutaIcono: utils.rutaIconoCerrarSesion,
                   titulo: 'Cerrar sesión',
                   onPressed: _cerrarSesion)),
-          Visibility(visible: _numeroCaseta == '', child: SizedBox(width: 20)),
+          Visibility(visible: _numeroCaseta == '' && !_qrResidente, child: SizedBox(width: 20)),
           Visibility(
-              visible: _numeroCaseta == '',
+              visible: _numeroCaseta == '' && !_qrResidente,
               child: Expanded(child: Container())),
           Visibility(visible: !_accesos, child: SizedBox(width: 20)),
           Visibility(visible: !_accesos, child: Expanded(child: Container())),
@@ -853,11 +857,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           _scaffoldKey.currentContext,
           '',
           CustomQr(code: codeResponse['codigo']),
-          'Compartir',
+          '',
           'Cancelar',
-          () => utils.compartir(codeResponse['codigo']),
+          () => {},
           () => Navigator.of(_scaffoldKey.currentContext).pop('dialog'),
-          barrierDismissible: false);
+          barrierDismissible: false,
+          btnPos: false);
     } else {
       creaDialogSimple(
           context,
