@@ -67,7 +67,7 @@ class VisitantesFreqProvider {
       String flagOrigen,
       String telefono}) async {
     final visitanteData = {
-      'idColonos': 3756,
+      'idColonos': idUsuario,
       'nombre': nombre,
       'ape_paterno': apPaterno,
       'ape_materno': apMaterno,
