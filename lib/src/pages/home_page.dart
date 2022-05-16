@@ -9,7 +9,6 @@ import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pie_chart/pie_chart.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 
@@ -40,9 +39,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _residenteProvider = CodigosResidenteProvider();
 
-  List<ItemModel> menuItems;
   CustomPopupMenuController _controller = CustomPopupMenuController();
-  bool _nuevaEncuesta = false, _accesos = false;
+  bool _nuevaEncuesta = false, _accesos = false, _qrResidente = false;
   EncuestaModel _datosEncuesta;
   int _noMolestar = 2;
   String _numeroCaseta = '';
@@ -87,6 +85,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         });
       }
     });
+
+    configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 7)
+        .then((estadoAccesos) {
+      ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
+      if (!mounted) return;
+      setState(() {
+        if (estadoAccesos.containsKey('valor')) {
+          _qrResidente = estadoAccesos['valor'] == '1';
+        }
+      });
+    });
+
     configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 2)
         .then((estadoAccesos) {
@@ -109,11 +120,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         }
       });
     });
-
-    menuItems = [
-      ItemModel('Caseta', Icons.chat_bubble),
-      ItemModel('Soporte', Icons.group_add)
-    ];
   }
 
   @override
@@ -192,7 +198,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _creaBtnContacto() {
-    return _numeroCaseta != ''
+    return _numeroCaseta != '' && _qrResidente
         ? _creaMenuContacto()
         : IconButton(
             padding: EdgeInsets.all(0),
@@ -437,10 +443,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             child: Container(
               padding: EdgeInsets.only(left: 12),
               child: _creaBtnIconoMini(
-                  rutaIcono: utils.rutaIconQR,
-                  titulo: 'Código\nresidente',
+                  rutaIcono: _qrResidente
+                      ? utils.rutaIconQR
+                      : utils.rutaIconoPromociones,
+                  titulo: _qrResidente ? 'Código\nresidente' : 'Promos',
+                  ruta: _qrResidente ? null : 'promociones',
                   onPressed: () {
-                    _generarCodigo();
+                    if (_qrResidente) _generarCodigo();
                   }),
             ),
           ),
@@ -464,30 +473,31 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       titulo: 'Mis accesos',
                       ruta: 'misAccesos'))),
           Visibility(visible: _accesos, child: SizedBox(width: 20)),
-          Expanded(
-            child: _creaBtnIconoMini(
+          Visibility(
+            visible: _qrResidente,
+            child: Expanded(
+                child: _creaBtnIconoMini(
               rutaIcono: utils.rutaIconoPromociones,
               titulo: 'Promos',
               ruta: 'promociones',
-            ),
+            )),
           ),
-
-          /*Visibility(
-              visible: _numeroCaseta != '',
+          Visibility(
+              visible: _numeroCaseta != '' && !_qrResidente,
               child: Expanded(
                   child: _creaBtnIconoMini(
                       rutaIcono: utils.rutaIconoCaseta,
                       titulo: 'Contacto\na caseta',
-                      onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),*/
-          Visibility(visible: _numeroCaseta != '', child: SizedBox(width: 20)),
+                      onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
+          Visibility(visible: _numeroCaseta != '' || _qrResidente, child: SizedBox(width: 20)),
           Expanded(
               child: _creaBtnIconoMini(
                   rutaIcono: utils.rutaIconoCerrarSesion,
                   titulo: 'Cerrar sesión',
                   onPressed: _cerrarSesion)),
-          Visibility(visible: _numeroCaseta == '', child: SizedBox(width: 20)),
+          Visibility(visible: _numeroCaseta == '' && !_qrResidente, child: SizedBox(width: 20)),
           Visibility(
-              visible: _numeroCaseta == '',
+              visible: _numeroCaseta == '' && !_qrResidente,
               child: Expanded(child: Container())),
           Visibility(visible: !_accesos, child: SizedBox(width: 20)),
           Visibility(visible: !_accesos, child: Expanded(child: Container())),
@@ -840,11 +850,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           _scaffoldKey.currentContext,
           '',
           CustomQr(code: codeResponse['codigo']),
-          'Compartir',
+          '',
           'Cancelar',
-          () => utils.compartir(codeResponse['codigo']),
+          () => {},
           () => Navigator.of(_scaffoldKey.currentContext).pop('dialog'),
-          barrierDismissible: false);
+          barrierDismissible: false,
+          btnPos: false);
     } else {
       creaDialogSimple(
           context,
@@ -853,38 +864,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           'Aceptar',
           () => Navigator.pop(context));
     }
-  }
-
-  Widget _creaQR(String codigo) {
-    return Container(
-      color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(10),
-            height: 200,
-            width: 200,
-            child: QrImage(
-              data: codigo,
-              version: QrVersions.auto,
-              size: 100,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: SelectableText(
-              codigo,
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   _cerrarSesion() {
@@ -919,10 +898,4 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void dispose() {
     super.dispose();
   }
-}
-
-class ItemModel {
-  String title;
-  IconData icon;
-  ItemModel(this.title, this.icon);
 }

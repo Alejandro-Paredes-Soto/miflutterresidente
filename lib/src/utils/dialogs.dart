@@ -181,9 +181,10 @@ void creaDialogQR(
     String textOpcionNeg,
     Function funcionPos,
     Function funcionNeg,
-    {bool barrierDismissible = true}) {
+    {bool barrierDismissible = true,
+    bool btnPos = true}) {
   showDialog(
-    barrierDismissible: barrierDismissible,
+      barrierDismissible: barrierDismissible,
       context: context,
       builder: (ctx) {
         return AlertDialog(
@@ -217,23 +218,26 @@ void creaDialogQR(
                           borderRadius: BorderRadius.circular(15.0),
                           child: contenido),
                       SizedBox(height: 20),
-                      Flexible(
-                        child: RaisedButton(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 60,
-                            width: 220,
-                            child: AutoSizeText(
-                              textOpcionPos,
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              style: estiloBotones(13, color: Colors.black),
+                      Visibility(
+                        visible: btnPos,
+                        child: Flexible(
+                          child: RaisedButton(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: 60,
+                              width: 220,
+                              child: AutoSizeText(
+                                textOpcionPos,
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                style: estiloBotones(13, color: Colors.black),
+                              ),
                             ),
+                            onPressed: funcionPos,
                           ),
-                          onPressed: funcionPos,
                         ),
                       ),
                       SizedBox(height: 20),
@@ -265,17 +269,11 @@ void creaDialogQR(
       });
 }
 
-
-void creaDialogInvite(
-    BuildContext context,
-    String titulo,
-    Widget contenido,
-    String textOpcionNeg,
-    Function funcionPos,
-    Function funcionNeg,
+void creaDialogInvite(BuildContext context, String titulo, Widget contenido,
+    String textOpcionNeg, Function funcionPos, Function funcionNeg,
     {bool barrierDismissible = true}) {
   showDialog(
-    barrierDismissible: barrierDismissible,
+      barrierDismissible: barrierDismissible,
       context: context,
       builder: (ctx) {
         return AlertDialog(
@@ -305,9 +303,7 @@ void creaDialogInvite(
                     mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Container(
-                        width: 220,
-                        child: contenido),
+                      Container(width: 220, child: contenido),
                       SizedBox(height: 20),
                       Flexible(
                         child: RaisedButton(
