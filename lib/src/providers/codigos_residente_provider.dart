@@ -9,7 +9,7 @@ class CodigosResidenteProvider {
   Future<Map<String, dynamic>> newCodigoResidente(String idUsuario) async {
     try {
       final resp = await http.post('$urlAPI/visita/extraordinaria/',
-          body: json.encode({'idColonos': idUsuario}));
+          body: json.encode({'idColonos': idUsuario}), headers: {'Content-Type': 'application/json'});
 
       if (resp.statusCode == 201) {
         Map<String, dynamic> decodeResp = json.decode(resp.body);
