@@ -267,7 +267,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                       height: 50,
                       alignment: Alignment.center,
                       child: Text(
-                        visitante.telefono.isNotEmpty && visitante.codigo.isEmpty
+                        visitante.telefono.isNotEmpty &&
+                                visitante.codigo.isEmpty
                             ? 'Invitación Parco'
                             : 'Ver código',
                         style: utils.estiloBotones(12),
@@ -333,14 +334,23 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 10),
-        Text('Nombre', style: utils.estiloTextoSombreado(12, dobleSombra: false, fontWeight: FontWeight.w500)),
-        Text(visitante.nombre, style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        Text('Nombre',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.nombre,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
         const SizedBox(height: 10),
-        Text('Teléfono', style: utils.estiloTextoSombreado(12, dobleSombra: false, fontWeight: FontWeight.w500)),
-        Text(visitante.telefono, style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        Text('Teléfono',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.telefono,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
         const SizedBox(height: 10),
-        Text('Tipo visitante', style: utils.estiloTextoSombreado(12, dobleSombra: false, fontWeight: FontWeight.w500)),
-        Text(visitante.tipoVisitante, style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        Text('Tipo visitante',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.tipoVisitante,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
         const SizedBox(height: 10),
         Text(visitante.unico ? 'QR de única ocasión:' : 'Vence en:',
             style: visitante.unico
@@ -348,7 +358,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                     color: utils.colorAcentuado,
                     fontSize: 12,
                     fontWeight: FontWeight.w500)
-                : utils.estiloTextoSombreado(12, dobleSombra: false, fontWeight: FontWeight.w500)),
+                : utils.estiloTextoSombreado(12,
+                    dobleSombra: false, fontWeight: FontWeight.w500)),
         visitante.vigencia.isBefore(DateTime.now().add(Duration(days: 31)))
             ? CountdownTimer(
                 endTime: visitante.vigencia.millisecondsSinceEpoch,
@@ -369,10 +380,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 style: utils.estiloTextoSombreado(15, dobleSombra: false),
               ),
         const SizedBox(height: 10),
-        Text('Recuerda que el código es dinámico'
-        ' y podrá ser consultado desde la cuenta asociada al teléfono en la app Parco.', style: utils.estiloTextoSombreado(12, 
-        fontWeight: FontWeight.normal,
-        dobleSombra: false)),
+        Text(
+            'Recuerda que el código es dinámico'
+            ' y podrá ser consultado desde la cuenta asociada al teléfono en la app Parco.',
+            style: utils.estiloTextoSombreado(12,
+                fontWeight: FontWeight.normal, dobleSombra: false)),
       ],
     );
   }
@@ -517,8 +529,14 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         'Eliminar',
         'Cancelar', () async {
       Navigator.pop(context);
-      Map estatus = await visitanteProvider.eliminaVisitanteFrecuente(
-          visitante.idFrecuente, _prefs.usuarioLogged, _tabIndex + 1);
+      Map estatus;
+      if (_tabIndex == 0) {
+        estatus = await visitanteProvider.archivarQR(visitante.idFrecuente);
+      } else {
+        estatus = await visitanteProvider.eliminaVisitanteFrecuente(
+            visitante.idFrecuente, _prefs.usuarioLogged, _tabIndex + 1);
+      }
+
       switch (estatus['OK']) {
         case 1:
           setState(() {});

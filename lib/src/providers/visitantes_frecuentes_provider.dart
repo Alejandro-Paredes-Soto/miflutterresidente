@@ -57,6 +57,35 @@ class VisitantesFreqProvider {
     }
   }
 
+  Future<Map<String, dynamic>> archivarQR(String idFrecuente) async {
+    try {
+      //TODO: CAMBIAR URLS
+      final url =
+          Uri.tryParse('http://192.168.100.14/slim4test/public/api/v1/visita/');
+      var request = await http.Request('DELETE', url);
+      request.body = json.encode({'idVisitante': idFrecuente});
+      request.headers.addAll({'Content-Type': 'application/json'});
+      
+      final resp = await request.send();
+
+      if (resp.statusCode != 404) {
+        Map mapResp = json.decode(await resp.stream.bytesToString());
+        // print(decodeResp);
+        if (mapResp['statusCode'] == 200) {
+          return {'OK': 1};
+        } else {
+          return {'OK': 2, 'message': mapResp['message']};
+        }
+      }
+
+      return {'OK': 2};
+    } catch (e) {
+      print(
+          'Ocurrió un error en la llamada al Servicio de VISITANTES FRECUENTES - ELIMINAR VISITANTE:\n $e');
+      return {'OK': 2};
+    }
+  }
+
   Future<Map<String, dynamic>> nuevoVisitanteFrecuente(
       {String idUsuario,
       String nombre,
@@ -73,7 +102,9 @@ class VisitantesFreqProvider {
       'ape_materno': apMaterno,
       'idTipoVisitante': tipoVisitante,
       'tipo': flagOrigen == 'dostop' ? 'unico' : '',
-      'vigencia': vigencia == 'indefinido' ? '' : (flagOrigen == 'parco' ? '24 hours' : vigencia),
+      'vigencia': vigencia == 'indefinido'
+          ? ''
+          : (flagOrigen == 'parco' ? '24 hours' : vigencia),
       'flagPerpetual': vigencia == 'indefinido' ? true : false,
       'flagOrigen': flagOrigen,
       'telefono': flagOrigen == 'parco' ? telefono : '',
@@ -81,21 +112,20 @@ class VisitantesFreqProvider {
     };
     try {
       final resp = await http.post('${constantes.ulrApiProd}/visita/nueva/',
-      headers: {'Content-Type': 'application/json'},
+          headers: {'Content-Type': 'application/json'},
           body: json.encode(visitanteData));
-      
-      if(resp.statusCode == 404){
+
+      if (resp.statusCode == 404) {
         return {'statusCode': resp.statusCode, 'status': resp.reasonPhrase};
       }
 
       Map<String, dynamic> decodeResp = json.decode(resp.body);
 
-      if(decodeResp.containsKey('message') && resp.statusCode != 200){
+      if (decodeResp.containsKey('message') && resp.statusCode != 200) {
         return {'statusCode': resp.statusCode, 'status': decodeResp['message']};
       }
 
       return decodeResp;
-
     } catch (e) {
       var message = e.runtimeType == 'SocketException'
           ? 'Ha ocurrido un error, favor verificar conexión a internet.'
