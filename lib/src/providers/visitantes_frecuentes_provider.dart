@@ -59,13 +59,11 @@ class VisitantesFreqProvider {
 
   Future<Map<String, dynamic>> archivarQR(String idFrecuente) async {
     try {
-      //TODO: CAMBIAR URLS
-      final url =
-          Uri.tryParse('http://192.168.100.14/slim4test/public/api/v1/visita/');
-      var request = await http.Request('DELETE', url);
+      final url = Uri.tryParse('${constantes.ulrApiProd}/visita/');
+      var request = http.Request('DELETE', url);
       request.body = json.encode({'idVisitante': idFrecuente});
       request.headers.addAll({'Content-Type': 'application/json'});
-      
+
       final resp = await request.send();
 
       if (resp.statusCode != 404) {
@@ -104,7 +102,7 @@ class VisitantesFreqProvider {
       'tipo': flagOrigen == 'dostop' ? 'unico' : '',
       'vigencia': vigencia == 'indefinido'
           ? ''
-          : (flagOrigen == 'parco' ? '24 hours' : vigencia),
+          : (flagOrigen != 'parco' ? '24 hours' : vigencia),
       'flagPerpetual': vigencia == 'indefinido' ? true : false,
       'flagOrigen': flagOrigen,
       'telefono': flagOrigen == 'parco' ? telefono : '',
@@ -121,13 +119,13 @@ class VisitantesFreqProvider {
 
       Map<String, dynamic> decodeResp = json.decode(resp.body);
 
-      if (decodeResp.containsKey('message') && resp.statusCode != 200) {
-        return {'statusCode': resp.statusCode, 'status': decodeResp['message']};
+      if (decodeResp.containsKey('statusCode') && resp.statusCode != 200) {
+        return {'statusCode': resp.statusCode, 'status': decodeResp['status']};
       }
 
       return decodeResp;
     } catch (e) {
-      var message = e.runtimeType == 'SocketException'
+      var message = e.runtimeType.toString() == 'SocketException'
           ? 'Ha ocurrido un error, favor verificar conexión a internet.'
           : e.message;
       return {'statusCode': 0, 'status': e.runtimeType, 'codigo': message};

@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'login_validator.dart';
 import 'package:http/http.dart' as http;
+import 'constantes_provider.dart' as constantes;
 
 class CodigosResidenteProvider {
   final validaSesion = LoginValidator();
-  final urlAPI = 'https://dostop.mx/dostop/api/v1';
 
   Future<Map<String, dynamic>> newCodigoResidente(String idUsuario) async {
     try {
-      final resp = await http.post('$urlAPI/visita/extraordinaria/',
+      final resp = await http.post('${constantes.ulrApiProd}/visita/extraordinaria/',
           body: json.encode({'idColonos': idUsuario}), headers: {'Content-Type': 'application/json'});
 
       if (resp.statusCode == 201) {

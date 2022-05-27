@@ -228,8 +228,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                         : utils.estiloTituloTarjeta(
                             12,
                           )),
-                visitante.vigencia
-                        .isBefore(DateTime.now().add(Duration(days: 31)))
+                (visitante.vigencia != null && visitante.vigencia
+                        .isBefore(DateTime.now().add(Duration(days: 31))))
                     ? CountdownTimer(
                         endTime: visitante.vigencia.millisecondsSinceEpoch,
                         defaultDays: '0',
@@ -267,16 +267,19 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                       height: 50,
                       alignment: Alignment.center,
                       child: Text(
-                        visitante.telefono.isNotEmpty &&
-                                visitante.codigo.isEmpty
+                        (visitante.telefono != null &&
+                                visitante.codigo == null) ||
+                        (visitante.telefono.isNotEmpty &&
+                                visitante.codigo.isEmpty)
                             ? 'Invitación Parco'
                             : 'Ver código',
                         style: utils.estiloBotones(12),
                       ),
                     ),
                     onPressed: () {
-                      if (visitante.telefono.isNotEmpty &&
-                          visitante.codigo.isEmpty) {
+                      if ((visitante.telefono != null &&
+                                visitante.codigo == null) || (visitante.telefono.isNotEmpty &&
+                          visitante.codigo.isEmpty)) {
                         creaDialogInvite(
                             _scaffoldKey.currentContext,
                             'Invitación con Parco',
@@ -360,7 +363,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                     fontWeight: FontWeight.w500)
                 : utils.estiloTextoSombreado(12,
                     dobleSombra: false, fontWeight: FontWeight.w500)),
-        visitante.vigencia.isBefore(DateTime.now().add(Duration(days: 31)))
+        visitante.vigencia != null && visitante.vigencia.isBefore(DateTime.now().add(Duration(days: 31)))
             ? CountdownTimer(
                 endTime: visitante.vigencia.millisecondsSinceEpoch,
                 defaultDays: '0',
