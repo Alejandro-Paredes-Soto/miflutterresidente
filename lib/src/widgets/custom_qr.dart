@@ -1,8 +1,12 @@
+import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class CustomQr extends StatelessWidget {
+import 'countdown_timer.dart';
+
+class CustomQr extends StatefulWidget {
   final String code;
+  final DateTime date;
   final double sizeQRImage;
   final double height;
   final double width;
@@ -14,7 +18,14 @@ class CustomQr extends StatelessWidget {
     this.sizeQRImage = 100, 
     this.height = 200, 
     this.width = 200, 
-    this.fontSize = 28}) : super(key: key);
+    this.fontSize = 28, this.date = null}) : super(key: key);
+
+  @override
+  _CustomQrState createState() => _CustomQrState();
+}
+
+class _CustomQrState extends State<CustomQr> {
+  bool _tiempoVencido = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,24 +37,52 @@ class CustomQr extends StatelessWidget {
         children: <Widget>[
           Container(
             padding: EdgeInsets.all(10),
-            height: height,
-            width: width,
+            height: widget.height,
+            width: widget.width,
             child: QrImage(
-              data: code,
+              data: widget.code,
               version: QrVersions.auto,
-              size: sizeQRImage,
+              size: widget.sizeQRImage,
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: SelectableText(
-              code,
+              widget.code,
               style: TextStyle(
-                  fontSize: fontSize,
+                  fontSize: widget.fontSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.black),
             ),
           ),
+          Visibility(
+            visible: widget.date != null,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 5, bottom: 10),
+              child: !_tiempoVencido && widget.date != null ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Vence en:', style: utils.estiloBotones(15,
+                          color: utils.colorPrincipal)),
+                  CountdownTimer(
+                    mainAxisSize: MainAxisSize.min,
+                    showZeroNumbers: false,
+                    endTime: widget.date.millisecondsSinceEpoch,
+                    minSymbol: 'm',
+                    secSymbol: 's',
+                    textStyle: utils.estiloBotones(15,
+                        color: Colors.black),
+                    onEnd: () => setState(() => _tiempoVencido = true)
+                  ),
+                ],
+              ) : Text(
+                'Código vencido',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: utils.colorToastRechazada,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold))
+            ),)
         ],
       ),
     );

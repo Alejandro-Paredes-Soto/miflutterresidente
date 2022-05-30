@@ -240,7 +240,9 @@ void creaDialogQR(
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      Visibility(
+                        visible: btnPos,
+                        child: SizedBox(height: 20)),
                       Flexible(
                         child: RaisedButton(
                           color: colorPrincipal,

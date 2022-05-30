@@ -489,13 +489,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       rutaIcono: utils.rutaIconoCaseta,
                       titulo: 'Contacto\na caseta',
                       onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
-          Visibility(visible: _numeroCaseta != '' || _qrResidente, child: SizedBox(width: 20)),
+          Visibility(
+              visible: _numeroCaseta != '' || _qrResidente,
+              child: SizedBox(width: 20)),
           Expanded(
               child: _creaBtnIconoMini(
                   rutaIcono: utils.rutaIconoCerrarSesion,
                   titulo: 'Cerrar sesión',
                   onPressed: _cerrarSesion)),
-          Visibility(visible: _numeroCaseta == '' && !_qrResidente, child: SizedBox(width: 20)),
+          Visibility(
+              visible: _numeroCaseta == '' && !_qrResidente,
+              child: SizedBox(width: 20)),
           Visibility(
               visible: _numeroCaseta == '' && !_qrResidente,
               child: Expanded(child: Container())),
@@ -846,10 +850,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         await _residenteProvider.newCodigoResidente(_prefs.usuarioLogged);
     Navigator.pop(context);
     if (codeResponse['statusCode'] == 201) {
+      final fecha = DateTime.tryParse(codeResponse["vigencia"] ?? "");
       creaDialogQR(
           _scaffoldKey.currentContext,
           '',
-          CustomQr(code: codeResponse['codigo']),
+          Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: CustomQr(code: codeResponse['codigo'], date: fecha,)),
+            ],
+          ),
           '',
           'Cancelar',
           () => {},
