@@ -6,11 +6,8 @@ import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:image/image.dart' as imageTools;
 import 'package:flutter_svg/svg.dart';
-import 'package:path_provider/path_provider.dart' as pathProvider;
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_extend/share_extend.dart';
 
 import 'package:dostop_v2/src/widgets/countdown_timer.dart';
 import 'package:dostop_v2/src/models/visitante_freq_model.dart';
@@ -19,7 +16,6 @@ import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
-import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
@@ -121,10 +117,10 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   : utils.colorFondoPrincipalDark,
               utils.colorAcentuado,
               tabs,
-              () => _tabIndex,
+              () => _tipoServicio == '1' && _tabIndex == 2 ? 1 : _tabIndex,
               (index) {
                 setState(() {
-                  _tabIndex = index;
+                  _tabIndex = _tipoServicio == '1' && index == 1 ? 2 : index;
                 });
               },
               allowExpand: true,
@@ -580,9 +576,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   List<SpeedDialChild> _obtenerElementosFAB(String valor) {
     List<SpeedDialChild> elementos = [
       _elementoFAB(
-          titulo: 'Nuevo visitante QR',
-          icon: Icon(Icons.qr_code),
-          pageRoute: 'NuevoVisitFreq'),
+          titulo: 'Nuevo residente rostro',
+          icon: Icon(Icons.home),
+          pageRoute: 'NuevoVisitRostro',
+          tipoRostro: 1,
+          tipoAcceso: _tipoAcceso),
       _elementoFAB(
           titulo: 'Nuevo visitante rostro',
           icon: Icon(Icons.person_add),
@@ -590,20 +588,18 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           tipoRostro: 2,
           tipoAcceso: _tipoAcceso),
       _elementoFAB(
-          titulo: 'Nuevo residente rostro',
-          icon: Icon(Icons.home),
-          pageRoute: 'NuevoVisitRostro',
-          tipoRostro: 1,
-          tipoAcceso: _tipoAcceso),
+          titulo: 'Nuevo visitante QR',
+          icon: Icon(Icons.qr_code),
+          pageRoute: 'NuevoVisitFreq'),
     ];
     if (valor == '0') {
-      elementos.removeLast();
-      elementos.removeLast();
+      elementos.removeAt(0);
+      elementos.removeAt(0);
     }
     if (valor == '1') {
       elementos.removeAt(1);
     } else if (valor == '2') {
-      elementos.removeAt(2);
+      elementos.removeAt(0);
     }
     return valor == "" ? [] : elementos;
   }
