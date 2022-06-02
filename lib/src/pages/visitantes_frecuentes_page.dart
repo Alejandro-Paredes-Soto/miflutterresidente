@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/utils/popups.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,7 +14,6 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:image_picker/image_picker.dart' as picker;
-import 'package:image/image.dart' as imgTools;
 
 import 'package:dostop_v2/src/widgets/countdown_timer.dart';
 import 'package:dostop_v2/src/models/visitante_freq_model.dart';
@@ -42,8 +42,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   Map<String, dynamic> _tipoAcceso;
   Timer timer;
   bool _dialogAbierto = false;
-  bool _registrando = false;
-  bool _imagenLista = false;
+  bool _registrandoImg = false;
 
   @override
   void initState() {
@@ -69,7 +68,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     });
 
     timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      if (!_dialogAbierto && !_registrando && _tabIndex > 0) setState(() {});
+      if (!_dialogAbierto && !_registrandoImg && _tabIndex > 0) setState(() {});
     });
   }
 
@@ -646,7 +645,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
 
   Widget _creaBtnAgregaImagen(VisitanteFreqModel visitante) {
     return GestureDetector(
-      onTap: _registrando
+      onTap: _registrandoImg
           ? null
           : () {
               _mostrarOpcImagen(visitante);
@@ -670,52 +669,19 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   void _mostrarOpcImagen(VisitanteFreqModel visitante) {
-    showCupertinoModalPopup(
-        context: context,
-        builder: (_) => CupertinoActionSheet(
-              actions: [
-                CupertinoActionSheetAction(
-                    child: Text(
-                      'Tomar fotografía',
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          color: Theme.of(context).iconTheme.color),
-                      textScaleFactor: 1.0,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop('dialog');
-                      setState(() {
-                        _registrando = true;
-                      });
-                      obtenerImagen(picker.ImageSource.camera, visitante);
-                    }),
-                CupertinoActionSheetAction(
-                    child: Text(
-                      'Escoger de la galería',
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          color: Theme.of(context).iconTheme.color),
-                      textScaleFactor: 1.0,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop('dialog');
-                      setState(() {
-                        _registrando = true;
-                      });
-                      obtenerImagen(picker.ImageSource.gallery, visitante);
-                    }),
-              ],
-              cancelButton: CupertinoActionSheetAction(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Cancelar',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textScaleFactor: 1.0,
-                ),
-              ),
-            ));
+    showOptionPhoto(context, () {
+      Navigator.of(context).pop('dialog');
+      setState(() {
+        _registrandoImg = true;
+      });
+      obtenerImagen(picker.ImageSource.camera, visitante);
+    }, () {
+      Navigator.of(context).pop('dialog');
+      setState(() {
+        _registrandoImg = true;
+      });
+      obtenerImagen(picker.ImageSource.gallery, visitante);
+    });
   }
 
   void obtenerImagen(
@@ -728,7 +694,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       var imgFile = await picker.ImagePicker.pickImage(
           source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
       if (imgFile != null) {
-        var fixedImg = await fixExifRotation(imgFile.path);
+        var fixedImg = await utils.fixExifRotation(imgFile.path);
         var img = await decodeImageFromList(fixedImg.readAsBytesSync());
         if (img.height > img.width) {
           final respChange = await visitanteProvider.changeImage(
@@ -738,7 +704,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
               image: base64Encode(fixedImg.readAsBytesSync()));
 
           setState(() {
-            _registrando = false;
+            _registrandoImg = false;
             _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
                 respChange['status'] != 'OK'
                     ? Icon(Icons.error)
@@ -749,59 +715,39 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         } else {
           _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.error), 'La imagen no está en formato vertical', 2));
+          setState(() {
+            _registrandoImg = false;
+          });
         }
-        print(await imgFile.length());
+      } else {
+        setState(() {
+          _registrandoImg = false;
+        });
       }
     } on PlatformException catch (e) {
-      //buscamos el error. Si contiene el texto photo_access_deined de los permisos de android
-      // o directamente de la plataforma ios cambiamos el mensaje.
-      String mensajeError = '';
-      if (e.code.toString().contains('photo_access_denied'))
-        mensajeError = 'Otorga el permiso de almacenamiento por favor';
-      else if (e.code.toString().contains('camera_access_denied'))
-        mensajeError = 'Otorga el permiso de la cámara por favor';
-      else
-        mensajeError = e.message;
-
+      String mensajeError = utils.messageImagePlatformException(e);
       _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
           Icon(Icons.error),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
-
       setState(() {
-      _registrando = false;
-    });
+        _registrandoImg = false;
+      });
     } catch (e) {
-      String mensajeError = '';
-      if (e.toString().contains('permission_denied'))
-        mensajeError = 'Otorga los permisos correspondientes.';
-      else
-        mensajeError = e.toString();
+      String mensajeError = utils.messageErrorImage(e);
       _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
           Icon(Icons.error),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
 
       setState(() {
-      _registrando = false;
-    });
+        _registrandoImg = false;
+      });
     }
 
     timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      if (!_dialogAbierto && !_registrando && _tabIndex > 0) setState(() {});
+      if (!_dialogAbierto && !_registrandoImg && _tabIndex > 0) setState(() {});
     });
-
-  }
-
-  Future<File> fixExifRotation(String imagePath) async {
-    final originalFile = File(imagePath);
-    final imgTools.Image capturedImage =
-        imgTools.decodeImage(await originalFile.readAsBytes());
-    final imgTools.Image orientedImage =
-        imgTools.bakeOrientation(capturedImage);
-    await originalFile
-        .writeAsBytes(imgTools.encodeJpg(orientedImage, quality: 50));
-    return originalFile;
   }
 
   _navegaPaginaRespuesta(BuildContext context, String pageRoute, int tipoRostro,
