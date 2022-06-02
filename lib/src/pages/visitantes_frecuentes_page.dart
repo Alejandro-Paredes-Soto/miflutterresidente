@@ -1,13 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:image_picker/image_picker.dart' as picker;
+import 'package:image/image.dart' as imgTools;
 
 import 'package:dostop_v2/src/widgets/countdown_timer.dart';
 import 'package:dostop_v2/src/models/visitante_freq_model.dart';
@@ -36,6 +42,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   Map<String, dynamic> _tipoAcceso;
   Timer timer;
   bool _dialogAbierto = false;
+  bool _registrando = false;
+  bool _imagenLista = false;
 
   @override
   void initState() {
@@ -61,7 +69,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     });
 
     timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      if (!_dialogAbierto && _tabIndex > 0) setState(() {});
+      if (!_dialogAbierto && !_registrando && _tabIndex > 0) setState(() {});
     });
   }
 
@@ -224,8 +232,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                         : utils.estiloTituloTarjeta(
                             12,
                           )),
-                (visitante.vigencia != null && visitante.vigencia
-                        .isBefore(DateTime.now().add(Duration(days: 31))))
+                (visitante.vigencia != null &&
+                        visitante.vigencia
+                            .isBefore(DateTime.now().add(Duration(days: 31))))
                     ? CountdownTimer(
                         endTime: visitante.vigencia.millisecondsSinceEpoch,
                         defaultDays: '0',
@@ -264,9 +273,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                       alignment: Alignment.center,
                       child: Text(
                         (visitante.telefono != null &&
-                                visitante.codigo == null) ||
-                        (visitante.telefono.isNotEmpty &&
-                                visitante.codigo.isEmpty)
+                                    visitante.codigo == null) ||
+                                (visitante.telefono.isNotEmpty &&
+                                    visitante.codigo.isEmpty)
                             ? 'Invitación Parco'
                             : 'Ver código',
                         style: utils.estiloBotones(12),
@@ -274,8 +283,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                     ),
                     onPressed: () {
                       if ((visitante.telefono != null &&
-                                visitante.codigo == null) || (visitante.telefono.isNotEmpty &&
-                          visitante.codigo.isEmpty)) {
+                              visitante.codigo == null) ||
+                          (visitante.telefono.isNotEmpty &&
+                              visitante.codigo.isEmpty)) {
                         creaDialogInvite(
                             _scaffoldKey.currentContext,
                             'Invitación con Parco',
@@ -359,7 +369,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                     fontWeight: FontWeight.w500)
                 : utils.estiloTextoSombreado(12,
                     dobleSombra: false, fontWeight: FontWeight.w500)),
-        visitante.vigencia != null && visitante.vigencia.isBefore(DateTime.now().add(Duration(days: 31)))
+        visitante.vigencia != null &&
+                visitante.vigencia
+                    .isBefore(DateTime.now().add(Duration(days: 31)))
             ? CountdownTimer(
                 endTime: visitante.vigencia.millisecondsSinceEpoch,
                 defaultDays: '0',
@@ -398,16 +410,20 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           children: [
             Expanded(
               flex: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: CachedNetworkImage(
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        Image.asset(utils.rutaGifLoadRed),
-                    imageUrl: visitante.urlImg,
-                    errorWidget: (context, url, error) =>
-                        Icon(Icons.broken_image)),
-              ),
+              child: visitante.estatusDispositivo == '2'
+                  ? _creaBtnAgregaImagen(visitante)
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: visitante.urlImg.isEmpty
+                          ? Icon(Icons.broken_image)
+                          : CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  Image.asset(utils.rutaGifLoadRed),
+                              imageUrl: visitante.urlImg,
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.broken_image)),
+                    ),
             ),
             SizedBox(width: 10),
             Expanded(
@@ -438,20 +454,26 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
                   Row(
                     children: [
-                      visitante.estatusDispositivo == '1' &&
+                      (visitante.estatusDispositivo == '1' ||
+                                  visitante.estatusDispositivo == '2') &&
                               visitante.activo == '1'
-                          ? Icon(Icons.check_circle_outline,
-                              color: utils.colorContenedorSaldo)
+                          ? visitante.estatusDispositivo == '1'
+                              ? Icon(Icons.check_circle_outline,
+                                  color: utils.colorContenedorSaldo)
+                              : Icon(Icons.error_rounded,
+                                  color: utils.colorToastRechazada)
                           : Container(
                               height: 15,
                               width: 15,
                               child: CircularProgressIndicator()),
                       SizedBox(width: 5),
-                      Text(visitante.estatusDispositivo == '1'
+                      AutoSizeText(visitante.estatusDispositivo == '1'
                           ? visitante.activo == '0'
                               ? 'Eliminando...'
                               : 'Listo para usarse'
-                          : 'Registrando...'),
+                          : visitante.estatusDispositivo == '2'
+                              ? 'Imagen no admitida'
+                              : 'Registrando...'),
                     ],
                   ),
                   SizedBox(height: 10),
@@ -471,7 +493,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
               ),
             ),
             Visibility(
-              visible: visitante.estatusDispositivo == '1' &&
+              visible: (visitante.estatusDispositivo == '1' ||
+                      visitante.estatusDispositivo == '2') &&
                   visitante.activo == '1',
               child: Container(
                   alignment: Alignment.bottomCenter,
@@ -619,6 +642,166 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         onTap: () {
           _navegaPaginaRespuesta(context, pageRoute, tipoRostro, tipoAcceso);
         });
+  }
+
+  Widget _creaBtnAgregaImagen(VisitanteFreqModel visitante) {
+    return GestureDetector(
+      onTap: _registrando
+          ? null
+          : () {
+              _mostrarOpcImagen(visitante);
+            },
+      child: ElevatedContainer(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 200,
+            height: 250,
+            child: Center(
+              child: Icon(
+                Icons.add_a_photo,
+                size: 25.0,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _mostrarOpcImagen(VisitanteFreqModel visitante) {
+    showCupertinoModalPopup(
+        context: context,
+        builder: (_) => CupertinoActionSheet(
+              actions: [
+                CupertinoActionSheetAction(
+                    child: Text(
+                      'Tomar fotografía',
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          color: Theme.of(context).iconTheme.color),
+                      textScaleFactor: 1.0,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop('dialog');
+                      setState(() {
+                        _registrando = true;
+                      });
+                      obtenerImagen(picker.ImageSource.camera, visitante);
+                    }),
+                CupertinoActionSheetAction(
+                    child: Text(
+                      'Escoger de la galería',
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          color: Theme.of(context).iconTheme.color),
+                      textScaleFactor: 1.0,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop('dialog');
+                      setState(() {
+                        _registrando = true;
+                      });
+                      obtenerImagen(picker.ImageSource.gallery, visitante);
+                    }),
+              ],
+              cancelButton: CupertinoActionSheetAction(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textScaleFactor: 1.0,
+                ),
+              ),
+            ));
+  }
+
+  void obtenerImagen(
+      picker.ImageSource source, VisitanteFreqModel visitante) async {
+    try {
+      timer?.cancel();
+      if (Platform.isAndroid) {
+        if (!await utils.obtenerPermisosAndroid()) throw 'permission_denied';
+      }
+      var imgFile = await picker.ImagePicker.pickImage(
+          source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
+      if (imgFile != null) {
+        var fixedImg = await fixExifRotation(imgFile.path);
+        var img = await decodeImageFromList(fixedImg.readAsBytesSync());
+        if (img.height > img.width) {
+          final respChange = await visitanteProvider.changeImage(
+              idUsuario: _prefs.usuarioLogged,
+              idFrecuente: visitante.idFrecuente,
+              tipo: _tabIndex == 1 ? 'visitante' : 'colono',
+              image: base64Encode(fixedImg.readAsBytesSync()));
+
+          setState(() {
+            _registrando = false;
+            _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+                respChange['status'] != 'OK'
+                    ? Icon(Icons.error)
+                    : Icon(Icons.done_outline_rounded),
+                respChange['message'] ?? 'Ocurrio un error inesperado',
+                2));
+          });
+        } else {
+          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.error), 'La imagen no está en formato vertical', 2));
+        }
+        print(await imgFile.length());
+      }
+    } on PlatformException catch (e) {
+      //buscamos el error. Si contiene el texto photo_access_deined de los permisos de android
+      // o directamente de la plataforma ios cambiamos el mensaje.
+      String mensajeError = '';
+      if (e.code.toString().contains('photo_access_denied'))
+        mensajeError = 'Otorga el permiso de almacenamiento por favor';
+      else if (e.code.toString().contains('camera_access_denied'))
+        mensajeError = 'Otorga el permiso de la cámara por favor';
+      else
+        mensajeError = e.message;
+
+      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+          Icon(Icons.error),
+          'Ocurrió un error al procesar la imagen. $mensajeError',
+          2));
+
+      setState(() {
+      _registrando = false;
+    });
+    } catch (e) {
+      String mensajeError = '';
+      if (e.toString().contains('permission_denied'))
+        mensajeError = 'Otorga los permisos correspondientes.';
+      else
+        mensajeError = e.toString();
+      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+          Icon(Icons.error),
+          'Ocurrió un error al procesar la imagen. $mensajeError',
+          2));
+
+      setState(() {
+      _registrando = false;
+    });
+    }
+
+    timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+      if (!_dialogAbierto && !_registrando && _tabIndex > 0) setState(() {});
+    });
+
+  }
+
+  Future<File> fixExifRotation(String imagePath) async {
+    final originalFile = File(imagePath);
+    final imgTools.Image capturedImage =
+        imgTools.decodeImage(await originalFile.readAsBytes());
+    final imgTools.Image orientedImage =
+        imgTools.bakeOrientation(capturedImage);
+    await originalFile
+        .writeAsBytes(imgTools.encodeJpg(orientedImage, quality: 50));
+    return originalFile;
   }
 
   _navegaPaginaRespuesta(BuildContext context, String pageRoute, int tipoRostro,
