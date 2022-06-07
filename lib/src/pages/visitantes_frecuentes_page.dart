@@ -561,12 +561,12 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       switch (estatus['OK']) {
         case 1:
           setState(() {});
-          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.delete), 'Visitante eliminado', 5));
           break;
         case 2:
           _dialogAbierto = false;
-          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.error), 'No se pudo eliminar al visitante', 5));
           break;
       }
