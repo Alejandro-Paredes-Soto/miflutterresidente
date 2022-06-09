@@ -173,4 +173,40 @@ class VisitantesFreqProvider {
       return {'OK': 2};
     }
   }
+
+  Future<Map<String, dynamic>> changeImage(
+      {String idUsuario,
+      String idFrecuente,
+      String image,
+      String tipo}) async {
+    final visitanteData = {
+      'idColono': idUsuario,
+      'idFrecuente': idFrecuente,
+      'image': image,
+      'tipoFrecuente': tipo.toString(),
+    };
+    try {
+      final resp = await http.post('${constantes.urlApp}/changeFaceImage.php',
+          body: json.encode(visitanteData), headers: {'Content-Type': 'application/json'});
+
+      if (resp.statusCode == 404) {
+        return {
+          'status': 'NOT FOUND',
+          'statusCode': 400,
+          'message': 'Servicio no encontrado'
+        };
+      }
+
+      Map<String, dynamic> mapResp = json.decode(resp.body);
+      return mapResp;
+    } catch (e) {
+      print(
+          'Ocurrió un error en la llamada al Servicio de VISITANTES FRECUENTES - NUEVO VISITANTE:\n $e');
+      return {
+        'status': e.runtimeType.toString(),
+        'statusCode': 0,
+        'message': 'Ocurrio un error inesperado.'
+      };
+    }
+  }
 }

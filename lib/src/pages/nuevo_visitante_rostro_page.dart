@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/utils/popups.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -44,7 +45,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   String _tipoAccesoColono = '';
   String _tempTipoAccess;
   List<TipoVisitanteModel> tipoVisita = new List();
-  List<DropdownMenuItem<String>>  listTipo = new List();
+  List<DropdownMenuItem<String>> listTipo = new List();
 
   @override
   void initState() {
@@ -52,20 +53,18 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
     _configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 6)
         .then((resultado) {
-        if (!mounted) return;
-          for (Map<String, dynamic> tipo in resultado['valor']) {
-            final tempTipo = TipoVisitanteModel.fromJson(tipo);
-            listTipo.add(
-              DropdownMenuItem(
-                child: Text(tempTipo.tipo),
-                value: tempTipo.idTipoVisitante,
-              )
-            );
-            tipoVisita.add(tempTipo);
-          }
-          
-        setState(() {});
-        _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
+      if (!mounted) return;
+      for (Map<String, dynamic> tipo in resultado['valor']) {
+        final tempTipo = TipoVisitanteModel.fromJson(tipo);
+        listTipo.add(DropdownMenuItem(
+          child: Text(tempTipo.tipo),
+          value: tempTipo.idTipoVisitante,
+        ));
+        tipoVisita.add(tempTipo);
+      }
+
+      setState(() {});
+      _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
     });
   }
 
@@ -104,11 +103,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaCampoApellidoMat('Apellido materno', 'Ej. Herrera'),
               SizedBox(height: 10.0),
               Visibility(
-                visible: _tipoRostro != 1,
-                child: _crearListaTipoVisitante()),
+                  visible: _tipoRostro != 1, child: _crearListaTipoVisitante()),
               Visibility(
-                visible: _tipoRostro != 1,
-                child: SizedBox(height: 20.0)),
+                  visible: _tipoRostro != 1, child: SizedBox(height: 20.0)),
               _crearListaTipoAcceso(),
               _creaTextoErrorAcceso(),
               SizedBox(height: 10.0),
@@ -227,10 +224,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   Widget _crearListaTipoAcceso() {
-    if(_tipoRostro == 2){
-      _seleccionTipoAcceso = _tipoAccesoVisitante != '3' ? _tipoAccesoVisitante : _seleccionTipoAcceso;
-    }else{
-      _seleccionTipoAcceso = _tipoAccesoColono != '3' ? _tipoAccesoColono : _seleccionTipoAcceso;
+    if (_tipoRostro == 2) {
+      _seleccionTipoAcceso = _tipoAccesoVisitante != '3'
+          ? _tipoAccesoVisitante
+          : _seleccionTipoAcceso;
+    } else {
+      _seleccionTipoAcceso =
+          _tipoAccesoColono != '3' ? _tipoAccesoColono : _seleccionTipoAcceso;
     }
 
     return IgnorePointer(
@@ -239,11 +239,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         onPointerDown: (_) => FocusScope.of(context).unfocus(),
         child: DropdownButton(
           isExpanded: true,
-          value: _seleccionTipoAcceso ,
+          value: _seleccionTipoAcceso,
           hint: Text('Tipo de acceso'),
           underline: Container(
             height: 1,
-            color: _mostrarErrorAcceso ? utils.colorToastRechazada : Theme.of(context).disabledColor,
+            color: _mostrarErrorAcceso
+                ? utils.colorToastRechazada
+                : Theme.of(context).disabledColor,
           ),
           items: getOpcionesDropdown(),
           onChanged: (opc) {
@@ -272,7 +274,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         child: Row(
           children: <Widget>[
             Icon(Icons.directions_car_sharp),
-            SizedBox( width: 10),
+            SizedBox(width: 10),
             Text('Vehicular'),
           ],
         ),
@@ -283,11 +285,8 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(left: 3.0),
-              child: SvgPicture.asset(
-                utils.rutaIconTipoAcceso, 
-                height: 19.0,
-                color: Theme.of(context).iconTheme.color
-                ),
+              child: SvgPicture.asset(utils.rutaIconTipoAcceso,
+                  height: 19.0, color: Theme.of(context).iconTheme.color),
             ),
             SizedBox(width: 10),
             Text('Vehicular y peatonal'),
@@ -297,11 +296,11 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       )
     ];
 
-    if(_tipoRostro == 2)
+    if (_tipoRostro == 2)
       _tempTipoAccess = _tipoAccesoVisitante;
     else
       _tempTipoAccess = _tipoAccesoColono;
-    
+
     if (_tempTipoAccess == '1') {
       elementos.removeLast();
       elementos.removeLast();
@@ -351,46 +350,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   void _mostrarOpcImagen() {
-    showCupertinoModalPopup(
-        context: context,
-        builder: (_) => CupertinoActionSheet(
-              actions: [
-                CupertinoActionSheetAction(
-                    child: Text(
-                      'Tomar fotografía',
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          color: Theme.of(context).iconTheme.color),
-                      textScaleFactor: 1.0,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop('dialog');
-                      obtenerImagen(picker.ImageSource.camera);
-                    }),
-                CupertinoActionSheetAction(
-                    child: Text(
-                      'Escoger de la galería',
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          color: Theme.of(context).iconTheme.color),
-                      textScaleFactor: 1.0,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop('dialog');
-                      obtenerImagen(picker.ImageSource.gallery);
-                    }),
-              ],
-              cancelButton: CupertinoActionSheetAction(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Cancelar',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textScaleFactor: 1.0,
-                ),
-              ),
-            ));
+    showOptionPhoto(context, () {
+      Navigator.of(context).pop('dialog');
+      obtenerImagen(picker.ImageSource.camera);
+    }, () {
+      Navigator.of(context).pop('dialog');
+      obtenerImagen(picker.ImageSource.gallery);
+    });
   }
 
   void obtenerImagen(picker.ImageSource source) async {
@@ -401,7 +367,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       var imgFile = await picker.ImagePicker.pickImage(
           source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
       if (imgFile != null) {
-        var fixedImg = await fixExifRotation(imgFile.path);
+        var fixedImg = await utils.fixExifRotation(imgFile.path);
         var img = await decodeImageFromList(fixedImg.readAsBytesSync());
         if (img.height > img.width) {
           _imgRostro = fixedImg;
@@ -412,45 +378,21 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.error), 'La imagen no está en formato vertical', 2));
         }
-        print(await imgFile.length());
       }
     } on PlatformException catch (e) {
-      //buscamos el error. Si contiene el texto photo_access_deined de los permisos de android
-      // o directamente de la plataforma ios cambiamos el mensaje.
-      String mensajeError = '';
-      if (e.code.toString().contains('photo_access_denied'))
-        mensajeError = 'Otorga el permiso de almacenamiento por favor';
-      else if (e.code.toString().contains('camera_access_denied'))
-        mensajeError = 'Otorga el permiso de la cámara por favor';
-      else 
-        mensajeError = e.message;
-
+      String mensajeError = utils.messageImagePlatformException(e);
       _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
           Icon(Icons.error),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     } catch (e) {
-      String mensajeError = '';
-      if (e.toString().contains('permission_denied'))
-        mensajeError = 'Otorga los permisos correspondientes.';
-      else
-        mensajeError = e.toString();
+      String mensajeError = utils.messageErrorImage(e);
+      
       _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
           Icon(Icons.error),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     }
-  }
-
-  Future<File> fixExifRotation(String imagePath) async {
-    final originalFile = File(imagePath);
-    final imgTools.Image capturedImage =
-        imgTools.decodeImage(await originalFile.readAsBytes());
-    final imgTools.Image orientedImage =
-        imgTools.bakeOrientation(capturedImage);
-    await originalFile
-        .writeAsBytes(imgTools.encodeJpg(orientedImage, quality: 50));
-    return originalFile;
   }
 
   Widget _creaTextoErrorImg() {
@@ -515,39 +457,39 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   _submitForm() {
-    if (_formKey.currentState.validate() && _seleccionTipoAcceso != null
-        && _imgRostro != null) {
-        _formKey.currentState.save();
-        _mostrarErrorImg = false;
-        _mostrarErrorAcceso = false;
-        _registrando = true;
-        _registrarAcceso();
-    }else{
-      if(_seleccionTipoAcceso == null)
+    if (_formKey.currentState.validate() &&
+        _seleccionTipoAcceso != null &&
+        _imgRostro != null) {
+      _formKey.currentState.save();
+      _mostrarErrorImg = false;
+      _mostrarErrorAcceso = false;
+      _registrando = true;
+      _registrarAcceso();
+    } else {
+      if (_seleccionTipoAcceso == null)
         _mostrarErrorAcceso = true;
-      else 
+      else
         _mostrarErrorAcceso = false;
 
-      if(_imgRostro == null)
+      if (_imgRostro == null)
         _mostrarErrorImg = true;
       else
         _mostrarErrorImg = false;
     }
-    
+
     setState(() {});
   }
 
   void _registrarAcceso() async {
     Map estatus = await _visitantesFreqProvider.nuevoAccesoRostro(
-      idUsuario: _prefs.usuarioLogged,
-      nombre: _txtNombreCtrl.text,
-      apPaterno: _txtApPatCtrl.text,
-      apMaterno: _txtApMatCtrl.text,
-      tipoAcceso: _seleccionTipoAcceso,
-      imgRostroB64: base64Encode(_imgRostro.readAsBytesSync()),
-      tipo: _tipoRostro,
-      tipoVisitante: _tipoRostro != 1 ? _seleccionTipoVisitante : ""
-    );
+        idUsuario: _prefs.usuarioLogged,
+        nombre: _txtNombreCtrl.text,
+        apPaterno: _txtApPatCtrl.text,
+        apMaterno: _txtApMatCtrl.text,
+        tipoAcceso: _seleccionTipoAcceso,
+        imgRostroB64: base64Encode(_imgRostro.readAsBytesSync()),
+        tipo: _tipoRostro,
+        tipoVisitante: _tipoRostro != 1 ? _seleccionTipoVisitante : "");
     switch (estatus['OK']) {
       case 1:
         //
