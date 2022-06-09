@@ -174,6 +174,7 @@ class _MyAppState extends State<MyApp> {
               textSelectionColor: Colors.grey,
               textSelectionHandleColor: Colors.grey,
               cardColor: utils.colorFondoTarjetaDark,
+              dialogBackgroundColor: utils.colorFondoTarjetaDark,
               buttonTheme: ButtonThemeData(
                   buttonColor: utils.colorPrincipal,
                   disabledColor: utils.colorSecundario),

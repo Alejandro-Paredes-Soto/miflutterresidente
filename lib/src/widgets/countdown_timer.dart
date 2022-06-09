@@ -23,6 +23,7 @@ class CountdownTimer extends StatefulWidget {
   final TextStyle secSymbolTextStyle;
   final bool showZeroNumbers;
   final void Function() onEnd;
+  final MainAxisSize mainAxisSize;
 
   CountdownTimer(
       {this.endTime,
@@ -44,7 +45,8 @@ class CountdownTimer extends StatefulWidget {
       this.minSymbolTextStyle,
       this.secSymbolTextStyle,
       this.onEnd,
-      this.showZeroNumbers = true});
+      this.showZeroNumbers = true, 
+      this.mainAxisSize = MainAxisSize.max});
 
   @override
   _CountDownState createState() => _CountDownState();
@@ -141,6 +143,7 @@ class _CountDownState extends State<CountdownTimer> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: widget.mainAxisSize,
       children: _items(),
     );
   }

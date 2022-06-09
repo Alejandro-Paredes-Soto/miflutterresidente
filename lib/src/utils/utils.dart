@@ -6,9 +6,14 @@ import 'dart:ui' as ui;
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image/image.dart' as imageTools;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permissions_plugin/permissions_plugin.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_extend/share_extend.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
@@ -63,8 +68,8 @@ LinearGradient colorGradienteSecundario = LinearGradient(
 double tamanoIcoNavBar = 28;
 double tamanoIcoModal = 20;
 double tamanoIcoSnackbar = 18;
-String rutaLogoParcoDark='assets/LogoParcoDark.png';
-String rutaLogoParcoLight='assets/LogoParcoLight.png';
+String rutaLogoParcoDark = 'assets/LogoParcoDark.png';
+String rutaLogoParcoLight = 'assets/LogoParcoLight.png';
 String rutaLogoDostopDPng = 'assets/LogoDostopD.png';
 String rutaLogoLetrasDostopPng = 'assets/LogoLetrasDostop.png';
 String rutaLogoLetrasDostopParco = 'assets/LogoLetrasDostopParco.png';
@@ -88,6 +93,7 @@ String rutaFondoLogin = 'assets/fondo-login-main.jpg';
 String rutaFondoQR = 'assets/FondoQR.png';
 String rutaIconoAccesos = 'assets/IconoAccesos.svg';
 String rutaIconTipoAcceso = 'assets/accessType.svg';
+String rutaIconQR = 'assets/IconoQR.svg';
 
 AppBar appBarLogo(
     {@required String titulo, BackButton backbtn = const BackButton()}) {
@@ -123,7 +129,8 @@ Text dostopLogo() {
   );
 }
 
-TextStyle estiloFechaAviso(double fontSize, {Color color = const Color.fromRGBO(146, 152, 160, 1.0)}) {
+TextStyle estiloFechaAviso(double fontSize,
+    {Color color = const Color.fromRGBO(146, 152, 160, 1.0)}) {
   return TextStyle(
       fontSize: fontSize, fontWeight: FontWeight.w500, color: color);
 }
@@ -174,12 +181,11 @@ TextStyle estiloTextoSombreado(double fontSize,
 
 TextStyle estiloTituloInfoVisita(double fontSize) {
   return TextStyle(
-      color: colorAcentuado, fontSize: fontSize, fontWeight: FontWeight.w900,
+      color: colorAcentuado,
+      fontSize: fontSize,
+      fontWeight: FontWeight.w900,
       shadows: [
-        Shadow(
-            color: Colors.black,
-            blurRadius: 5,
-            offset: Offset(0, 0)),
+        Shadow(color: Colors.black, blurRadius: 5, offset: Offset(0, 0)),
       ]);
 }
 
@@ -392,7 +398,7 @@ String fechaCompletaFuturo(DateTime tm, {String articuloDef = ''}) {
 
 List<String> validaImagenes(List<String> imagenes) {
   List<String> list = [];
-  
+
   list.addAll(imagenes);
   imagenes.forEach((item) {
     if (item == '' || item == null) list.remove(item);
@@ -400,31 +406,32 @@ List<String> validaImagenes(List<String> imagenes) {
   return list;
 }
 
-Future<List<Map<String, dynamic>>> validaImagenesOrientacion(List<String> imagenes) async {
+Future<List<Map<String, dynamic>>> validaImagenesOrientacion(
+    List<String> imagenes) async {
   List<Map<String, dynamic>> list = [];
 
   for (var i = 0; i < imagenes.length; i++) {
-    if(imagenes[i] != '' && imagenes[i] != null){
+    if (imagenes[i] != '' && imagenes[i] != null) {
       ui.Image img = await getImage(imagenes[i]);
       list.add({'img': imagenes[i], 'isVertical': img.height > img.width});
     }
   }
- 
+
   return list;
 }
 
 Future<ui.Image> getImage(String path) async {
-    var completer = Completer<ImageInfo>();
-    var img = new NetworkImage(path);
-    img
-        .resolve(const ImageConfiguration())
-        .addListener(ImageStreamListener((info, _) {
-      completer.complete(info);
-    }));
-    ImageInfo imageInfo = await completer.future;
-   
-    return imageInfo.image;
-  }
+  var completer = Completer<ImageInfo>();
+  var img = new NetworkImage(path);
+  img
+      .resolve(const ImageConfiguration())
+      .addListener(ImageStreamListener((info, _) {
+    completer.complete(info);
+  }));
+  ImageInfo imageInfo = await completer.future;
+
+  return imageInfo.image;
+}
 
 void descargaImagen(BuildContext context, String url) async {
   Scaffold.of(context).showSnackBar(
@@ -437,8 +444,8 @@ void descargaImagen(BuildContext context, String url) async {
     var res = await http.get(url);
     await ImageGallerySaver.saveImage(Uint8List.fromList(res.bodyBytes));
     // print(result);
-    Scaffold.of(context).showSnackBar(creaSnackBarIcon(
-        Icon(Icons.file_download), 'Imagen guardada', 2));
+    Scaffold.of(context).showSnackBar(
+        creaSnackBarIcon(Icon(Icons.file_download), 'Imagen guardada', 2));
   } catch (e) {
     Scaffold.of(context).showSnackBar(creaSnackBarIcon(
         Icon(Icons.error), 'La imagen no pudo ser guardada', 2));
@@ -471,20 +478,17 @@ Future<bool> obtenerPermisosAndroid() async {
 
 Future<bool> obtenerPermisosAndroidMic() async {
   Map<Permission, PermissionState> permission =
-      await PermissionsPlugin.checkPermissions(
-          [Permission.RECORD_AUDIO]);
+      await PermissionsPlugin.checkPermissions([Permission.RECORD_AUDIO]);
 
-  if (permission[Permission.RECORD_AUDIO] !=
-      PermissionState.GRANTED) {
+  if (permission[Permission.RECORD_AUDIO] != PermissionState.GRANTED) {
     try {
-      permission = await PermissionsPlugin.requestPermissions(
-          [Permission.RECORD_AUDIO]);
+      permission =
+          await PermissionsPlugin.requestPermissions([Permission.RECORD_AUDIO]);
     } on Exception {
       return false;
     }
 
-    if (permission[Permission.RECORD_AUDIO] ==
-        PermissionState.GRANTED)
+    if (permission[Permission.RECORD_AUDIO] == PermissionState.GRANTED)
       return true;
     else
       return false;
@@ -502,4 +506,77 @@ String obtenerIDPlataforma(BuildContext context) {
     default:
       return '1';
   }
+}
+
+void compartir(String codigo) async {
+  try {
+    Directory dir = await getTemporaryDirectory();
+    File imagenQR = new File("${dir.path}/${codigo}QR.png");
+    if (await imagenQR.exists()) {
+      imagenQR.delete();
+    }
+    await imagenQR.create(recursive: true);
+    imagenQR.writeAsBytes(await toQrImageData(codigo));
+    ShareExtend.share(imagenQR.path, Platform.isAndroid ? 'image' : 'file');
+  } catch (e) {
+    print('Ocurrió un error al compartir:\n $e');
+  }
+}
+
+Future<List<int>> toQrImageData(String codigo) async {
+  final imageqr = await QrPainter(
+          data: codigo,
+          version: QrVersions.auto,
+          color: Colors.black,
+          emptyColor: Colors.white,
+          gapless: true)
+      .toImageData(350);
+
+  imageTools.Image image = imageTools.Image(450, 530);
+  imageTools.fill(image, imageTools.getColor(255, 255, 255));
+  imageTools.drawImage(
+      image, imageTools.decodePng(imageqr.buffer.asUint8List()),
+      dstX: 50, dstY: 40);
+  imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
+      color: imageTools.getColor(0, 0, 0));
+  imageTools.drawString(
+      image, imageTools.arial_24, 60, 450, 'Presenta este QR en la entrada',
+      color: imageTools.getColor(0, 0, 0));
+  imageTools.drawString(
+      image, imageTools.arial_24, 15, 470, '                    para acceder',
+      color: imageTools.getColor(0, 0, 0));
+  imageTools.drawString(
+      image, imageTools.arial_24, 100, 500, '     www.dostop.mx',
+      color: imageTools.getColor(0, 0, 0));
+
+  return imageTools.encodeJpg(image);
+}
+
+String messageImagePlatformException(PlatformException e) {
+  String message = '';
+  if (e.code.toString().contains('photo_access_denied'))
+    message = 'Otorga el permiso de almacenamiento por favor';
+  else if (e.code.toString().contains('camera_access_denied'))
+    message = 'Otorga el permiso de la cámara por favor';
+  else
+    message = e.message;
+  return message;
+}
+
+String messageErrorImage(Exception e) {
+  if (e.toString().contains('permission_denied'))
+    return 'Otorga los permisos correspondientes.';
+  else
+    return e.toString();
+}
+
+Future<File> fixExifRotation(String imagePath) async {
+  final originalFile = File(imagePath);
+  final imageTools.Image capturedImage =
+      imageTools.decodeImage(await originalFile.readAsBytes());
+  final imageTools.Image orientedImage =
+      imageTools.bakeOrientation(capturedImage);
+  await originalFile
+      .writeAsBytes(imageTools.encodeJpg(orientedImage, quality: 50));
+  return originalFile;
 }

@@ -1,16 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/utils/popups.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:image/image.dart' as imageTools;
 import 'package:flutter_svg/svg.dart';
-import 'package:path_provider/path_provider.dart' as pathProvider;
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_extend/share_extend.dart';
+import 'package:image_picker/image_picker.dart' as picker;
 
 import 'package:dostop_v2/src/widgets/countdown_timer.dart';
 import 'package:dostop_v2/src/models/visitante_freq_model.dart';
@@ -19,7 +22,6 @@ import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
-import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
@@ -40,6 +42,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   Map<String, dynamic> _tipoAcceso;
   Timer timer;
   bool _dialogAbierto = false;
+  bool _registrandoImg = false;
 
   @override
   void initState() {
@@ -65,7 +68,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     });
 
     timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      if (!_dialogAbierto && _tabIndex > 0) setState(() {});
+      if (!_dialogAbierto && !_registrandoImg && _tabIndex > 0) setState(() {});
     });
   }
 
@@ -121,10 +124,10 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   : utils.colorFondoPrincipalDark,
               utils.colorAcentuado,
               tabs,
-              () => _tabIndex,
+              () => _tipoServicio == '1' && _tabIndex == 2 ? 1 : _tabIndex,
               (index) {
                 setState(() {
-                  _tabIndex = index;
+                  _tabIndex = _tipoServicio == '1' && index == 1 ? 2 : index;
                 });
               },
               allowExpand: true,
@@ -215,7 +218,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 Visibility(
                   visible: visitante.tipoVisitante != '',
                   child: Text(
-                    visitante.tipoVisitante ,
+                    visitante.tipoVisitante,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -228,8 +231,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                         : utils.estiloTituloTarjeta(
                             12,
                           )),
-                visitante.vigencia
-                        .isBefore(DateTime.now().add(Duration(days: 31)))
+                (visitante.vigencia != null &&
+                        visitante.vigencia
+                            .isBefore(DateTime.now().add(Duration(days: 31))))
                     ? CountdownTimer(
                         endTime: visitante.vigencia.millisecondsSinceEpoch,
                         defaultDays: '0',
@@ -267,20 +271,39 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                       height: 50,
                       alignment: Alignment.center,
                       child: Text(
-                        'Ver código',
+                        (visitante.telefono != null &&
+                                    visitante.codigo == null) ||
+                                (visitante.telefono.isNotEmpty &&
+                                    visitante.codigo.isEmpty)
+                            ? 'Invitación Parco'
+                            : 'Ver código',
                         style: utils.estiloBotones(12),
                       ),
                     ),
                     onPressed: () {
-                      creaDialogQR(
-                          _scaffoldKey.currentContext,
-                          '',
-                          _creaQR(visitante.codigo),
-                          'Compartir',
-                          'Cancelar',
-                          () => _compartir(visitante.codigo),
-                          () => Navigator.of(_scaffoldKey.currentContext)
-                              .pop('dialog'));
+                      if ((visitante.telefono != null &&
+                              visitante.codigo == null) ||
+                          (visitante.telefono.isNotEmpty &&
+                              visitante.codigo.isEmpty)) {
+                        creaDialogInvite(
+                            _scaffoldKey.currentContext,
+                            'Invitación con Parco',
+                            _crearDatosInvite(visitante),
+                            'Cancelar',
+                            () => {},
+                            () => Navigator.of(_scaffoldKey.currentContext)
+                                .pop('dialog'));
+                      } else {
+                        creaDialogQR(
+                            _scaffoldKey.currentContext,
+                            '',
+                            _creaQR(visitante.codigo),
+                            'Compartir',
+                            'Cancelar',
+                            () => utils.compartir(visitante.codigo),
+                            () => Navigator.of(_scaffoldKey.currentContext)
+                                .pop('dialog'));
+                      }
                     },
                   ),
                   SizedBox(height: 15),
@@ -314,6 +337,68 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     );
   }
 
+  Widget _crearDatosInvite(VisitanteFreqModel visitante) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10),
+        Text('Nombre',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.nombre,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        const SizedBox(height: 10),
+        Text('Teléfono',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.telefono,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        const SizedBox(height: 10),
+        Text('Tipo visitante',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.tipoVisitante,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        const SizedBox(height: 10),
+        Text(visitante.unico ? 'QR de única ocasión:' : 'Vence en:',
+            style: visitante.unico
+                ? TextStyle(
+                    color: utils.colorAcentuado,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500)
+                : utils.estiloTextoSombreado(12,
+                    dobleSombra: false, fontWeight: FontWeight.w500)),
+        visitante.vigencia != null &&
+                visitante.vigencia
+                    .isBefore(DateTime.now().add(Duration(days: 31)))
+            ? CountdownTimer(
+                endTime: visitante.vigencia.millisecondsSinceEpoch,
+                defaultDays: '0',
+                defaultHours: '00',
+                defaultMin: '00',
+                defaultSec: '00',
+                daysSymbol: " dias ",
+                hoursSymbol: "h ",
+                minSymbol: "m ",
+                secSymbol: "s",
+                textStyle: utils.estiloTextoSombreado(15, dobleSombra: false),
+                onEnd: () =>
+                    Future.delayed(Duration(seconds: 2), () => setState(() {})),
+              )
+            : Text(
+                'Tiempo Indefinido',
+                style: utils.estiloTextoSombreado(15, dobleSombra: false),
+              ),
+        const SizedBox(height: 10),
+        Text(
+            'Recuerda que el código es dinámico'
+            ' y podrá ser consultado desde la cuenta asociada al teléfono en la app Parco.',
+            style: utils.estiloTextoSombreado(12,
+                fontWeight: FontWeight.normal, dobleSombra: false)),
+      ],
+    );
+  }
+
   Widget _crearItemRostro(BuildContext context, VisitanteFreqModel visitante) {
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
@@ -324,16 +409,20 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           children: [
             Expanded(
               flex: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: CachedNetworkImage(
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        Image.asset(utils.rutaGifLoadRed),
-                    imageUrl: visitante.urlImg,
-                    errorWidget: (context, url, error) =>
-                        Icon(Icons.broken_image)),
-              ),
+              child: visitante.estatusDispositivo == '2'
+                  ? _creaBtnAgregaImagen(visitante)
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: visitante.urlImg.isEmpty
+                          ? Icon(Icons.broken_image)
+                          : CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  Image.asset(utils.rutaGifLoadRed),
+                              imageUrl: visitante.urlImg,
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.broken_image)),
+                    ),
             ),
             SizedBox(width: 10),
             Expanded(
@@ -350,9 +439,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                       child: SizedBox(height: 5)),
                   Visibility(
                     visible: visitante.tipoVisitante != '',
-                    child: Text(
-                      visitante.tipoVisitante
-                    ),
+                    child: Text(visitante.tipoVisitante),
                   ),
                   SizedBox(height: 5),
                   Text(
@@ -366,20 +453,26 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
                   Row(
                     children: [
-                      visitante.estatusDispositivo == '1' &&
+                      (visitante.estatusDispositivo == '1' ||
+                                  visitante.estatusDispositivo == '2') &&
                               visitante.activo == '1'
-                          ? Icon(Icons.check_circle_outline,
-                              color: utils.colorContenedorSaldo)
+                          ? visitante.estatusDispositivo == '1'
+                              ? Icon(Icons.check_circle_outline,
+                                  color: utils.colorContenedorSaldo)
+                              : Icon(Icons.error_rounded,
+                                  color: utils.colorToastRechazada)
                           : Container(
                               height: 15,
                               width: 15,
                               child: CircularProgressIndicator()),
                       SizedBox(width: 5),
-                      Text(visitante.estatusDispositivo == '1'
+                      AutoSizeText(visitante.estatusDispositivo == '1'
                           ? visitante.activo == '0'
                               ? 'Eliminando...'
                               : 'Listo para usarse'
-                          : 'Registrando...'),
+                          : visitante.estatusDispositivo == '2'
+                              ? 'Imagen no admitida'
+                              : 'Registrando...'),
                     ],
                   ),
                   SizedBox(height: 10),
@@ -399,7 +492,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
               ),
             ),
             Visibility(
-              visible: visitante.estatusDispositivo == '1' &&
+              visible: (visitante.estatusDispositivo == '1' ||
+                      visitante.estatusDispositivo == '2') &&
                   visitante.activo == '1',
               child: Container(
                   alignment: Alignment.bottomCenter,
@@ -446,50 +540,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     );
   }
 
-  _compartir(String codigo) async {
-    try {
-      Directory dir = await pathProvider.getTemporaryDirectory();
-      File imagenQR = new File("${dir.path}/${codigo}QR.png");
-      if (await imagenQR.exists()) {
-        imagenQR.delete();
-      }
-      await imagenQR.create(recursive: true);
-      imagenQR.writeAsBytes(await toQrImageData(codigo));
-      ShareExtend.share(imagenQR.path, Platform.isAndroid ? 'image' : 'file');
-    } catch (e) {
-      print('Ocurrió un error al compartir:\n $e');
-    }
-  }
-
-  Future<List<int>> toQrImageData(String codigo) async {
-    final imageqr = await QrPainter(
-            data: codigo,
-            version: QrVersions.auto,
-            color: Colors.black,
-            emptyColor: Colors.white,
-            gapless: true)
-        .toImageData(350);
-
-    imageTools.Image image = imageTools.Image(450, 530);
-    imageTools.fill(image, imageTools.getColor(255, 255, 255));
-    imageTools.drawImage(
-        image, imageTools.decodePng(imageqr.buffer.asUint8List()),
-        dstX: 50, dstY: 40);
-    imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 60, 450, 'Presenta este QR en la entrada',
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 15, 470, '                    para acceder',
-        color: imageTools.getColor(0, 0, 0));
-    imageTools.drawString(
-        image, imageTools.arial_24, 100, 500, '     www.dostop.mx',
-        color: imageTools.getColor(0, 0, 0));
-
-    return imageTools.encodeJpg(image);
-  }
-
   void _eliminaVisitanteFreq(
       BuildContext context, VisitanteFreqModel visitante) {
     _dialogAbierto = true;
@@ -500,17 +550,23 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         'Eliminar',
         'Cancelar', () async {
       Navigator.pop(context);
-      Map estatus = await visitanteProvider.eliminaVisitanteFrecuente(
-          visitante.idFrecuente, _prefs.usuarioLogged, _tabIndex + 1);
+      Map estatus;
+      if (_tabIndex == 0) {
+        estatus = await visitanteProvider.archivarQR(visitante.idFrecuente);
+      } else {
+        estatus = await visitanteProvider.eliminaVisitanteFrecuente(
+            visitante.idFrecuente, _prefs.usuarioLogged, _tabIndex + 1);
+      }
+
       switch (estatus['OK']) {
         case 1:
           setState(() {});
-          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.delete), 'Visitante eliminado', 5));
           break;
         case 2:
           _dialogAbierto = false;
-          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.error), 'No se pudo eliminar al visitante', 5));
           break;
       }
@@ -542,9 +598,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   List<SpeedDialChild> _obtenerElementosFAB(String valor) {
     List<SpeedDialChild> elementos = [
       _elementoFAB(
-          titulo: 'Nuevo visitante QR',
-          icon: Icon(Icons.qr_code),
-          pageRoute: 'NuevoVisitFreq'),
+          titulo: 'Nuevo residente rostro',
+          icon: Icon(Icons.home),
+          pageRoute: 'NuevoVisitRostro',
+          tipoRostro: 1,
+          tipoAcceso: _tipoAcceso),
       _elementoFAB(
           titulo: 'Nuevo visitante rostro',
           icon: Icon(Icons.person_add),
@@ -552,20 +610,18 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           tipoRostro: 2,
           tipoAcceso: _tipoAcceso),
       _elementoFAB(
-          titulo: 'Nuevo residente rostro',
-          icon: Icon(Icons.home),
-          pageRoute: 'NuevoVisitRostro',
-          tipoRostro: 1,
-          tipoAcceso: _tipoAcceso),
+          titulo: 'Nuevo visitante QR',
+          icon: Icon(Icons.qr_code),
+          pageRoute: 'NuevoVisitFreq'),
     ];
     if (valor == '0') {
-      elementos.removeLast();
-      elementos.removeLast();
+      elementos.removeAt(0);
+      elementos.removeAt(0);
     }
     if (valor == '1') {
       elementos.removeAt(1);
     } else if (valor == '2') {
-      elementos.removeAt(2);
+      elementos.removeAt(0);
     }
     return valor == "" ? [] : elementos;
   }
@@ -585,6 +641,113 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         onTap: () {
           _navegaPaginaRespuesta(context, pageRoute, tipoRostro, tipoAcceso);
         });
+  }
+
+  Widget _creaBtnAgregaImagen(VisitanteFreqModel visitante) {
+    return GestureDetector(
+      onTap: _registrandoImg
+          ? null
+          : () {
+              _mostrarOpcImagen(visitante);
+            },
+      child: ElevatedContainer(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 200,
+            height: 250,
+            child: Center(
+              child: Icon(
+                Icons.add_a_photo,
+                size: 25.0,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _mostrarOpcImagen(VisitanteFreqModel visitante) {
+    showOptionPhoto(context, () {
+      Navigator.of(context).pop('dialog');
+      setState(() {
+        _registrandoImg = true;
+      });
+      obtenerImagen(picker.ImageSource.camera, visitante);
+    }, () {
+      Navigator.of(context).pop('dialog');
+      setState(() {
+        _registrandoImg = true;
+      });
+      obtenerImagen(picker.ImageSource.gallery, visitante);
+    });
+  }
+
+  void obtenerImagen(
+      picker.ImageSource source, VisitanteFreqModel visitante) async {
+    try {
+      timer?.cancel();
+      if (Platform.isAndroid) {
+        if (!await utils.obtenerPermisosAndroid()) throw 'permission_denied';
+      }
+      var imgFile = await picker.ImagePicker.pickImage(
+          source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
+      if (imgFile != null) {
+        var fixedImg = await utils.fixExifRotation(imgFile.path);
+        var img = await decodeImageFromList(fixedImg.readAsBytesSync());
+        if (img.height > img.width) {
+          final respChange = await visitanteProvider.changeImage(
+              idUsuario: _prefs.usuarioLogged,
+              idFrecuente: visitante.idFrecuente,
+              tipo: _tabIndex == 1 ? 'visitante' : 'colono',
+              image: base64Encode(fixedImg.readAsBytesSync()));
+
+          setState(() {
+            _registrandoImg = false;
+            _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+                respChange['status'] != 'OK'
+                    ? Icon(Icons.error)
+                    : Icon(Icons.done_outline_rounded),
+                respChange['message'] ?? 'Ocurrio un error inesperado',
+                2));
+          });
+        } else {
+          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.error), 'La imagen no está en formato vertical', 2));
+          setState(() {
+            _registrandoImg = false;
+          });
+        }
+      } else {
+        setState(() {
+          _registrandoImg = false;
+        });
+      }
+    } on PlatformException catch (e) {
+      String mensajeError = utils.messageImagePlatformException(e);
+      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+          Icon(Icons.error),
+          'Ocurrió un error al procesar la imagen. $mensajeError',
+          2));
+      setState(() {
+        _registrandoImg = false;
+      });
+    } catch (e) {
+      String mensajeError = utils.messageErrorImage(e);
+      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+          Icon(Icons.error),
+          'Ocurrió un error al procesar la imagen. $mensajeError',
+          2));
+
+      setState(() {
+        _registrandoImg = false;
+      });
+    }
+
+    timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+      if (!_dialogAbierto && !_registrandoImg && _tabIndex > 0) setState(() {});
+    });
   }
 
   _navegaPaginaRespuesta(BuildContext context, String pageRoute, int tipoRostro,
