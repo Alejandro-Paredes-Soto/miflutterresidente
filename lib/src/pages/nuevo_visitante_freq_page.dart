@@ -254,7 +254,7 @@ class _NuevoVisitanteFrecuentePageState
       maxLength: maxLength,
       enabled: !_registrando,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZáéíóúÁÉÍÓÚñÑ -]+'))
       ],
       textInputAction: TextInputAction.next,
       onEditingComplete: FocusScope.of(context).unfocus,
