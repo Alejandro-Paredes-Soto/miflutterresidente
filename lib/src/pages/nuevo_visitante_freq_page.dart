@@ -482,6 +482,15 @@ class _NuevoVisitanteFrecuentePageState
             _visitanteRegistrado = true;
             _codigo = estatus['codigo'] ?? '00000000';
           });
+        }else if(estatus.containsKey('info_extra')){
+          creaDialogSimple(
+            context,
+            estatus['info_extra'],
+            '',
+            'Aceptar', () {
+          Navigator.pop(context);
+          Navigator.pop(context, false);
+        });
         }else{
           Navigator.pop(context, true);
         }
