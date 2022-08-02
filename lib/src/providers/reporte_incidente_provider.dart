@@ -8,9 +8,9 @@ import 'package:http/http.dart' as http;
 
 class ReportesProvider {
     Future<Map<String, dynamic>> enviaReporteIncidente(
-      {String idUsuario,
-      String reporte,
-      String idVisita,
+      {required String idUsuario,
+      required String reporte,
+      required String idVisita,
       }) async {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
     final reporteData = {
@@ -20,7 +20,7 @@ class ReportesProvider {
     };
     try {
       final resp =
-          await http.post('${constantes.urlApp}/reportar_visita.php', body: reporteData);
+          await http.post(Uri.parse('${constantes.urlApp}/reportar_visita.php'), body: reporteData);
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((k, v) => mapResp[k] = v);
       // print(decodeResp);
@@ -37,8 +37,8 @@ class ReportesProvider {
   }
 
    Future<Map<String, dynamic>> obtenerReporte({
-    String idUsuario,
-    String idVisita,
+    required String idUsuario,
+    required String idVisita,
   }) async {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
     final reporteData = {
@@ -47,8 +47,8 @@ class ReportesProvider {
     };
     try {
       final resp =
-          await http.post('${constantes.urlApp}/obtener_reporte.php', body: reporteData);
-      Map decodeResp = json.decode(resp.body);
+          await http.post(Uri.parse('${constantes.urlApp}/obtener_reporte.php'), body: reporteData);
+      Map<String, dynamic> decodeResp = json.decode(resp.body);
       if (decodeResp['estatus'].toString().contains('1')) {
         return {'OK': 1, 'datos': ReporteModel.fromJson(decodeResp)};
       } else {

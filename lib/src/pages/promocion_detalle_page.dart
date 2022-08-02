@@ -10,7 +10,7 @@ class PromocionDetallePage extends StatelessWidget {
   Widget build(BuildContext context) {
     _validaSesion.verificaSesion();
     final query = MediaQuery.of(context).size;
-    final promo = ModalRoute.of(context).settings.arguments;
+    final promo = ModalRoute.of(context)!.settings.arguments as PromocionModel;
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'Promoción'),
       body: _creaBody(promo, query),

@@ -21,7 +21,7 @@ import 'package:flutter/cupertino.dart';
 import '../../main.dart';
 
 class HomePage extends StatefulWidget {
-  final PageController pageController;
+  final PageController? pageController;
   HomePage({this.pageController});
   @override
   _HomePageState createState() => _HomePageState();
@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _nuevaEncuesta = false, _accesos = false;
-  EncuestaModel _datosEncuesta;
+  EncuestaModel? _datosEncuesta;
   int _noMolestar = 2;
   String _numeroCaseta = '';
 
@@ -48,15 +48,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         if (encuesta.containsKey(1) && !_nuevaEncuesta) {
           _nuevaEncuesta = true;
           _datosEncuesta = encuesta[1];
-          _scaffoldKey.currentState
+          ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(
                 duration: Duration(minutes: 1),
                 content: Text(
                     'Hay disponible una nueva encuesta\n¡Nos interesa tu opinión!'),
                 action: SnackBarAction(
                   onPressed: () => _responderEncuesta(
-                    pregunta: _datosEncuesta.pregunta,
-                    respuestas: _datosEncuesta.respuestas,
+                    pregunta: _datosEncuesta!.pregunta,
+                    respuestas: _datosEncuesta!.respuestas,
                   ),
                   label: 'Responder',
                 ),
@@ -138,16 +138,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ],
         ),
         actions: [
-           IconButton(
+          IconButton(
             padding: EdgeInsets.all(0),
-            onPressed: () => utils.abrirPaginaWeb(url: 'https://dostop.mx/aviso-de-privacidad.html'),
+            onPressed: () => utils.abrirPaginaWeb(
+                url: 'https://dostop.mx/aviso-de-privacidad.html'),
             icon: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                    Icons.lock_outlined,
-                    size: 15,
-                  ),
+                  Icons.lock_outlined,
+                  size: 15,
+                ),
                 SizedBox(height: 2),
                 Text('Privacidad', style: TextStyle(fontSize: 8)),
               ],
@@ -168,7 +169,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   Text('Tema', style: TextStyle(fontSize: 10)),
                 ],
               ),
-              onPressed: MyApp.of(context).changeTheme),
+              onPressed: MyApp.of(context)!.changeTheme),
           SizedBox(width: 10),
           IconButton(
             padding: EdgeInsets.all(0),
@@ -380,14 +381,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _creaBtnIcono(
-      {String rutaIcono, String titulo, String subtitulo, String ruta}) {
+      {required String rutaIcono,
+      required String titulo,
+      String? subtitulo,
+      required String ruta}) {
     return ElevatedContainer(
-      child: RaisedButton(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          elevation: 0,
-          color: Theme.of(context).cardColor,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+      child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: Theme.of(context).cardColor,
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0)),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -403,12 +409,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     titulo,
                     wrapWords: false,
                     style: utils.estiloBotones(30,
-                        color: Theme.of(context).textTheme.bodyText2.color),
+                        color: Theme.of(context).textTheme.bodyText2!.color!),
                   ),
                 ),
               ]),
               Visibility(
-                  visible: subtitulo != null, child: Text(subtitulo ?? ''))
+                  visible: subtitulo != null,
+                  child: Text(
+                    subtitulo ?? '',
+                    style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyText2!.color!),
+                  ))
             ],
           ),
           onPressed: () => Navigator.pushNamed(context, ruta)),
@@ -416,18 +427,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _creaBtnIconoMini({
-    String rutaIcono,
-    String titulo,
-    String ruta,
-    Function onPressed,
+    required String rutaIcono,
+    required String titulo,
+    String? ruta,
+    Function()? onPressed,
   }) {
     return ElevatedContainer(
-      child: RaisedButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-          color: Theme.of(context).cardColor,
-          elevation: 0,
-          padding: EdgeInsets.zero,
+      child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0)),
+              primary: Theme.of(context).cardColor,
+              elevation: 0,
+              padding: EdgeInsets.zero),
           child: Padding(
             padding: EdgeInsets.all(10.0),
             child: Column(
@@ -448,7 +460,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     maxLines: 2,
                     wrapWords: false,
                     style: utils.estiloBotones(16,
-                        color: Theme.of(context).textTheme.bodyText2.color),
+                        color: Theme.of(context).textTheme.bodyText2!.color!),
                   ),
                 ),
               ],
@@ -467,9 +479,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       child: ElevatedContainer(
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15.0),
-          child: FlatButton(
-              padding: EdgeInsets.only(left: 10.0, right: 10.0),
-              color: utils.colorAcentuado,
+          child: TextButton(
+              style: TextButton.styleFrom(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                  backgroundColor: utils.colorAcentuado),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -508,7 +521,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  _responderEncuesta({String pregunta, List<Respuesta> respuestas}) {
+  _responderEncuesta(
+      {required String pregunta, required List<Respuesta> respuestas}) {
     List<CupertinoActionSheetAction> actions = respuestas
         .map((element) => CupertinoActionSheetAction(
             child: Text(
@@ -530,7 +544,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.bodyText2.color,
+                  color: Theme.of(context).textTheme.bodyText2!.color,
                 ),
               ),
               actions: actions,
@@ -547,17 +561,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ));
   }
 
-  _enviarRespuesta(int respuesta) {
+  _enviarRespuesta(int? respuesta) {
     creaDialogProgress(context, 'Enviando respuesta...');
     avisosProvider
         .enviarRespuestaEncuesta(_prefs.usuarioLogged, respuesta)
         .then((resultados) {
       Navigator.of(context).pop('dialog');
       if (resultados.containsKey(1)) {
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Row(
               children: <Widget>[
-                Icon(Icons.send),
+                Icon(
+                  Icons.send,
+                  color:Theme.of(context).snackBarTheme.actionTextColor,
+                ),
                 SizedBox(
                   width: 15,
                 ),
@@ -571,11 +588,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             action: SnackBarAction(
               label: 'Ver resultados',
               onPressed: () =>
-                  _mostrarResultados(_datosEncuesta.pregunta, resultados[1]),
+                  _mostrarResultados(_datosEncuesta!.pregunta, resultados[1]),
             )));
       } else {
-        Scaffold.of(context).showSnackBar(
-            utils.creaSnackBarIcon(Icon(Icons.error), resultados[2], 10));
+        ScaffoldMessenger.of(context).showSnackBar(
+            utils.creaSnackBarIcon(Icon(Icons.error, color: Theme.of(context).snackBarTheme.actionTextColor), resultados[2], 10));
       }
     });
   }
@@ -583,7 +600,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   _mostrarResultados(String titulo, List<ResultadosEncuestaModel> resultados) {
     Map<String, double> dataMap = {};
     resultados.forEach((element) {
-      dataMap[element.respuestaEncuesta] = double.tryParse(element.porcentaje);
+      dataMap[element.respuestaEncuesta] =
+          double.tryParse(element.porcentaje) ?? 0.0;
     });
     //Map<String,double> dataMap={"Test":1,"Test2":1};
     creaDialogWidget(
@@ -685,8 +703,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     Navigator.pop(context);
     setState(() {
       _noMolestar = valor;
-      Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-          Icon(resultado['OK'] == 1 ? Icons.notifications_active : Icons.error),
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+          Icon(
+            resultado['OK'] == 1 ? Icons.notifications_active : Icons.error,
+            color: Theme.of(context).snackBarTheme.actionTextColor
+          ),
           resultado['message'],
           5));
     });
@@ -694,10 +715,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   _launchWhatsApp(String numero, String mensaje) async {
     final link = WhatsAppUnilink(phoneNumber: numero, text: mensaje);
-    // Convert the WhatsAppUnilink instance to a string.
-    // Use either Dart's string interpolation or the toString() method.
-    // The "launch" method is part of "url_launcher".
-    await launch('$link');
+    await launchUrl(Uri.parse(link.toString()),
+        mode: LaunchMode.externalApplication);
   }
 
   _abrirSoporte() {

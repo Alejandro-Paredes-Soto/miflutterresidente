@@ -31,20 +31,20 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   final _txtApMatCtrl = TextEditingController();
   final visitanteProvider = VisitantesFreqProvider();
   final _configUsuarioProvider = ConfigUsuarioProvider();
-  String _seleccionTipoAcceso;
-  String _seleccionTipoVisitante;
+  String? _seleccionTipoAcceso;
+  String? _seleccionTipoVisitante;
   bool _registrando = false;
   bool _imagenLista = false, _mostrarErrorImg = false;
   bool _mostrarErrorAcceso = false;
   bool _visitanteRegistrado = false;
-  File _imgRostro;
+  File? _imgRostro;
   int _tipoRostro = 0;
   List arg = [];
   String _tipoAccesoVisitante = '';
   String _tipoAccesoColono = '';
-  String _tempTipoAccess;
-  List<TipoVisitanteModel> tipoVisita = new List();
-  List<DropdownMenuItem<String>>  listTipo = new List();
+  late String _tempTipoAccess;
+  List<TipoVisitanteModel> tipoVisita = [];
+  List<DropdownMenuItem<String>> listTipo = [];
 
   @override
   void initState() {
@@ -52,26 +52,24 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
     _configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 6)
         .then((resultado) {
-        if (!mounted) return;
-          for (Map<String, dynamic> tipo in resultado['valor']) {
-            final tempTipo = TipoVisitanteModel.fromJson(tipo);
-            listTipo.add(
-              DropdownMenuItem(
-                child: Text(tempTipo.tipo),
-                value: tempTipo.idTipoVisitante,
-              )
-            );
-            tipoVisita.add(tempTipo);
-          }
-          
-        setState(() {});
-        _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
+      if (!mounted) return;
+      for (Map<String, dynamic> tipo in resultado['valor']) {
+        final tempTipo = TipoVisitanteModel.fromJson(tipo);
+        listTipo.add(DropdownMenuItem(
+          child: Text(tempTipo.tipo),
+          value: tempTipo.idTipoVisitante,
+        ));
+        tipoVisita.add(tempTipo);
+      }
+
+      setState(() {});
+      _seleccionTipoVisitante = tipoVisita[0].idTipoVisitante;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    arg = ModalRoute.of(context).settings.arguments;
+    arg = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
     _tipoRostro = arg[0];
     _tipoAccesoVisitante = arg[1]['acceso_visitante'];
     _tipoAccesoColono = arg[1]['acceso_colono'];
@@ -104,11 +102,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaCampoApellidoMat('Apellido materno', 'Ej. Herrera'),
               SizedBox(height: 10.0),
               Visibility(
-                visible: _tipoRostro != 1,
-                child: _crearListaTipoVisitante()),
+                  visible: _tipoRostro != 1, child: _crearListaTipoVisitante()),
               Visibility(
-                visible: _tipoRostro != 1,
-                child: SizedBox(height: 20.0)),
+                  visible: _tipoRostro != 1, child: SizedBox(height: 20.0)),
               _crearListaTipoAcceso(),
               _creaTextoErrorAcceso(),
               SizedBox(height: 10.0),
@@ -154,7 +150,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         labelText: label,
       ),
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el nombre';
         else
           return null;
@@ -177,7 +173,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         labelText: label,
       ),
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el apellido paterno';
         else
           return null;
@@ -199,7 +195,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         labelText: label,
       ),
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el apellido materno';
         else
           return null;
@@ -216,9 +212,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           isExpanded: true,
           value: _seleccionTipoVisitante,
           items: listTipo,
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionTipoVisitante = opc;
+              _seleccionTipoVisitante = opc!;
             });
           },
         ),
@@ -227,10 +223,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   Widget _crearListaTipoAcceso() {
-    if(_tipoRostro == 2){
-      _seleccionTipoAcceso = _tipoAccesoVisitante != '3' ? _tipoAccesoVisitante : _seleccionTipoAcceso;
-    }else{
-      _seleccionTipoAcceso = _tipoAccesoColono != '3' ? _tipoAccesoColono : _seleccionTipoAcceso;
+    if (_tipoRostro == 2) {
+      _seleccionTipoAcceso = _tipoAccesoVisitante != '3'
+          ? _tipoAccesoVisitante
+          : _seleccionTipoAcceso;
+    } else {
+      _seleccionTipoAcceso =
+          _tipoAccesoColono != '3' ? _tipoAccesoColono : _seleccionTipoAcceso;
     }
 
     return IgnorePointer(
@@ -239,16 +238,18 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         onPointerDown: (_) => FocusScope.of(context).unfocus(),
         child: DropdownButton(
           isExpanded: true,
-          value: _seleccionTipoAcceso ,
+          value: _seleccionTipoAcceso,
           hint: Text('Tipo de acceso'),
           underline: Container(
             height: 1,
-            color: _mostrarErrorAcceso ? utils.colorToastRechazada : Theme.of(context).disabledColor,
+            color: _mostrarErrorAcceso
+                ? utils.colorToastRechazada
+                : Theme.of(context).disabledColor,
           ),
           items: getOpcionesDropdown(),
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionTipoAcceso = opc;
+              _seleccionTipoAcceso = opc!;
             });
           },
         ),
@@ -272,7 +273,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         child: Row(
           children: <Widget>[
             Icon(Icons.directions_car_sharp),
-            SizedBox( width: 10),
+            SizedBox(width: 10),
             Text('Vehicular'),
           ],
         ),
@@ -283,11 +284,8 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.only(left: 3.0),
-              child: SvgPicture.asset(
-                utils.rutaIconTipoAcceso, 
-                height: 19.0,
-                color: Theme.of(context).iconTheme.color
-                ),
+              child: SvgPicture.asset(utils.rutaIconTipoAcceso,
+                  height: 19.0, color: Theme.of(context).iconTheme.color),
             ),
             SizedBox(width: 10),
             Text('Vehicular y peatonal'),
@@ -297,11 +295,11 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       )
     ];
 
-    if(_tipoRostro == 2)
+    if (_tipoRostro == 2)
       _tempTipoAccess = _tipoAccesoVisitante;
     else
       _tempTipoAccess = _tipoAccesoColono;
-    
+
     if (_tempTipoAccess == '1') {
       elementos.removeLast();
       elementos.removeLast();
@@ -317,7 +315,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       onTap: _registrando ? null : _mostrarOpcImagen,
       child: ElevatedContainer(
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(15),
           child: Container(
             width: 200,
             height: 250,
@@ -336,7 +334,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
                   ? Container(
                       width: double.infinity,
                       child: Image.file(
-                        _imgRostro,
+                        _imgRostro!,
                         errorBuilder: (context, error, stackTrace) =>
                             Container(),
                         fit: BoxFit.cover,
@@ -398,7 +396,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       if (Platform.isAndroid) {
         if (!await utils.obtenerPermisosAndroid()) throw 'permission_denied';
       }
-      var imgFile = await picker.ImagePicker.pickImage(
+      var imgFile = await picker.ImagePicker().pickImage(
           source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
       if (imgFile != null) {
         var fixedImg = await fixExifRotation(imgFile.path);
@@ -409,8 +407,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
             _imagenLista = true;
           });
         } else {
-          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.error), 'La imagen no está en formato vertical', 2));
+          ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+              Icon(
+                Icons.error,
+                color: Theme.of(context).snackBarTheme.actionTextColor
+              ),
+              'La imagen no está en formato vertical',
+              2));
         }
         print(await imgFile.length());
       }
@@ -422,11 +425,11 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         mensajeError = 'Otorga el permiso de almacenamiento por favor';
       else if (e.code.toString().contains('camera_access_denied'))
         mensajeError = 'Otorga el permiso de la cámara por favor';
-      else 
-        mensajeError = e.message;
-
-      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error),
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+          Icon(
+            Icons.error,
+            color: Theme.of(context).snackBarTheme.actionTextColor
+          ),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     } catch (e) {
@@ -435,8 +438,11 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         mensajeError = 'Otorga los permisos correspondientes.';
       else
         mensajeError = e.toString();
-      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error),
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+          Icon(
+            Icons.error,
+            color: Theme.of(context).snackBarTheme.actionTextColor
+          ),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     }
@@ -445,7 +451,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   Future<File> fixExifRotation(String imagePath) async {
     final originalFile = File(imagePath);
     final imgTools.Image capturedImage =
-        imgTools.decodeImage(await originalFile.readAsBytes());
+        imgTools.decodeImage(await originalFile.readAsBytes())!;
     final imgTools.Image orientedImage =
         imgTools.bakeOrientation(capturedImage);
     await originalFile
@@ -486,10 +492,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   Widget _creaBtnRegistrar() {
-    return RaisedButton(
-        color: utils.colorAcentuado,
-        disabledColor: utils.colorSecundario,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: utils.colorAcentuado,
+          onSurface: utils.colorSecundario,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        ),
         child: Container(
             height: 60,
             width: double.infinity,
@@ -515,39 +524,39 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   _submitForm() {
-    if (_formKey.currentState.validate() && _seleccionTipoAcceso != null
-        && _imgRostro != null) {
-        _formKey.currentState.save();
-        _mostrarErrorImg = false;
-        _mostrarErrorAcceso = false;
-        _registrando = true;
-        _registrarAcceso();
-    }else{
-      if(_seleccionTipoAcceso == null)
+    if (_formKey.currentState!.validate() &&
+        _seleccionTipoAcceso != null &&
+        _imgRostro != null) {
+      _formKey.currentState!.save();
+      _mostrarErrorImg = false;
+      _mostrarErrorAcceso = false;
+      _registrando = true;
+      _registrarAcceso();
+    } else {
+      if (_seleccionTipoAcceso == null)
         _mostrarErrorAcceso = true;
-      else 
+      else
         _mostrarErrorAcceso = false;
 
-      if(_imgRostro == null)
+      if (_imgRostro == null)
         _mostrarErrorImg = true;
       else
         _mostrarErrorImg = false;
     }
-    
+
     setState(() {});
   }
 
   void _registrarAcceso() async {
     Map estatus = await _visitantesFreqProvider.nuevoAccesoRostro(
-      idUsuario: _prefs.usuarioLogged,
-      nombre: _txtNombreCtrl.text,
-      apPaterno: _txtApPatCtrl.text,
-      apMaterno: _txtApMatCtrl.text,
-      tipoAcceso: _seleccionTipoAcceso,
-      imgRostroB64: base64Encode(_imgRostro.readAsBytesSync()),
-      tipo: _tipoRostro,
-      tipoVisitante: _tipoRostro != 1 ? _seleccionTipoVisitante : ""
-    );
+        idUsuario: _prefs.usuarioLogged,
+        nombre: _txtNombreCtrl.text,
+        apPaterno: _txtApPatCtrl.text,
+        apMaterno: _txtApMatCtrl.text,
+        tipoAcceso: _seleccionTipoAcceso,
+        imgRostroB64: base64Encode(_imgRostro!.readAsBytesSync()),
+        tipo: _tipoRostro,
+        tipoVisitante: _tipoRostro != 1 ? _seleccionTipoVisitante! : "");
     switch (estatus['OK']) {
       case 1:
         //

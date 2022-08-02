@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -20,7 +21,6 @@ import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
 import 'dart:io';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
 class VisitantesFrecuentesPage extends StatefulWidget {
@@ -37,8 +37,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   int _tabIndex = 0;
   int _obteniendoConfig = 0;
   String _tipoServicio = '';
-  Map<String, dynamic> _tipoAcceso;
-  Timer timer;
+  Map<String, dynamic>? _tipoAcceso;
+  late Timer timer;
   bool _dialogAbierto = false;
 
   @override
@@ -77,7 +77,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       body: _creaBody(),
       floatingActionButton: _creaFABMultiple(context, _tipoServicio),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      // bottomNavigationBar: _creaBoton(),
     );
   }
 
@@ -156,7 +155,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       builder: (BuildContext context,
           AsyncSnapshot<List<VisitanteFreqModel>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done)
-          return _creaListadoFrecuentes(snapshot.data);
+          return _creaListadoFrecuentes(snapshot.data!);
         else
           return Center(
             child: CircularProgressIndicator(),
@@ -167,24 +166,23 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
 
   Widget _creaListadoFrecuentes(List<VisitanteFreqModel> lista) {
     if (lista.length > 0) {
-      return Container(
-          child: ListView.separated(
+      return ListView.separated(
         separatorBuilder: (context, index) => SizedBox(height: 15),
         padding: EdgeInsets.only(top: 15.0),
         itemCount: lista.length,
         itemBuilder: (context, index) => Column(
-          children: [
-            _tabIndex == 0
-                ? _crearItem(context, lista[index])
-                : _crearItemRostro(context, lista[index]),
-            Visibility(
-                visible: index == (lista.length - 1),
-                child: SizedBox(
-                  height: 70,
-                ))
-          ],
+      children: [
+        _tabIndex == 0
+            ? _crearItem(context, lista[index])
+            : _crearItemRostro(context, lista[index]),
+        Visibility(
+            visible: index == (lista.length - 1),
+            child: SizedBox(
+              height: 70,
+            ))
+      ],
         ),
-      ));
+      );
     } else {
       return Center(
         child: Text(
@@ -215,7 +213,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 Visibility(
                   visible: visitante.tipoVisitante != '',
                   child: Text(
-                    visitante.tipoVisitante ,
+                    visitante.tipoVisitante,
                   ),
                 ),
                 SizedBox(height: 10),
@@ -228,10 +226,10 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                         : utils.estiloTituloTarjeta(
                             12,
                           )),
-                visitante.vigencia
+                visitante.vigencia!
                         .isBefore(DateTime.now().add(Duration(days: 31)))
                     ? CountdownTimer(
-                        endTime: visitante.vigencia.millisecondsSinceEpoch,
+                        endTime: visitante.vigencia!.millisecondsSinceEpoch,
                         defaultDays: '0',
                         defaultHours: '00',
                         defaultMin: '00',
@@ -253,60 +251,61 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           ),
           Flexible(
             flex: 0,
-            child: Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  RaisedButton(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      primary: utils.colorPrincipal),
+                  child: Container(
+                    width: 100,
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Ver código',
+                      style: utils.estiloBotones(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    creaDialogQR(
+                        _scaffoldKey.currentContext!,
+                        '',
+                        _creaQR(visitante.codigo),
+                        'Compartir',
+                        'Cancelar',
+                        () => _compartir(visitante.codigo),
+                        () => Navigator.of(_scaffoldKey.currentContext!)
+                            .pop('dialog'));
+                  },
+                ),
+                SizedBox(height: 15),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : utils.colorFondoPrincipalDark,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
-                    color: utils.colorPrincipal,
-                    child: Container(
+                  ),
+                  child: Container(
                       width: 100,
                       height: 50,
                       alignment: Alignment.center,
                       child: Text(
-                        'Ver código',
-                        style: utils.estiloBotones(12),
-                      ),
-                    ),
-                    onPressed: () {
-                      creaDialogQR(
-                          _scaffoldKey.currentContext,
-                          '',
-                          _creaQR(visitante.codigo),
-                          'Compartir',
-                          'Cancelar',
-                          () => _compartir(visitante.codigo),
-                          () => Navigator.of(_scaffoldKey.currentContext)
-                              .pop('dialog'));
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : utils.colorFondoPrincipalDark,
-                    child: Container(
-                        width: 100,
-                        height: 50,
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Eliminar',
-                          softWrap: false,
-                          style: utils.estiloBotones(12,
-                              color: Theme.of(context).scaffoldBackgroundColor),
-                        )),
-                    onPressed: () {
-                      _eliminaVisitanteFreq(
-                          _scaffoldKey.currentContext, visitante);
-                    },
-                  )
-                ],
-              ),
+                        'Eliminar',
+                        softWrap: false,
+                        style: utils.estiloBotones(12,
+                            color: Theme.of(context).scaffoldBackgroundColor),
+                      )),
+                  onPressed: () {
+                    _eliminaVisitanteFreq(
+                        _scaffoldKey.currentContext!, visitante);
+                  },
+                )
+              ],
             ),
           )
         ],
@@ -350,9 +349,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                       child: SizedBox(height: 5)),
                   Visibility(
                     visible: visitante.tipoVisitante != '',
-                    child: Text(
-                      visitante.tipoVisitante
-                    ),
+                    child: Text(visitante.tipoVisitante),
                   ),
                   SizedBox(height: 5),
                   Text(
@@ -473,7 +470,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     imageTools.Image image = imageTools.Image(450, 530);
     imageTools.fill(image, imageTools.getColor(255, 255, 255));
     imageTools.drawImage(
-        image, imageTools.decodePng(imageqr.buffer.asUint8List()),
+        image, imageTools.decodePng(imageqr!.buffer.asUint8List())!,
         dstX: 50, dstY: 40);
     imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
         color: imageTools.getColor(0, 0, 0));
@@ -505,13 +502,13 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       switch (estatus['OK']) {
         case 1:
           setState(() {});
-          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.delete), 'Visitante eliminado', 5));
+          ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.delete, color: Theme.of(context).snackBarTheme.actionTextColor), 'Visitante eliminado', 5));
           break;
         case 2:
           _dialogAbierto = false;
-          Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.error), 'No se pudo eliminar al visitante', 5));
+          ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.error, color: Theme.of(context).snackBarTheme.actionTextColor), 'No se pudo eliminar al visitante', 5));
           break;
       }
       _dialogAbierto = false;
@@ -543,17 +540,17 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     List<SpeedDialChild> elementos = [
       _elementoFAB(
           titulo: 'Nuevo visitante QR',
-          icon: Icon(Icons.qr_code),
+          icon: Icon(Icons.qr_code, color: Colors.white),
           pageRoute: 'NuevoVisitFreq'),
       _elementoFAB(
           titulo: 'Nuevo visitante rostro',
-          icon: Icon(Icons.person_add),
+          icon: Icon(Icons.person_add, color: Colors.white,),
           pageRoute: 'NuevoVisitRostro',
           tipoRostro: 2,
           tipoAcceso: _tipoAcceso),
       _elementoFAB(
           titulo: 'Nuevo residente rostro',
-          icon: Icon(Icons.home),
+          icon: Icon(Icons.home, color: Colors.white,),
           pageRoute: 'NuevoVisitRostro',
           tipoRostro: 1,
           tipoAcceso: _tipoAcceso),
@@ -571,11 +568,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   SpeedDialChild _elementoFAB(
-      {String titulo,
-      Widget icon,
-      @required String pageRoute,
-      int tipoRostro,
-      Map tipoAcceso}) {
+      {String? titulo,
+      Widget? icon,
+      required String pageRoute,
+      int? tipoRostro,
+      Map? tipoAcceso}) {
     return SpeedDialChild(
         child: Container(padding: EdgeInsets.all(10), child: icon),
         backgroundColor: utils.colorPrincipal,
@@ -587,17 +584,16 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         });
   }
 
-  _navegaPaginaRespuesta(BuildContext context, String pageRoute, int tipoRostro,
-      Map tipoAcceso) async {
+  _navegaPaginaRespuesta(BuildContext context, String pageRoute,
+      int? tipoRostro, Map? tipoAcceso) async {
     //Agregamos argumento para saber que tipo de pantalla de rostro mostrar, si el argumento se pasa
     //a otra pantalla este es ignorado
     final result = await Navigator.of(context)
-            .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]) ??
-        false;
+        .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]) as bool;
     if (result) {
       setState(() {});
       Future.delayed(Duration(milliseconds: 500), () {
-        _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+        ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
             SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
                 height: utils.tamanoIcoSnackbar,
                 color: Theme.of(context).snackBarTheme.actionTextColor),
@@ -611,7 +607,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
 
   @override
   void dispose() {
-    timer?.cancel();
+    timer.cancel();
     super.dispose();
   }
 }

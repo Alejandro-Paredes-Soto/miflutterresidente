@@ -14,9 +14,9 @@ class VisitantesFreqProvider {
     validaSesion.verificaSesion();
     try {
       final resp = await http.post(
-          '${constantes.urlApp}/obtener_frecuentes.php',
+          Uri.parse('${constantes.urlApp}/obtener_frecuentes.php'),
           body: {'id_colono': idUsuario, 'tipo_frecuente': '$tipo'});
-      Map decodeResp = json.decode(resp.body);
+      Map? decodeResp = json.decode(resp.body);
       final List<VisitanteFreqModel> visitantes = [];
       if (decodeResp == null) return [];
       if (decodeResp.containsKey('lista_frecuente'))
@@ -38,7 +38,7 @@ class VisitantesFreqProvider {
       String idFrecuente, String idUsuario, int tipo) async {
     try {
       final resp = await http
-          .post('${constantes.urlApp}/eliminar_frecuente.php', body: {
+          .post(Uri.parse('${constantes.urlApp}/eliminar_frecuente.php'), body: {
         'id_frecuente': idFrecuente,
         'id_colono': idUsuario,
         'tipo_frecuente': '$tipo'
@@ -58,13 +58,14 @@ class VisitantesFreqProvider {
   }
 
   Future<Map<String, dynamic>> nuevoVisitanteFrecuente(
-      {String idUsuario,
-      String nombre,
-      String apPaterno,
-      String apMaterno,
-      String vigencia,
-      bool esUnico,
-      String tipoVisitante}) async {
+      {
+      required String idUsuario,
+      required String nombre,
+      required String apPaterno,
+      required String apMaterno,
+      required String vigencia,
+      required bool esUnico,
+      required String tipoVisitante}) async {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
     final visitanteData = {
       'colono': idUsuario,
@@ -77,7 +78,7 @@ class VisitantesFreqProvider {
     };
     try {
       final resp = await http.post(
-          '${constantes.urlApp}/registrar_frecuente2.php',
+          Uri.parse('${constantes.urlApp}/registrar_frecuente2.php'),
           body: visitanteData);
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((k, v) => mapResp[k] = v);
@@ -99,13 +100,14 @@ class VisitantesFreqProvider {
   }
 
   Future<Map<String, dynamic>> nuevoAccesoRostro(
-      {String idUsuario,
-      String nombre,
-      String apPaterno,
-      String apMaterno,
-      String imgRostroB64,
-      String tipoAcceso,
-      int tipo,
+      {
+      required String idUsuario,
+      required String nombre,
+      required String apPaterno,
+      required String apMaterno,
+      required String imgRostroB64,
+      String? tipoAcceso,
+      required int tipo,
       String tipoVisitante = ""}) async {
     final visitanteData = {
       'id_colono': idUsuario,
@@ -118,7 +120,7 @@ class VisitantesFreqProvider {
       'tipo_visitante': tipoVisitante.toString()
     };
     try {
-      final resp = await http.post('${constantes.urlApp}/registrar_rostro.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/registrar_rostro.php'),
           body: visitanteData);
       Map mapResp = json.decode(resp.body);
       if (mapResp['estatus'].toString().contains('1')) {

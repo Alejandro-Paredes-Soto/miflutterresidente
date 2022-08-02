@@ -1,16 +1,17 @@
-import 'package:dostop_v2/src/models/visita_model.dart';
+import 'dart:developer';
+
 import 'package:dostop_v2/src/providers/visitas_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
-import 'package:dynamic_list_view/dynamic_list.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_swiper_plus/flutter_swiper_plus.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:pagination_view/pagination_view.dart';
 
 class VisitasPage extends StatefulWidget {
   @override
@@ -18,26 +19,28 @@ class VisitasPage extends StatefulWidget {
 }
 
 class _VisitasPageState extends State<VisitasPage> {
-  DynamicListController _dynamicListController = DynamicListController();
+  late int page;
+  late PaginationViewType paginationViewType;
+  late GlobalKey<PaginationViewState> key;
+  late ScrollController scrollController;
   final _prefs = PreferenciasUsuario();
   final visitasProvider = VisitasProvider();
   String _fechaTemp = '', _fechaInicio = '', _fechaFinal = '';
   bool _habilitaBtn = false, _filtrado = false;
-  Future<List<VisitaModel>> _visitasProvider;
-  int _pag = 1;
+  String initData = '';
   double opacidad = 1.0;
   @override
   void initState() {
     super.initState();
-    if (!_filtrado) {
-      _visitasProvider =
-          visitasProvider.buscarVisitasXFecha(_prefs.usuarioLogged, '', '', 1);
-    }
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _dynamicListController.scrollController.addListener(() {
+
+    paginationViewType = PaginationViewType.listView;
+    key = GlobalKey<PaginationViewState>();
+    scrollController = ScrollController();
+  
+    WidgetsBinding.instance?.addPostFrameCallback(
+        (_) => scrollController.addListener(() {
               setState(() {
-                if (_dynamicListController
-                        .scrollController.position.userScrollDirection ==
+                if (scrollController.position.userScrollDirection ==
                     ScrollDirection.reverse)
                   opacidad = 0.0;
                 else
@@ -111,11 +114,12 @@ class _VisitasPageState extends State<VisitasPage> {
               SizedBox(
                 height: 30,
               ),
-              RaisedButton(
-                color: utils.colorAcentuado,
-                disabledColor: utils.colorSecundario,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: utils.colorAcentuado,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0)),
+                ),
                 child: Container(
                   alignment: Alignment.center,
                   width: double.infinity,
@@ -125,7 +129,6 @@ class _VisitasPageState extends State<VisitasPage> {
                 ),
                 onPressed: _habilitaBtn
                     ? () {
-                        // cacheData = [];
                         _filtrarVisitas();
                         setState(() {});
                       }
@@ -154,7 +157,7 @@ class _VisitasPageState extends State<VisitasPage> {
                         fontSize: 16,
                         color: contenido.contains(RegExp('Desde|Hasta'))
                             ? Colors.grey
-                            : Theme.of(context).textTheme.bodyText2.color)),
+                            : Theme.of(context).textTheme.bodyText2!.color)),
                 Icon(
                   Icons.calendar_today,
                   size: 35,
@@ -170,12 +173,11 @@ class _VisitasPageState extends State<VisitasPage> {
     );
   }
 
-  Future<String> _selectDate(BuildContext context,
-      {DateTime fechaInicial, DateTime fechaFinal}) async {
-    DateTime picked = await showDatePicker(
+  Future<String?> _selectDate(BuildContext context,
+      {DateTime? fechaInicial, DateTime? fechaFinal}) async {
+    DateTime? picked = await showDatePicker(
         context: context,
-        firstDate:
-            fechaInicial ?? new DateTime.now().subtract(Duration(days: 365)),
+        firstDate: fechaInicial ?? new DateTime.now().subtract(Duration(days: 365)),
         initialDate: fechaFinal ?? new DateTime.now(),
         lastDate: fechaFinal ?? new DateTime.now(),
         locale: Locale('es', 'MX'),
@@ -184,8 +186,9 @@ class _VisitasPageState extends State<VisitasPage> {
             data: ThemeData(
                 primaryColor: utils.colorCalendario,
                 primarySwatch: utils.colorCalendario,
-                accentColor: utils.colorSecundario),
-            child: widget,
+                //accentColor: utils.colorSecundario
+                ),
+            child: widget!,
           );
         });
     if (picked != null) {
@@ -196,38 +199,44 @@ class _VisitasPageState extends State<VisitasPage> {
   }
 
   Widget _cargaVisitas() {
-    return DynamicList.build(
-        controller: _dynamicListController,
-        dataRequester: _dataRequester,
-        initRequester: _initRequester,
-        itemBuilder: (List dataList, BuildContext context, int index) {
-          if (dataList.length > 0) if (index == 0)
+    return PaginationView(
+        key: Key(initData),
+        scrollController: scrollController,
+        itemBuilder: (BuildContext context, VisitaModel visit, int index) {
+          if (index == 0) {
             return Container(
-                padding: EdgeInsets.only(top: 260, bottom: 20),
-                child: _crearItem(context, dataList[index], index));
-          else
+                padding: const EdgeInsets.only(top: 260, bottom: 20),
+                child: _crearItem(context, visit, index));
+          } else {
             return Padding(
               padding: const EdgeInsets.only(bottom: 20),
-              child: _crearItem(context, dataList[index], index),
+              child: _crearItem(context, visit, index),
             );
-          else
-            return Center(
-              child: Text('No se encontraron visitas'),
-            );
-        });
+          }
+        },
+        pullToRefresh: true,
+        pageFetch: _dataRequester,
+        onEmpty: const Center(
+          child: Text('No se encontraron visitas'),
+        ),
+        onError: (dynamic error) => const Center(
+              child: Text('Some error occured'),
+            ));
   }
 
-  Future<List> _dataRequester() async {
-    _pag++;
-    return await visitasProvider.buscarVisitasXFecha(
+  Future<List<VisitaModel>> _dataRequester(int offset) async {
+    page = (offset / 10).ceil() + 1;
+    log('pagina $page');
+    List<VisitaModel> list = await visitasProvider.buscarVisitasXFecha(
         _prefs.usuarioLogged,
-        formatoFechaBusqueda(_fechaInicio),
-        formatoFechaBusqueda(_fechaFinal),
-        _pag);
-  }
-
-  Future<List> _initRequester() async {
-    return Future.value(_visitasProvider);
+        _fechaInicio.isEmpty
+            ? ''
+            : formatoFechaBusqueda(_fechaInicio),
+        _fechaFinal.isEmpty
+            ? ''
+            : formatoFechaBusqueda(_fechaFinal),
+        page);
+    return list;
   }
 
   Widget _crearItem(BuildContext context, VisitaModel visita, int index) {
@@ -255,7 +264,7 @@ class _VisitasPageState extends State<VisitasPage> {
               Container(
                   padding: EdgeInsets.only(left: 10, bottom: 10),
                   decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                      BoxDecoration(borderRadius: BorderRadius.circular(20.0)),
                   width: double.infinity,
                   height: 25,
                   child: Text(
@@ -316,8 +325,8 @@ class _VisitasPageState extends State<VisitasPage> {
     }
   }
 
-  String formatoFechaBusqueda(String fecha) {
-    if (fecha.isNotEmpty)
+  String formatoFechaBusqueda(String? fecha) {
+    if (fecha != null && fecha.isNotEmpty)
       return DateFormat('yyyy-MM-dd')
           .format(DateFormat("dd-MM-yyyy").parse(fecha));
     else
@@ -331,24 +340,16 @@ class _VisitasPageState extends State<VisitasPage> {
 
   void _filtrarVisitas() {
     if (!_filtrado) {
-      _pag = 1;
-      _visitasProvider = visitasProvider.buscarVisitasXFecha(
-          _prefs.usuarioLogged,
-          formatoFechaBusqueda(_fechaInicio),
-          formatoFechaBusqueda(_fechaFinal),
-          _pag);
+      initData = 'refresh';
       _filtrado = true;
     } else {
-      _pag = 1;
-      _visitasProvider = visitasProvider.buscarVisitasXFecha(
-          _prefs.usuarioLogged, '', '', _pag);
+      initData = '';
       _filtrado = false;
       _habilitaBtn = false;
       _fechaInicio = '';
       _fechaFinal = '';
       _fechaTemp = '';
     }
-    _dynamicListController.refresh();
   }
 
   _abrirVisitaDetalle(VisitaModel visita, BuildContext context) {

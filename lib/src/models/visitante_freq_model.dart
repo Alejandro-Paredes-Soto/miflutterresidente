@@ -7,13 +7,13 @@ VisitanteFreqModel visitanteFreqModelFromJson(String str) =>
 
 class VisitanteFreqModel {
   String nombre;
-  String descripcion;
-  String fechaAlta;
+  String? descripcion;
+  String? fechaAlta;
   String codigo;
-  String tipo;
+  String? tipo;
   String tipoAcceso;
   String idFrecuente;
-  DateTime vigencia;
+  DateTime? vigencia;
   bool unico;
   String urlImg;
   String activo;
@@ -22,27 +22,28 @@ class VisitanteFreqModel {
   String tipoVisitante;
 
   VisitanteFreqModel(
-      {this.nombre,
+      {
+      required this.nombre,
       this.descripcion,
       this.fechaAlta,
-      this.codigo,
+      required this.codigo,
       this.tipo,
-      this.tipoAcceso,
-      this.idFrecuente,
+      required this.tipoAcceso,
+      required this.idFrecuente,
       this.vigencia,
-      this.unico,
-      this.urlImg,
-      this.activo,
-      this.estatusDispositivo,
-      this.expiroTolerancia,
-      this.tipoVisitante});
+      required this.unico,
+      required this.urlImg,
+      required this.activo,
+      required this.estatusDispositivo,
+      required this.expiroTolerancia,
+      required this.tipoVisitante});
 
   factory VisitanteFreqModel.fromJson(Map<String, dynamic> json) =>
       VisitanteFreqModel(
         nombre: json["nombre"],
         descripcion: json["descripcion"],
         fechaAlta: json["fecha_alta"],
-        codigo: json["codigo"],
+        codigo: json["codigo"] ?? '',
         tipo: json["tipo"],
         tipoAcceso: json["tipo_acceso"] ?? "",
         idFrecuente: json["id_frecuente"],

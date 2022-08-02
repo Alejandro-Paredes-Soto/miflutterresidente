@@ -12,9 +12,9 @@ class AreaReservadaModel {
     DateTime fecha;
 
     AreaReservadaModel({
-        this.nombre,
-        this.estatus,
-        this.fecha,
+        required this.nombre,
+        required this.estatus,
+        required this.fecha,
     });
 
     factory AreaReservadaModel.fromJson(Map<String, dynamic> json) => AreaReservadaModel(

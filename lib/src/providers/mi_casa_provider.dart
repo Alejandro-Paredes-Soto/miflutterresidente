@@ -14,8 +14,8 @@ class MiCasaProvider {
     validaSesion.verificaSesion();
     try {
       final resp = await http
-          .post('${constantes.urlApp}/obtener_datos_pago.php', body: {'id': idUsuario});
-      Map decodeResp = json.decode(resp.body);
+          .post(Uri.parse('${constantes.urlApp}/obtener_datos_pago.php'), body: {'id': idUsuario});
+      Map<String, dynamic> decodeResp = json.decode(resp.body);
       if (decodeResp.containsKey('saldo')) {
         return {1: PagosUsuarioModel.fromJson(decodeResp)};
       } else if (decodeResp.containsKey('estatus')) {

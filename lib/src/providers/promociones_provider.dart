@@ -13,9 +13,9 @@ class PromocionesProvider {
   Future<List<PromocionModel>> cargaPromociones(String idUsuario) async {
     validaSesion.verificaSesion();
     try {
-      final resp = await http.post('${constantes.urlApp}/obtener_promociones.php', body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
-      final List<PromocionModel> promociones = new List();
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/obtener_promociones.php'), body: {'id': idUsuario});
+      List? decodeResp = json.decode(resp.body);
+      final List<PromocionModel> promociones = [];
       if (decodeResp == null) return [];
       decodeResp.forEach((promo) {
         //print('$promo');

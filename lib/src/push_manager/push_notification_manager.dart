@@ -20,48 +20,42 @@ class PushNotificationsManager {
 
   MensajeStream mensajeStream = MensajeStream.instancia;
   final notifProvider = NotificacionesProvider();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  List<String> idsVisitas = List();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  List<String> idsVisitas = [];
 
   Future<void> initNotifications() async {
-    _firebaseMessaging.requestNotificationPermissions();
+    _firebaseMessaging.requestPermission();
 
     _firebaseMessaging.getToken().then((token) {
-      _prefs.token = token;
-      // print('==== FCM TOKEN =====\n${_prefs.token}');
+      if(token != null){
+        _prefs.token = token;
+      }
     });
 
-    _firebaseMessaging.configure(
-      onMessage: (info) async {
-      // print('==== ON MESSAGE ====');
-      // print(info);
-      _evaluaMensaje(info);
-    }, onLaunch: (info) async {
-      // print('==== ON LAUNCH ====');
-      // print(info);
-      _evaluaMensaje(info);
-    }, onResume: (info) async {
-      // print('==== ON RESUME ====');
-      // print(info);
-      _evaluaMensaje(info);
+    FirebaseMessaging.onMessage.listen((event) async {
+      if(event.notification != null)
+        _evaluaMensaje(event);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      if(event.notification != null)
+        _evaluaMensaje(event);
     });
   }
 
-  _evaluaMensaje(Map info) async {
-    // detenerTimer();
+  _evaluaMensaje(RemoteMessage info) async {
     String titulo = '';
     String mensaje = '';
-    var data = null;
     String imgAviso = '';
     print(info);
     if (Platform.isAndroid) {
-      titulo = info['data']['title'].toString().toLowerCase();
-      mensaje = info['data']['message'];
-      imgAviso = titulo == 'aviso' ? json.decode(info['data']['data'])['img'] : '';
+      titulo = info.notification!.title.toString().toLowerCase();
+      mensaje = info.notification!.body ?? '';
+      imgAviso = titulo == 'aviso' ? json.decode(info.data['data'])['img'] : '';
     } else {
-      titulo = info['title'].toString().toLowerCase();
-      mensaje = info['message'];
-      imgAviso = titulo == 'aviso' ? json.decode(info['data'])['img'] : '';
+      titulo = info.notification!.title.toString().toLowerCase();
+      mensaje = info.notification!.body ?? '';
+      imgAviso = titulo == 'aviso' ? json.decode(info.data['data'])['img'] : '';
     }
     switch (titulo) {
       case 'encuesta':

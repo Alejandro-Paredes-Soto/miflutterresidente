@@ -10,9 +10,9 @@ class PromocionModel {
     String ruta2;
 
     PromocionModel({
-        this.titulo,
-        this.ruta1,
-        this.ruta2,
+        required this.titulo,
+        required this.ruta1,
+        required this.ruta2,
     });
 
     factory PromocionModel.fromJson(Map<String, dynamic> json) => PromocionModel(

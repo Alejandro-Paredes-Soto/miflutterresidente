@@ -4,16 +4,16 @@ PagosUsuarioModel pagosUsuarioModelFromJson(String str) =>
     PagosUsuarioModel.fromJson(json.decode(str));
 
 class PagosUsuarioModel {
-  String titulo;
+  String? titulo;
   String saldo;
-  String estado;
+  String? estado;
   List<Pago> pagos;
 
   PagosUsuarioModel({
     this.titulo,
-    this.saldo,
+    required this.saldo,
     this.estado,
-    this.pagos,
+    required this.pagos,
   });
 
   factory PagosUsuarioModel.fromJson(Map<String, dynamic> json) =>
@@ -28,8 +28,8 @@ class Pago {
   String monto;
 
   Pago({
-    this.fechaPago,
-    this.monto,
+    required this.fechaPago,
+    required this.monto,
   });
 
   factory Pago.fromJson(Map<String, dynamic> json) => Pago(

@@ -16,7 +16,7 @@ class LoginProvider {
       'contrasena': password,
     };
     try {
-      final resp = await http.post('${constantes.urlApp}/login.php', body: authData);
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/login.php'), body: authData);
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
     } catch (e) {
@@ -38,26 +38,26 @@ class LoginProvider {
   }
 
 
-  Future<Map<String, dynamic>> registrarTokenFCM(String dispositivo,
-      {String idUsuario, String token}) async {
-    if (_prefs.token == '')
+  Future<Map<String, dynamic>> registrarTokenOS(String dispositivo,
+      {String? idUsuario, String? playerID}) async {
+    if (_prefs.playerID == '')
       return {
         'OK': 0,
         'message':
-            'No se ha podido obtener el token desde FCM, revisar que los servicios de Google esten funcionando '
-                'y que los servicios internos de la aplicación se pueden conectar a FCM'
+            'No se ha podido obtener el token desde One Signal, revisar que los servicios esten funcionando '
+                'y que los servicios internos de la aplicación se pueden conectar a One Signal'
       };
     Map<String, dynamic> mapResp = Map<String, dynamic>();
     final authData = {
       'id': idUsuario ?? _prefs.usuarioLogged,
-      'token': token ?? _prefs.token,
+      'playerID': playerID ?? _prefs.playerID,
       'dispositivo': dispositivo,
       'fecha':
           DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString()
     };
     try {
       final resp =
-          await http.post('${constantes.urlApp}/registrar_token_disp.php', body: authData);
+          await http.post(Uri.parse('${constantes.urlApp}/registrar_token_disp_os.php'), body: authData);
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
     } catch (e) {
@@ -80,10 +80,10 @@ class LoginProvider {
 
   Future<bool> logout() async {
     try {
-      final resp = await http.post('${constantes.urlApp}/elimina_token.php',
-          body: {'token': _prefs.token});
-      Map decodeResp = json.decode(resp.body);
-      //print(decodeResp);
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/elimina_token_os.php'),
+          body: {'playerID': _prefs.playerID});
+      Map? decodeResp = json.decode(resp.body);
+      print(decodeResp);
       if (decodeResp == null) return false;
       if (decodeResp.containsKey('estatus')) {
         if (decodeResp['estatus'] !='3')

@@ -4,8 +4,8 @@ List<ResultadosEncuestaModel> resultadosEncuestaModelFromJson(String str) => Lis
 
 class ResultadosEncuestaModel {
     ResultadosEncuestaModel({
-        this.respuestaEncuesta,
-        this.porcentaje,
+        required this.respuestaEncuesta,
+        required this.porcentaje,
     });
 
     String respuestaEncuesta;

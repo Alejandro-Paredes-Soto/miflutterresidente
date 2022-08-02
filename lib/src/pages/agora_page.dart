@@ -14,11 +14,17 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AgoraPage extends StatefulWidget {
-  final String channelCall; 
+  final String channelCall;
   final String appIdAgora;
   final String idVisita;
-  final DateTime fecha;
-  AgoraPage({Key key, @required this.channelCall, @required this.appIdAgora, this.idVisita, this.fecha}) : super(key: key);
+  final DateTime? fecha;
+  AgoraPage(
+      {Key? key,
+      required this.channelCall,
+      required this.appIdAgora,
+      required this.idVisita,
+      this.fecha})
+      : super(key: key);
 
   @override
   _AgoraPageState createState() => _AgoraPageState();
@@ -29,21 +35,22 @@ class _AgoraPageState extends State<AgoraPage> {
   final _notifProvider = NotificacionesProvider();
   final _prefs = PreferenciasUsuario();
   bool _respuestaEnviada = false, _tiempoVencido = false;
-  int _remoteUid;
+  int? _remoteUid;
+  // ignore: unused_field
   bool _localUserJoined = false;
   bool muted = false;
   bool mutedVideo = false;
-  RtcEngine _engine;
-  DateTime fecha;
+  RtcEngine? _engine;
+  late DateTime fecha;
 
   @override
   void initState() {
     super.initState();
     initAgora();
-    DateTime fechaVisita = widget.fecha;
+    DateTime? fechaVisita = widget.fecha;
     fecha = widget.fecha == null
         ? DateTime.now()
-        : fechaVisita.add(Duration(minutes: 1));
+        : fechaVisita!.add(Duration(minutes: 1));
   }
 
   Future<void> initAgora() async {
@@ -53,10 +60,10 @@ class _AgoraPageState extends State<AgoraPage> {
     //create the engine
     _engine = await RtcEngine.create(widget.appIdAgora);
 
-    await _engine.enableVideo();
-    await _engine.enableAudio();
-    _engine.muteLocalVideoStream(true);
-    _engine.setEventHandler(
+    await _engine!.enableVideo();
+    await _engine!.enableAudio();
+    _engine!.muteLocalVideoStream(true);
+    _engine?.setEventHandler(
       RtcEngineEventHandler(
         joinChannelSuccess: (String channel, int uid, int elapsed) {
           setState(() {
@@ -76,7 +83,7 @@ class _AgoraPageState extends State<AgoraPage> {
       ),
     );
 
-    await _engine.joinChannel(null, widget.channelCall, null, 0);
+    await _engine?.joinChannel(null, widget.channelCall, null, 0);
   }
 
   @override
@@ -91,44 +98,48 @@ class _AgoraPageState extends State<AgoraPage> {
                 child: Stack(
                   children: [
                     Center(
-                      child: !mutedVideo ? _remoteVideo() : Text('Video deshabilitado'),
+                      child: !mutedVideo
+                          ? _remoteVideo()
+                          : Text('Video deshabilitado'),
                     ),
                     _toolbar(widget.idVisita),
                     Padding(
-                padding: EdgeInsets.all(15.0),
-                child: AnimatedCrossFade(
-                  duration: Duration(milliseconds: 200),
-                  crossFadeState: !_tiempoVencido
-                      ? CrossFadeState.showFirst
-                      : CrossFadeState.showSecond,
-                  firstChild: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Tiempo para responder '),
-                      CountdownTimer(
-                          showZeroNumbers: false,
-                          endTime: fecha.millisecondsSinceEpoch,
-                          secSymbol: '',
-                          textStyle: utils.estiloBotones(18,
-                              color:
-                                  Theme.of(context).textTheme.bodyText2.color),
-                          onEnd: () {
-                            setState(() => _tiempoVencido = true);
-                            _onCallEnd(context, widget.idVisita);
-                          }),
-                      Text(' seg'),
-                    ],
-                  ),
-                  secondChild: Text(
-                    'El tiempo para responder esta visita ha expirado',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: utils.colorToastRechazada,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
+                      padding: EdgeInsets.all(15.0),
+                      child: AnimatedCrossFade(
+                        duration: Duration(milliseconds: 200),
+                        crossFadeState: !_tiempoVencido
+                            ? CrossFadeState.showFirst
+                            : CrossFadeState.showSecond,
+                        firstChild: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Tiempo para responder '),
+                            CountdownTimer(
+                                showZeroNumbers: false,
+                                endTime: fecha.millisecondsSinceEpoch,
+                                secSymbol: '',
+                                textStyle: utils.estiloBotones(18,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyText2!
+                                        .color!),
+                                onEnd: () {
+                                  setState(() => _tiempoVencido = true);
+                                  _onCallEnd(context, widget.idVisita);
+                                }),
+                            Text(' seg'),
+                          ],
+                        ),
+                        secondChild: Text(
+                          'El tiempo para responder esta visita ha expirado',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: utils.colorToastRechazada,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -207,7 +218,7 @@ class _AgoraPageState extends State<AgoraPage> {
       muted = !muted;
     });
 
-    _engine.muteLocalAudioStream(muted);
+    _engine?.muteLocalAudioStream(muted);
   }
 
   void _onCallEnd(BuildContext context, String idVisita) {
@@ -220,22 +231,24 @@ class _AgoraPageState extends State<AgoraPage> {
       mutedVideo = !mutedVideo;
     });
 
-    _engine.muteAllRemoteVideoStreams(mutedVideo);
+    _engine?.muteAllRemoteVideoStreams(mutedVideo);
   }
 
   Widget _crearBtnRespuesta({
-    String titulo,
-    int idRespuesta,
-    String idVisita,
+    required String titulo,
+    required int idRespuesta,
+    required String idVisita,
   }) {
     return ElevatedContainer(
-      child: RaisedButton(
-          padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          color: idRespuesta == 1
-              ? utils.colorAcentuado
-              : utils.colorToastRechazada,
+      child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0)),
+              primary: idRespuesta == 1
+                  ? utils.colorAcentuado
+                  : utils.colorToastRechazada),
           child: Container(
               alignment: Alignment.center,
               width: 100,
@@ -269,7 +282,8 @@ class _AgoraPageState extends State<AgoraPage> {
                       ),
                       borderRadius: BorderRadius.circular(20),
                     );
-                    Navigator.pushNamedAndRemoveUntil(context, 'main', (route) => false);
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, 'main', (route) => false);
                   });
                 }),
     );
@@ -278,7 +292,8 @@ class _AgoraPageState extends State<AgoraPage> {
   // Display remote user's video
   Widget _remoteVideo() {
     if (_remoteUid != null) {
-      return rtcRemoteView.SurfaceView(uid: _remoteUid);
+      return rtcRemoteView.SurfaceView(
+          uid: _remoteUid!, channelId: widget.channelCall);
     } else {
       return const Text(
         'Conectando...',
@@ -290,6 +305,6 @@ class _AgoraPageState extends State<AgoraPage> {
   @override
   void dispose() {
     super.dispose();
-    _engine.destroy();
+    _engine?.destroy();
   }
 }

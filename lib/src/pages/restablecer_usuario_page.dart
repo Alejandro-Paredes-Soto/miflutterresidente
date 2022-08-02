@@ -26,7 +26,7 @@ class _RestablecerUsuarioPageState extends State<RestablecerUsuarioPage> {
     );
   }
 
-  Widget _creaAppBar() {
+  AppBar _creaAppBar() {
     return AppBar(
       leading: BackButton(),
       elevation: 0,
@@ -87,7 +87,7 @@ class _RestablecerUsuarioPageState extends State<RestablecerUsuarioPage> {
         hintText: 'mail@ejemplo.com',
       ),
       validator: (texto) {
-        if (textoVacio(texto))
+        if (textoVacio(texto!))
           return 'Ingresa tu correo electrónico';
         else if (!correoValido(texto))
           return 'El correo escrito no es válido';
@@ -131,10 +131,10 @@ class _RestablecerUsuarioPageState extends State<RestablecerUsuarioPage> {
   }
 
   void _submit() {
-    if (!formKeyRestPass.currentState.validate())
+    if (!formKeyRestPass.currentState!.validate())
       return;
     else {
-      formKeyRestPass.currentState.save();
+      formKeyRestPass.currentState!.save();
       FocusScope.of(context).unfocus();
       setState(() => _enviando = true);
       _accionRestablecer();

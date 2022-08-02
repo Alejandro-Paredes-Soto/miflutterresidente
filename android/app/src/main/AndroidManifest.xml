@@ -31,7 +31,7 @@
     </queries>
      <!-- <application android:name=".Application"/> -->
     <application
-        android:name="io.flutter.app.FlutterApplication"
+        android:name="{{aplicationName}}"
         android:label="Dostop"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
@@ -68,5 +68,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
     </application>
 </manifest>

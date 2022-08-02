@@ -19,11 +19,12 @@ class AvisosProvider {
     validaSesion.verificaSesion();
     try {
       final resp = await http
-          .post('${constantes.urlApp}/obtener_notificaciones.php', body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
-      final List<AvisoModel> avisos = new List();
+          .post(Uri.parse('${constantes.urlApp}/obtener_notificaciones.php'), body: {'id': idUsuario});
+      List? decodeResp = json.decode(resp.body);
+      final List<AvisoModel> avisos = [];
       if (decodeResp == null) return [];
       decodeResp.forEach((aviso) {
+        //  print('$aviso');
         final tempAviso = AvisoModel.fromJson(aviso);
         avisos.add(tempAviso);
       });
@@ -37,9 +38,9 @@ class AvisosProvider {
   Future<List<AvisoModel>> obtenerUltimosAvisos(String idUsuario) async {
     try {
       final resp = await http
-          .post('${constantes.urlApp}/obtener_ultimos_avisos.php', body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
-      final List<AvisoModel> avisos = new List();
+          .post(Uri.parse('${constantes.urlApp}/obtener_ultimos_avisos.php'), body: {'id': idUsuario});
+      List? decodeResp = json.decode(resp.body);
+      final List<AvisoModel> avisos = [];
       if (decodeResp == null) return [];
       decodeResp.forEach((aviso) {
         //  print('$aviso');
@@ -57,9 +58,9 @@ class AvisosProvider {
   Future<Map<int, dynamic>> obtenerUltimaEncuesta(String idUsuario) async {
     validaSesion.verificaSesion();
     try {
-      final resp = await http.post('${constantes.urlApp}/obtener_ultima_encuesta_disp.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/obtener_ultima_encuesta_disp.php'),
           body: {'id': idUsuario});
-      Map encuesta = json.decode(resp.body);
+      Map? encuesta = json.decode(resp.body);
       if (encuesta == null) return {};
       if (encuesta.containsKey('datos_encuesta')) {
         return {
@@ -75,14 +76,14 @@ class AvisosProvider {
   }
 
   Future<Map<int, dynamic>> enviarRespuestaEncuesta(
-      String idUsuario, int idRespuesta) async {
+      String idUsuario, int? idRespuesta) async {
     try {
       final resp = await http
-          .post('${constantes.urlApp}/enviar_respuesta_encuesta_resultados.php', body: {
+          .post(Uri.parse('${constantes.urlApp}/enviar_respuesta_encuesta_resultados.php'), body: {
         'id': idUsuario,
         'id_respuesta': idRespuesta.toString(),
       });
-      Map decodeResp = json.decode(resp.body);
+      Map? decodeResp = json.decode(resp.body);
       print(decodeResp);
       if (decodeResp == null) return {};
       if (decodeResp.containsKey('resultados')) {
@@ -106,8 +107,8 @@ class AvisosProvider {
   Future<Map<int, dynamic>> obtenerNumeroCaseta(String idUsuario) async {
     try {
       final resp = await http
-          .post('${constantes.urlApp}/obtener_numero_caseta.php', body: {'id': idUsuario});
-      Map decodeResp = json.decode(resp.body);
+          .post(Uri.parse('${constantes.urlApp}/obtener_numero_caseta.php'), body: {'id': idUsuario});
+      Map? decodeResp = json.decode(resp.body);
       // print(decodeResp);
       if (decodeResp == null) return {};
       if (decodeResp.containsKey('numero')) {

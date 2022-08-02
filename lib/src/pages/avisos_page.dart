@@ -29,15 +29,15 @@ class _AvisosPageState extends State<AvisosPage> {
       builder:
           (BuildContext context, AsyncSnapshot<List<AvisoModel>> snapshot) {
         if (snapshot.hasData) {
-          if (snapshot.data.length > 0) {
+          if (snapshot.data!.length > 0) {
             return Container(
               child: RefreshIndicator(
                 onRefresh: _obtenerUltimosAvisos,
                 child: ListView.separated(
                   padding: EdgeInsets.all(15),
-                  itemCount: snapshot.data.length,
+                  itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) =>
-                      _crearItem(context, snapshot.data[index]),
+                      _crearItem(context, snapshot.data![index]),
                   separatorBuilder: (context, index) => SizedBox(height: 15.0),
                 ),
               ),
@@ -103,10 +103,12 @@ class _AvisosPageState extends State<AvisosPage> {
                 SizedBox(width: 15),
                 Expanded(
                   flex: 1,
-                  child: RaisedButton(
-                    padding: EdgeInsets.all(10),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0)),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                              padding: const EdgeInsets.all(10.0)
+                    ),
                     child: AutoSizeText('Ver más',
                         textAlign: TextAlign.center,
                         maxLines: 2,

@@ -41,8 +41,8 @@ class _NuevoVisitanteFrecuentePageState
   bool _esCodigoUnico = false;
   bool _bloqueaUnicaOcasion = false;
   String _codigo = '00000000';
-  List<TipoVisitanteModel> tipoVisita = new List();
-  List<DropdownMenuItem<String>>  listTipo = new List();
+  List<TipoVisitanteModel> tipoVisita = [];
+  List<DropdownMenuItem<String>>  listTipo = [];
 
   @override
   void initState() {
@@ -136,9 +136,11 @@ class _NuevoVisitanteFrecuentePageState
             children: <Widget>[
               _creaQR(_codigo),
               SizedBox(height: 20),
-              RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))
+                ),
                 child: Container(
                   height: 60,
                   child: Row(
@@ -171,9 +173,11 @@ class _NuevoVisitanteFrecuentePageState
                       },
               ),
               SizedBox(height: 10),
-              FlatButton(
-                shape: RoundedRectangleBorder(
+              TextButton(
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
+                ),
                 child: Container(
                   height: 60,
                   child: Row(
@@ -250,7 +254,7 @@ class _NuevoVisitanteFrecuentePageState
     imageTools.Image image = imageTools.Image(450, 530);
     imageTools.fill(image, imageTools.getColor(255, 255, 255));
     imageTools.drawImage(
-        image, imageTools.decodePng(imageqr.buffer.asUint8List()),
+        image, imageTools.decodePng(imageqr!.buffer.asUint8List())!,
         dstX: 50, dstY: 40);
     imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
         color: imageTools.getColor(0, 0, 0));
@@ -301,7 +305,7 @@ class _NuevoVisitanteFrecuentePageState
         FocusScope.of(context).requestFocus(sigFocusText);
       },
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el nombre';
         else
           return null;
@@ -330,7 +334,7 @@ class _NuevoVisitanteFrecuentePageState
         FocusScope.of(context).requestFocus(sigFocusText2);
       },
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el apellido paterno';
         else
           return null;
@@ -356,7 +360,7 @@ class _NuevoVisitanteFrecuentePageState
         labelText: label,
       ),
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el apellido materno';
         else
           return null;
@@ -373,9 +377,9 @@ class _NuevoVisitanteFrecuentePageState
           isExpanded: true,
           value: _seleccionTipoVisitante,
           items: listTipo,
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionTipoVisitante = opc;
+              _seleccionTipoVisitante = opc!;
             });
           },
         ),
@@ -392,9 +396,9 @@ class _NuevoVisitanteFrecuentePageState
           isExpanded: true,
           value: _seleccionVigencia,
           items: getOpcionesDropdown(),
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionVigencia = opc;
+              _seleccionVigencia = opc!;
               if (int.parse(opc) > 3) {
                 _bloqueaUnicaOcasion = true;
                 _esCodigoUnico = false;
@@ -405,25 +409,7 @@ class _NuevoVisitanteFrecuentePageState
         ),
       ),
     );
-
-    //NO OLVIDAR REMOVER EL COMENTARIO - ESTA DISPONIBLE EN NUEVAS VERSIONES DE SDK DE FLUTTER >= 1.12.13H5
-    // return IgnorePointer(
-    //   ignoring: _registrando,
-    //   child: DropdownButton(
-    //     focusNode: FocusNode(), <- ESTA ES LA LINEA DE CODIGO QUE CAMBIA
-    //     isExpanded: true,
-    //     value: _seleccionVigencia,
-    //     items: getOpcionesDropdown(),
-    //     onChanged: (opc) {
-    //       setState(() {
-    //         _seleccionVigencia = opc;
-
-    //       });
-    //     },
-    //   ),
-    // );
   }
-
 
   List<DropdownMenuItem<String>> getOpcionesDropdown() {
     return [
@@ -525,11 +511,13 @@ class _NuevoVisitanteFrecuentePageState
             'El tiempo de validez comienza a correr a partir de seleccionar “Crear Invitación”',
             style: utils.estiloTextoAppBar(16)),
         SizedBox(height: 10),
-        RaisedButton(
-          color: utils.colorAcentuado,
-          disabledColor: utils.colorSecundario,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: utils.colorAcentuado,
+            onSurface: utils.colorSecundario,
+            shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+          ),
           child: Container(
               alignment: Alignment.center,
               width: double.infinity,
@@ -561,10 +549,10 @@ class _NuevoVisitanteFrecuentePageState
   }
 
   void _submit() {
-    if (!formKey.currentState.validate())
+    if (!formKey.currentState!.validate())
       return;
     else {
-      formKey.currentState.save();
+      formKey.currentState!.save();
 
       setState(() => _registrando = true);
       _creaVisitante();

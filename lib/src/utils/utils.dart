@@ -1,14 +1,15 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flushbar/flushbar.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
-import 'package:permissions_plugin/permissions_plugin.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
@@ -63,8 +64,8 @@ LinearGradient colorGradienteSecundario = LinearGradient(
 double tamanoIcoNavBar = 28;
 double tamanoIcoModal = 20;
 double tamanoIcoSnackbar = 18;
-String rutaLogoParcoDark='assets/LogoParcoDark.png';
-String rutaLogoParcoLight='assets/LogoParcoLight.png';
+String rutaLogoParcoDark = 'assets/LogoParcoDark.png';
+String rutaLogoParcoLight = 'assets/LogoParcoLight.png';
 String rutaLogoDostopDPng = 'assets/LogoDostopD.png';
 String rutaLogoLetrasDostopPng = 'assets/LogoLetrasDostop.png';
 String rutaLogoLetrasDostopParco = 'assets/LogoLetrasDostopParco.png';
@@ -90,7 +91,7 @@ String rutaIconoAccesos = 'assets/IconoAccesos.svg';
 String rutaIconTipoAcceso = 'assets/accessType.svg';
 
 AppBar appBarLogo(
-    {@required String titulo, BackButton backbtn = const BackButton()}) {
+    {required String titulo, Widget? backbtn = const BackButton()}) {
   return AppBar(
     automaticallyImplyLeading: false,
     centerTitle: false,
@@ -123,7 +124,8 @@ Text dostopLogo() {
   );
 }
 
-TextStyle estiloFechaAviso(double fontSize, {Color color = const Color.fromRGBO(146, 152, 160, 1.0)}) {
+TextStyle estiloFechaAviso(double fontSize,
+    {Color color = const Color.fromRGBO(146, 152, 160, 1.0)}) {
   return TextStyle(
       fontSize: fontSize, fontWeight: FontWeight.w500, color: color);
 }
@@ -174,12 +176,11 @@ TextStyle estiloTextoSombreado(double fontSize,
 
 TextStyle estiloTituloInfoVisita(double fontSize) {
   return TextStyle(
-      color: colorAcentuado, fontSize: fontSize, fontWeight: FontWeight.w900,
+      color: colorAcentuado,
+      fontSize: fontSize,
+      fontWeight: FontWeight.w900,
       shadows: [
-        Shadow(
-            color: Colors.black,
-            blurRadius: 5,
-            offset: Offset(0, 0)),
+        Shadow(color: Colors.black, blurRadius: 5, offset: Offset(0, 0)),
       ]);
 }
 
@@ -190,7 +191,7 @@ Brightness temaStatusBar(BuildContext context) {
 }
 
 bool correoValido(String email) {
-  Pattern patternCorreoValido =
+  String patternCorreoValido =
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
   if (!RegExp(patternCorreoValido).hasMatch(email))
     return false;
@@ -206,10 +207,10 @@ bool textoVacio(String text) {
 }
 
 Flushbar creaSnackPersistent(IconData icon, String texto, Color color,
-    {Duration duration, dismissible = false}) {
+    {Duration? duration, dismissible = false}) {
   return Flushbar(
     flushbarPosition: FlushbarPosition.BOTTOM,
-    borderRadius: 5,
+    borderRadius: BorderRadius.circular(5),
     animationDuration: Duration(milliseconds: 300),
     icon: Icon(
       icon,
@@ -264,27 +265,30 @@ SnackBar creaSnackBarIconFn(Widget icon, String texto, int segundos,
     duration: Duration(seconds: segundos),
     action: SnackBarAction(
       label: textFn,
-      onPressed: funcionSnack,
+      onPressed: funcionSnack.call(),
     ),
   );
 }
 
-abrirPaginaWeb({@required String url}) async {
-  if (await canLaunch(url)) if (url.contains(RegExp(
-      r'(https?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)|(https?:\/\/)?(www\.)?(?!ww)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')))
-    await launch(url);
-  else
-    print('No es una dirección válida');
-  else
-    print('No se pudo abrir: $url');
+abrirPaginaWeb({required String url}) async {
+  if (await launchUrl(Uri.parse(url))) {
+    if (url.contains(RegExp(
+        r'(https?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)|(https?:\/\/)?(www\.)?(?!ww)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      log('No es una dirección válida');
+    }
+  } else {
+    log('No se pudo abrir: $url');
+  }
 }
 
-String fechaCompleta(DateTime tm, {bool showTime = false}) {
+String fechaCompleta(DateTime? tm, {bool showTime = false}) {
   if (tm == null) return "";
   DateTime today = new DateTime.now();
   Duration oneDay = new Duration(days: 1);
   Duration twoDay = new Duration(days: 2);
-  String month;
+  late String month;
   switch (tm.month) {
     case 1:
       month = 'enero';
@@ -336,12 +340,12 @@ String fechaCompleta(DateTime tm, {bool showTime = false}) {
   }
 }
 
-String fechaCompletaFuturo(DateTime tm, {String articuloDef = ''}) {
+String fechaCompletaFuturo(DateTime? tm, {String articuloDef = ''}) {
   if (tm == null) return '';
   DateTime today = DateTime.now();
   Duration oneDay = Duration(days: 1);
   final tomorrow = today.add(oneDay);
-  String month;
+  late String month;
   switch (tm.month) {
     case 1:
       month = 'enero';
@@ -392,105 +396,88 @@ String fechaCompletaFuturo(DateTime tm, {String articuloDef = ''}) {
 
 List<String> validaImagenes(List<String> imagenes) {
   List<String> list = [];
-  
+
   list.addAll(imagenes);
-  imagenes.forEach((item) {
+  imagenes.forEach((String? item) {
     if (item == '' || item == null) list.remove(item);
   });
   return list;
 }
 
-Future<List<Map<String, dynamic>>> validaImagenesOrientacion(List<String> imagenes) async {
+Future<List<Map<String, dynamic>>> validaImagenesOrientacion(
+    List<String> imagenes) async {
   List<Map<String, dynamic>> list = [];
 
   for (var i = 0; i < imagenes.length; i++) {
-    if(imagenes[i] != '' && imagenes[i] != null){
+    // ignore: unnecessary_null_comparison
+    if (imagenes[i] != null && imagenes[i] != '' ) {
       ui.Image img = await getImage(imagenes[i]);
       list.add({'img': imagenes[i], 'isVertical': img.height > img.width});
     }
   }
- 
+
   return list;
 }
 
 Future<ui.Image> getImage(String path) async {
-    var completer = Completer<ImageInfo>();
-    var img = new NetworkImage(path);
-    img
-        .resolve(const ImageConfiguration())
-        .addListener(ImageStreamListener((info, _) {
-      completer.complete(info);
-    }));
-    ImageInfo imageInfo = await completer.future;
-   
-    return imageInfo.image;
-  }
+  var completer = Completer<ImageInfo>();
+  var img = new NetworkImage(path);
+  img
+      .resolve(const ImageConfiguration())
+      .addListener(ImageStreamListener((info, _) {
+    completer.complete(info);
+  }));
+  ImageInfo imageInfo = await completer.future;
+
+  return imageInfo.image;
+}
 
 void descargaImagen(BuildContext context, String url) async {
-  Scaffold.of(context).showSnackBar(
-      creaSnackBarIcon(Icon(Icons.cloud_download), 'Descargando...', 1));
+  ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
+      Icon(
+        Icons.cloud_download,
+        color: Theme.of(context).snackBarTheme.actionTextColor
+      ),
+      'Descargando...',
+      1));
   try {
     if (Platform.isAndroid) {
-      if (!await obtenerPermisosAndroid())
+      if (!await obtenerPermisosAndroid()) {
         throw 'No tienes permisos de almacenamiento';
+      }
     }
-    var res = await http.get(url);
+    var res = await http.get(Uri.parse(url));
     await ImageGallerySaver.saveImage(Uint8List.fromList(res.bodyBytes));
-    // print(result);
-    Scaffold.of(context).showSnackBar(creaSnackBarIcon(
-        Icon(Icons.file_download), 'Imagen guardada', 2));
+    ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
+        Icon(
+          Icons.file_download,
+          color: Theme.of(context).snackBarTheme.actionTextColor
+        ),
+        'Imagen guardada',
+        2));
   } catch (e) {
-    Scaffold.of(context).showSnackBar(creaSnackBarIcon(
-        Icon(Icons.error), 'La imagen no pudo ser guardada', 2));
+    ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
+        Icon(
+          Icons.error,
+          color: Theme.of(context).snackBarTheme.actionTextColor
+        ),
+        'La imagen no pudo ser guardada',
+        2));
   }
 }
 
 Future<bool> obtenerPermisosAndroid() async {
-  Map<Permission, PermissionState> permission =
-      await PermissionsPlugin.checkPermissions(
-          [Permission.WRITE_EXTERNAL_STORAGE]);
+  var status = await Permission.storage.status;
 
-  if (permission[Permission.WRITE_EXTERNAL_STORAGE] !=
-      PermissionState.GRANTED) {
-    try {
-      permission = await PermissionsPlugin.requestPermissions(
-          [Permission.WRITE_EXTERNAL_STORAGE]);
-    } on Exception {
-      return false;
-    }
+  if (status.isDenied) {
+    status = await Permission.storage.request();
+  }
 
-    if (permission[Permission.WRITE_EXTERNAL_STORAGE] ==
-        PermissionState.GRANTED)
-      return true;
-    else
-      return false;
-  } else {
+  if (status.isGranted) {
     return true;
   }
-}
 
-Future<bool> obtenerPermisosAndroidMic() async {
-  Map<Permission, PermissionState> permission =
-      await PermissionsPlugin.checkPermissions(
-          [Permission.RECORD_AUDIO]);
-
-  if (permission[Permission.RECORD_AUDIO] !=
-      PermissionState.GRANTED) {
-    try {
-      permission = await PermissionsPlugin.requestPermissions(
-          [Permission.RECORD_AUDIO]);
-    } on Exception {
-      return false;
-    }
-
-    if (permission[Permission.RECORD_AUDIO] ==
-        PermissionState.GRANTED)
-      return true;
-    else
-      return false;
-  } else {
-    return true;
-  }
+  return false;
 }
 
 String obtenerIDPlataforma(BuildContext context) {

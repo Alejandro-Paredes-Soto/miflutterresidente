@@ -12,20 +12,21 @@ class CountdownTimer extends StatefulWidget {
   final String hoursSymbol;
   final String minSymbol;
   final String secSymbol;
-  final TextStyle textStyle;
-  final TextStyle daysTextStyle;
-  final TextStyle hoursTextStyle;
-  final TextStyle minTextStyle;
-  final TextStyle secTextStyle;
-  final TextStyle daysSymbolTextStyle;
-  final TextStyle hoursSymbolTextStyle;
-  final TextStyle minSymbolTextStyle;
-  final TextStyle secSymbolTextStyle;
+  final TextStyle? textStyle;
+  final TextStyle? daysTextStyle;
+  final TextStyle? hoursTextStyle;
+  final TextStyle? minTextStyle;
+  final TextStyle? secTextStyle;
+  final TextStyle? daysSymbolTextStyle;
+  final TextStyle? hoursSymbolTextStyle;
+  final TextStyle? minSymbolTextStyle;
+  final TextStyle? secSymbolTextStyle;
   final bool showZeroNumbers;
-  final void Function() onEnd;
+  final void Function()? onEnd;
+  final MainAxisSize mainAxisSize;
 
-  CountdownTimer(
-      {this.endTime,
+  const CountdownTimer(
+      {Key? key, required this.endTime,
       this.defaultDays = "--",
       this.defaultHours = "--",
       this.defaultMin = "--",
@@ -44,18 +45,20 @@ class CountdownTimer extends StatefulWidget {
       this.minSymbolTextStyle,
       this.secSymbolTextStyle,
       this.onEnd,
-      this.showZeroNumbers = true});
+      this.showZeroNumbers = true, 
+      this.mainAxisSize = MainAxisSize.max}) : super(key: key);
 
   @override
   _CountDownState createState() => _CountDownState();
 }
 
 class _CountDownState extends State<CountdownTimer> {
-  DiffDate diffDate;
-  Timer _diffTimer;
-  final defaultTextStyle = TextStyle(fontSize: 20);
+  DiffDate? diffDate;
+  Timer? _diffTimer;
+  final defaultTextStyle = const TextStyle(fontSize: 20);
 
-  DiffDate getDateData() {
+  DiffDate? getDateData() {
+    // ignore: unnecessary_null_comparison
     if (widget.endTime == null) return null;
     int diff = ((widget.endTime - DateTime.now().millisecondsSinceEpoch) / 1000)
         .floor();
@@ -95,7 +98,7 @@ class _CountDownState extends State<CountdownTimer> {
   }
 
   timerDiffDate() {
-    DiffDate data = getDateData();
+    DiffDate? data = getDateData();
     if (data != null) {
       setState(() {
         diffDate = data;
@@ -104,10 +107,10 @@ class _CountDownState extends State<CountdownTimer> {
       return null;
     }
     disposeDiffTimer();
-    const period = const Duration(seconds: 1);
+    const period = Duration(seconds: 1);
     _diffTimer = Timer.periodic(period, (timer) {
       //到时回调
-      DiffDate data = getDateData();
+      DiffDate? data = getDateData();
       if (data != null) {
         setState(() {
           diffDate = data;
@@ -141,6 +144,7 @@ class _CountDownState extends State<CountdownTimer> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: widget.mainAxisSize,
       children: _items(),
     );
   }
@@ -154,10 +158,10 @@ class _CountDownState extends State<CountdownTimer> {
     if (diffDate == null) {
       return list;
     }
-    if (diffDate.days != -1) {
-      var days = _getNumberAddZero(diffDate.days);
+    if (diffDate?.days != -1) {
+      var days = _getNumberAddZero(diffDate!.days);
       list.add(Text(
-        '${days ?? widget.defaultDays}',
+        days ?? widget.defaultDays,
         style: _getTextStyle(widget.daysTextStyle),
       ));
       list.add(Text(
@@ -165,12 +169,12 @@ class _CountDownState extends State<CountdownTimer> {
         style: _getTextStyle(widget.daysSymbolTextStyle),
       ));
     }
-    if (diffDate.hours != -1) {
-      if (diffDate.hours != 0 ||
-          (diffDate.hours == 0 && widget.showZeroNumbers)) {
-        var hours = _getNumberAddZero(diffDate.hours);
+    if (diffDate?.hours != -1) {
+      if (diffDate?.hours != 0 ||
+          (diffDate?.hours == 0 && widget.showZeroNumbers)) {
+        var hours = _getNumberAddZero(diffDate!.hours);
         list.add(Text(
-          '${hours ?? widget.defaultHours}',
+          hours ?? widget.defaultHours,
           style: _getTextStyle(widget.hoursTextStyle),
         ));
         list.add(Text(
@@ -179,11 +183,11 @@ class _CountDownState extends State<CountdownTimer> {
         ));
       }
     }
-    if (diffDate.min != -1) {
-      if (diffDate.min != 0 || (diffDate.min == 0 && widget.showZeroNumbers)) {
-        var min = _getNumberAddZero(diffDate.min);
+    if (diffDate?.min != -1) {
+      if (diffDate?.min != 0 || (diffDate?.min == 0 && widget.showZeroNumbers)) {
+        var min = _getNumberAddZero(diffDate!.min);
         list.add(Text(
-          '${min ?? widget.defaultMin}',
+          min ?? widget.defaultMin,
           style: _getTextStyle(widget.minTextStyle),
         ));
         list.add(Text(
@@ -192,12 +196,12 @@ class _CountDownState extends State<CountdownTimer> {
         ));
       }
     }
-    if (diffDate.sec != -1) {
-      if (diffDate.sec != 0 ||
-          (diffDate.sec == 0 && widget.showZeroNumbers)) {
-        var sec = _getNumberAddZero(diffDate.sec);
+    if (diffDate?.sec != -1) {
+      if (diffDate?.sec != 0 ||
+          (diffDate?.sec == 0 && widget.showZeroNumbers)) {
+        var sec = _getNumberAddZero(diffDate!.sec);
         list.add(Text(
-          '${sec ?? widget.defaultSec}',
+          sec ?? widget.defaultSec,
           style: _getTextStyle(widget.secTextStyle),
         ));
         list.add(Text(
@@ -209,7 +213,7 @@ class _CountDownState extends State<CountdownTimer> {
     return list;
   }
 
-  String _getNumberAddZero(int number) {
+  String? _getNumberAddZero(int? number) {
     if (number == null) {
       return null;
     }
@@ -221,7 +225,7 @@ class _CountDownState extends State<CountdownTimer> {
 
   void checkDateEnd(DiffDate data) {
     if (data.days == -1 && data.hours == 0 && data.min == 0 && data.sec == 0) {
-      widget.onEnd();
+      widget.onEnd!();
       disposeDiffTimer();
     }
   }
@@ -233,5 +237,5 @@ class DiffDate {
   final int min;
   final int sec;
 
-  DiffDate({this.days, this.hours, this.min, this.sec});
+  DiffDate({required this.days, required this.hours, required this.min, required this.sec});
 }

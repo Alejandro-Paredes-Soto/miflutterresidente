@@ -9,8 +9,8 @@ class AreaComunModel {
     String idAreasComunes;
 
     AreaComunModel({
-        this.nombre,
-        this.idAreasComunes,
+        required this.nombre,
+        required this.idAreasComunes,
     });
 
     factory AreaComunModel.fromJson(Map<String, dynamic> json) => AreaComunModel(
