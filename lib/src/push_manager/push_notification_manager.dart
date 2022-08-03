@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
@@ -20,24 +21,27 @@ class PushNotificationsManager {
 
   MensajeStream mensajeStream = MensajeStream.instancia;
   final notifProvider = NotificacionesProvider();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   List<String> idsVisitas = [];
 
   Future<void> initNotifications() async {
-    _firebaseMessaging.requestPermission();
+    final FirebaseMessaging messaging = FirebaseMessaging.instance;
+    messaging.requestPermission();
 
-    _firebaseMessaging.getToken().then((token) {
+    messaging.getToken().then((token) {
+      log("token $token");
       if(token != null){
         _prefs.token = token;
       }
     });
 
     FirebaseMessaging.onMessage.listen((event) async {
+      log('message');
       if(event.notification != null)
         _evaluaMensaje(event);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      log("message ${event.notification}");
       if(event.notification != null)
         _evaluaMensaje(event);
     });
@@ -47,7 +51,7 @@ class PushNotificationsManager {
     String titulo = '';
     String mensaje = '';
     String imgAviso = '';
-    print(info);
+  
     if (Platform.isAndroid) {
       titulo = info.notification!.title.toString().toLowerCase();
       mensaje = info.notification!.body ?? '';
@@ -107,7 +111,7 @@ class PushNotificationsManager {
         break;
       case 'áreas comunes':
         mensajeStream.addMessage(
-            {'areas': mensaje ?? 'Nueva notificación en áreas comunes'});
+            {'areas': mensaje});
         break;
       //IMPLEMENTACIÓN A FUTURO, EN RESPUESTA DE LUIS PARA APLICARLO Y DE FERNANDO PARA VALIDARLO
       //   case 'respuesta incidente':

@@ -38,7 +38,7 @@ class LoginValidator {
           DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString()
     };
     try {
-      final resp = await http.post(Uri.parse('${constantes.urlApp}/validar_sesion_os.php'), body: authData);
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/validar_sesion2.php'), body: authData);
       mapResp = json.decode(resp.body);
       //decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
       if (resp.statusCode != 404 || resp.statusCode != 500) {

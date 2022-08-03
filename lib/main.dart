@@ -22,6 +22,7 @@ import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   final prefs = new PreferenciasUsuario();
   await prefs.initPrefs();
   runApp(MyApp());

@@ -215,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
 
   _navegarAHome() async {
     Map estatus = await loginProvider
-        .registrarTokenOS(utils.obtenerIDPlataforma(context));
+        .registrarTokenFCM(utils.obtenerIDPlataforma(context));
     switch (estatus['OK']) {
       case 0:
         print(estatus['message']);

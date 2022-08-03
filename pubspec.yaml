@@ -17,42 +17,41 @@ environment:
   sdk: ">=2.16.2 <3.0.0"
 
 dependencies:
-  agora_rtc_engine: ^5.2.0
-  another_flushbar: ^1.10.29
+  agora_rtc_engine: 5.2.0
+  another_flushbar: 1.10.28
   auto_size_text: ^3.0.0
   cached_network_image: ^3.2.0
   cupertino_icons: ^1.0.5
-  firebase_messaging: ^12.0.1
+  custom_pop_up_menu: ^1.2.3+1
+  firebase_core: ^1.20.0
+  firebase_messaging: ^11.3.0
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   flutter_speed_dial: ^6.0.0
   flutter_staggered_animations: ^1.0.0
-  flutter_styled_toast: ^2.0.0
+  flutter_styled_toast: 2.0.0
   flutter_svg: ^1.0.3
   flutter_swiper_plus: ^2.0.4
   http: null
   image: null
-  image_gallery_saver: ^1.2.2
+  image_gallery_saver: ^1.7.1
   image_picker: ^0.8.5+3
   intl: null
   onesignal_flutter: ^3.3.2
   pagination_view: ^2.0.0
   path_provider: null
   permission_handler: ^10.0.0
-  pie_chart: null
+  pie_chart: ^5.3.2
   pinch_zoom_image_last: ^0.4.1
-  qr_flutter: null
-  share_extend: null
+  qr_flutter: ^4.0.0
+  share_extend: ^2.0.0
   shared_preferences: ^2.0.15
   table_calendar: ^3.0.6
   url_launcher: ^6.1.5
   whatsapp_unilink: ^2.0.2
   zoom_widget: ^0.2.1
-
-dependency_overrides:
-  cached_network_image: ^2.3.3
 
 dev_dependencies:
   flutter_test:

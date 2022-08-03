@@ -19,6 +19,14 @@ class PreferenciasUsuario {
     this._prefs = await SharedPreferences.getInstance();
   }
 
+  bool get qrResidente {
+    return _prefs.getBool('qrResidente') ?? false;
+  }
+
+  set qrResidente(bool value) {
+    _prefs.setBool('qrResidente', value);
+  }
+
   // GET y SET del token
   String get token {
     return _prefs.getString('token') ?? '';
