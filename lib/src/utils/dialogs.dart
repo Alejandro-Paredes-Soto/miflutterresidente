@@ -180,8 +180,11 @@ void creaDialogQR(
     String textOpcionPos,
     String textOpcionNeg,
     Function() funcionPos,
-    Function() funcionNeg) {
+    Function() funcionNeg,
+    {bool barrierDismissible = true,
+    bool btnPos = true}) {
   showDialog(
+      barrierDismissible: barrierDismissible,
       context: context,
       builder: (ctx) {
         return AlertDialog(
@@ -215,24 +218,27 @@ void creaDialogQR(
                           borderRadius: BorderRadius.circular(15.0),
                           child: contenido),
                       SizedBox(height: 20),
-                      Flexible(
-                        child: ElevatedButton(
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 60,
-                            width: 220,
-                            child: AutoSizeText(
-                              textOpcionPos,
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              style: estiloBotones(13, color: Colors.black),
+                      Visibility(
+                        visible: btnPos,
+                        child: Flexible(
+                          child: ElevatedButton(
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: 60,
+                              width: 220,
+                              child: AutoSizeText(
+                                textOpcionPos,
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                style: estiloBotones(13, color: Colors.black),
+                              ),
                             ),
-                          ),
-                          onPressed: funcionPos,
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15)),
+                            onPressed: funcionPos,
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            ),
                           ),
                         ),
                       ),

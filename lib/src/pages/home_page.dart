@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
@@ -19,6 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../main.dart';
+import '../providers/codigos_residente_provider.dart';
+import '../widgets/custom_qr.dart';
 
 class HomePage extends StatefulWidget {
   final PageController? pageController;
@@ -34,15 +37,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _loginProvider = LoginProvider();
   final _prefs = PreferenciasUsuario();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _residenteProvider = CodigosResidenteProvider();
 
-  bool _nuevaEncuesta = false, _accesos = false;
+  CustomPopupMenuController _controller = CustomPopupMenuController();
+  bool _nuevaEncuesta = false, _accesos = false, _qrResidente = false;
   EncuestaModel? _datosEncuesta;
   int _noMolestar = 2;
   String _numeroCaseta = '';
 
   void _obtenerEncuesta() {
     avisosProvider.obtenerUltimaEncuesta(_prefs.usuarioLogged).then((encuesta) {
-      ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
       if (!mounted) return;
       setState(() {
         if (encuesta.containsKey(1) && !_nuevaEncuesta) {
@@ -99,6 +103,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           _noMolestar = estadoNoMolestar['valor'] == '1' ? 1 : 0;
         } else {
           _noMolestar = 3;
+        }
+      });
+    });
+
+    configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 7)
+        .then((estadoAccesos) {
+      if (!mounted) return;
+      setState(() {
+        if (estadoAccesos.containsKey('valor')) {
+          _qrResidente = estadoAccesos['valor'] == '1';
         }
       });
     });
@@ -170,8 +185,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ],
               ),
               onPressed: MyApp.of(context)!.changeTheme),
-          SizedBox(width: 10),
-          IconButton(
+          const SizedBox(width: 10),
+          _creaBtnContacto(),
+          const SizedBox(width: 15),
+        ],
+      ),
+      body: _creaBody(),
+    );
+  }
+
+  Widget _creaBtnContacto() {
+    return _numeroCaseta != '' && _qrResidente
+        ? _creaMenuContacto()
+        : IconButton(
             padding: EdgeInsets.all(0),
             onPressed: _abrirSoporte,
             icon: Column(
@@ -184,12 +210,97 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ),
                 Text('Soporte', style: TextStyle(fontSize: 10)),
               ],
+            ));
+  }
+
+  Widget _creaMenuContacto() {
+    return CustomPopupMenu(
+        horizontalMargin: 15,
+        verticalMargin: 5,
+        barrierColor: Colors.black45,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              utils.rutaIconoWhastApp,
+              height: 30,
+              color: Theme.of(context).iconTheme.color,
             ),
+            Text('Contacto', style: TextStyle(fontSize: 10)),
+          ],
+        ),
+        menuBuilder: () => ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Container(
+                child: IntrinsicWidth(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _creaItemContacto(
+                          title: 'Caseta',
+                          rutaIcon: utils.rutaIconoCaseta,
+                          onPressed: () {
+                            _launchWhatsApp(_numeroCaseta, '');
+                            _controller.hideMenu();
+                          }),
+                      const SizedBox(height: 15),
+                      _creaItemContacto(
+                          title: 'Soporte app',
+                          icon: Icons.phone_iphone_rounded,
+                          onPressed: () {
+                            _controller.hideMenu();
+                            _abrirSoporte();
+                          }),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        pressType: PressType.singleClick,
+        controller: _controller);
+  }
+
+  Widget _creaItemContacto(
+      {
+      required String title,
+      IconData? icon,
+      String rutaIcon = '',
+      required Function() onPressed}) {
+    return GestureDetector(
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(
+            child: Container(
+                alignment: Alignment.center,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                width: 180,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(15)),
+                child: Text(title,
+                    textAlign: TextAlign.center,
+                    style: utils.estiloBotones(16,
+                        color: Theme.of(context).textTheme.bodyText2!.color!))),
           ),
-          SizedBox(width: 15),
+          const SizedBox(width: 10),
+          Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+                color: utils.colorPrincipal, shape: BoxShape.circle),
+            child: rutaIcon == ''
+                ? Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 30,
+                  )
+                : SvgPicture.asset(rutaIcon, height: 30, color: Colors.white),
+          ),
         ],
       ),
-      body: _creaBody(),
+      onTap: onPressed,
     );
   }
 
@@ -330,10 +441,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             child: Container(
               padding: EdgeInsets.only(left: 12),
               child: _creaBtnIconoMini(
-                rutaIcono: utils.rutaIconoPromociones,
-                titulo: 'Promos',
-                ruta: 'promociones',
-              ),
+                  rutaIcono: _qrResidente
+                      ? utils.rutaIconQR
+                      : utils.rutaIconoPromociones,
+                  titulo: _qrResidente ? 'Código\nresidente' : 'Promos',
+                  ruta: _qrResidente ? null : 'promociones',
+                  onPressed: () {
+                    if (_qrResidente) _generarCodigo();
+                  }),
             ),
           ),
         ],
@@ -341,7 +456,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _creaQuintaFila() {
+   Widget _creaQuintaFila() {
     return Container(
       height: 120,
       padding: EdgeInsets.only(top: 20.0),
@@ -357,21 +472,34 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       ruta: 'misAccesos'))),
           Visibility(visible: _accesos, child: SizedBox(width: 20)),
           Visibility(
-              visible: _numeroCaseta != '',
+            visible: _qrResidente,
+            child: Expanded(
+                child: _creaBtnIconoMini(
+              rutaIcono: utils.rutaIconoPromociones,
+              titulo: 'Promos',
+              ruta: 'promociones',
+            )),
+          ),
+          Visibility(
+              visible: _numeroCaseta != '' && !_qrResidente,
               child: Expanded(
                   child: _creaBtnIconoMini(
                       rutaIcono: utils.rutaIconoCaseta,
                       titulo: 'Contacto\na caseta',
                       onPressed: () => _launchWhatsApp(_numeroCaseta, '')))),
-          Visibility(visible: _numeroCaseta != '', child: SizedBox(width: 20)),
+          Visibility(
+              visible: _numeroCaseta != '' || _qrResidente,
+              child: SizedBox(width: 20)),
           Expanded(
               child: _creaBtnIconoMini(
                   rutaIcono: utils.rutaIconoCerrarSesion,
                   titulo: 'Cerrar sesión',
                   onPressed: _cerrarSesion)),
-          Visibility(visible: _numeroCaseta == '', child: SizedBox(width: 20)),
           Visibility(
-              visible: _numeroCaseta == '',
+              visible: _numeroCaseta == '' && !_qrResidente,
+              child: SizedBox(width: 20)),
+          Visibility(
+              visible: _numeroCaseta == '' && !_qrResidente,
               child: Expanded(child: Container())),
           Visibility(visible: !_accesos, child: SizedBox(width: 20)),
           Visibility(visible: !_accesos, child: Expanded(child: Container())),
@@ -730,6 +858,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           '524775872189', 'Hola. Necesito ayuda con la aplicación Dostop.');
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
+  }
+
+  _generarCodigo() async {
+    creaDialogProgress(context, 'Generando código...');
+    final codeResponse =
+        await _residenteProvider.newCodigoResidente(_prefs.usuarioLogged);
+    Navigator.pop(context);
+    if (codeResponse['statusCode'] == 201) {
+      final fecha = DateTime.tryParse(codeResponse["vigencia"] ?? "");
+      creaDialogQR(
+          _scaffoldKey.currentContext!,
+          '',
+          Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: CustomQr(code: codeResponse['codigo'], date: fecha,)),
+            ],
+          ),
+          '',
+          'Cancelar',
+          () => {},
+          () => Navigator.of(_scaffoldKey.currentContext!).pop('dialog'),
+          barrierDismissible: false,
+          btnPos: false);
+    } else {
+      creaDialogSimple(
+          context,
+          '¡Ups! algo salió mal',
+          'Estatus: ${codeResponse['status']}. código de error: ${codeResponse['statusCode']}',
+          'Aceptar',
+          () => Navigator.pop(context));
+    }
   }
 
   _cerrarSesion() {
