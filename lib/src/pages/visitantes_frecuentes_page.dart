@@ -171,16 +171,16 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         padding: EdgeInsets.only(top: 15.0),
         itemCount: lista.length,
         itemBuilder: (context, index) => Column(
-      children: [
-        _tabIndex == 0
-            ? _crearItem(context, lista[index])
-            : _crearItemRostro(context, lista[index]),
-        Visibility(
-            visible: index == (lista.length - 1),
-            child: SizedBox(
-              height: 70,
-            ))
-      ],
+          children: [
+            _tabIndex == 0
+                ? _crearItem(context, lista[index])
+                : _crearItemRostro(context, lista[index]),
+            Visibility(
+                visible: index == (lista.length - 1),
+                child: SizedBox(
+                  height: 70,
+                ))
+          ],
         ),
       );
     } else {
@@ -226,8 +226,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                         : utils.estiloTituloTarjeta(
                             12,
                           )),
-                visitante.vigencia!
-                        .isBefore(DateTime.now().add(Duration(days: 31)))
+                visitante.vigencia != null &&
+                        visitante.vigencia!
+                            .isBefore(DateTime.now().add(Duration(days: 31)))
                     ? CountdownTimer(
                         endTime: visitante.vigencia!.millisecondsSinceEpoch,
                         defaultDays: '0',
@@ -265,20 +266,35 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                     height: 50,
                     alignment: Alignment.center,
                     child: Text(
-                      'Ver código',
+                      (visitante.telefono.isNotEmpty &&
+                              visitante.codigo.isEmpty)
+                          ? 'Invitación Parco'
+                          : 'Ver código',
                       style: utils.estiloBotones(12),
                     ),
                   ),
                   onPressed: () {
-                    creaDialogQR(
-                        _scaffoldKey.currentContext!,
-                        '',
-                        _creaQR(visitante.codigo),
-                        'Compartir',
-                        'Cancelar',
-                        () => _compartir(visitante.codigo),
-                        () => Navigator.of(_scaffoldKey.currentContext!)
-                            .pop('dialog'));
+                    if ((visitante.telefono.isNotEmpty &&
+                        visitante.codigo.isEmpty)) {
+                      creaDialogInvite(
+                          _scaffoldKey.currentContext!,
+                          'Invitación con Parco',
+                          _crearDatosInvite(visitante),
+                          'Cancelar',
+                          () => {},
+                          () => Navigator.of(_scaffoldKey.currentContext!)
+                              .pop('dialog'));
+                    } else {
+                      creaDialogQR(
+                          _scaffoldKey.currentContext!,
+                          '',
+                          _creaQR(visitante.codigo),
+                          'Compartir',
+                          'Cancelar',
+                          () => _compartir(visitante.codigo),
+                          () => Navigator.of(_scaffoldKey.currentContext!)
+                              .pop('dialog'));
+                    }
                   },
                 ),
                 SizedBox(height: 15),
@@ -503,12 +519,18 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         case 1:
           setState(() {});
           ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.delete, color: Theme.of(context).snackBarTheme.actionTextColor), 'Visitante eliminado', 5));
+              Icon(Icons.delete,
+                  color: Theme.of(context).snackBarTheme.actionTextColor),
+              'Visitante eliminado',
+              5));
           break;
         case 2:
           _dialogAbierto = false;
           ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.error, color: Theme.of(context).snackBarTheme.actionTextColor), 'No se pudo eliminar al visitante', 5));
+              Icon(Icons.error,
+                  color: Theme.of(context).snackBarTheme.actionTextColor),
+              'No se pudo eliminar al visitante',
+              5));
           break;
       }
       _dialogAbierto = false;
@@ -544,13 +566,19 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           pageRoute: 'NuevoVisitFreq'),
       _elementoFAB(
           titulo: 'Nuevo visitante rostro',
-          icon: Icon(Icons.person_add, color: Colors.white,),
+          icon: Icon(
+            Icons.person_add,
+            color: Colors.white,
+          ),
           pageRoute: 'NuevoVisitRostro',
           tipoRostro: 2,
           tipoAcceso: _tipoAcceso),
       _elementoFAB(
           titulo: 'Nuevo residente rostro',
-          icon: Icon(Icons.home, color: Colors.white,),
+          icon: Icon(
+            Icons.home,
+            color: Colors.white,
+          ),
           pageRoute: 'NuevoVisitRostro',
           tipoRostro: 1,
           tipoAcceso: _tipoAcceso),
@@ -589,8 +617,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     //Agregamos argumento para saber que tipo de pantalla de rostro mostrar, si el argumento se pasa
     //a otra pantalla este es ignorado
     final result = await Navigator.of(context)
-        .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]) as bool;
-    if (result) {
+        .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]);
+    if (result as bool) {
       setState(() {});
       Future.delayed(Duration(milliseconds: 500), () {
         ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
@@ -603,6 +631,68 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
             5));
       });
     }
+  }
+
+  Widget _crearDatosInvite(VisitanteFreqModel visitante) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10),
+        Text('Nombre',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.nombre,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        const SizedBox(height: 10),
+        Text('Teléfono',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.telefono,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        const SizedBox(height: 10),
+        Text('Tipo visitante',
+            style: utils.estiloTextoSombreado(12,
+                dobleSombra: false, fontWeight: FontWeight.w500)),
+        Text(visitante.tipoVisitante,
+            style: utils.estiloTextoSombreado(15, dobleSombra: false)),
+        const SizedBox(height: 10),
+        Text(visitante.unico ? 'QR de única ocasión:' : 'Vence en:',
+            style: visitante.unico
+                ? TextStyle(
+                    color: utils.colorAcentuado,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500)
+                : utils.estiloTextoSombreado(12,
+                    dobleSombra: false, fontWeight: FontWeight.w500)),
+        visitante.vigencia != null &&
+                visitante.vigencia!
+                    .isBefore(DateTime.now().add(Duration(days: 31)))
+            ? CountdownTimer(
+                endTime: visitante.vigencia!.millisecondsSinceEpoch,
+                defaultDays: '0',
+                defaultHours: '00',
+                defaultMin: '00',
+                defaultSec: '00',
+                daysSymbol: " dias ",
+                hoursSymbol: "h ",
+                minSymbol: "m ",
+                secSymbol: "s",
+                textStyle: utils.estiloTextoSombreado(15, dobleSombra: false),
+                onEnd: () =>
+                    Future.delayed(Duration(seconds: 2), () => setState(() {})),
+              )
+            : Text(
+                'Tiempo Indefinido',
+                style: utils.estiloTextoSombreado(15, dobleSombra: false),
+              ),
+        const SizedBox(height: 10),
+        Text(
+            'Recuerda que el código es dinámico'
+            ' y podrá ser consultado desde la cuenta asociada al teléfono en la app Parco.',
+            style: utils.estiloTextoSombreado(12,
+                fontWeight: FontWeight.normal, dobleSombra: false)),
+      ],
+    );
   }
 
   @override

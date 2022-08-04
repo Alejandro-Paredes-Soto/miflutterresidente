@@ -373,8 +373,8 @@ class _VisitaDetallePageState extends State<VisitaDetallePage> {
 
   _abrirReportePage(BuildContext context, List<String> datos) async {
     final result = await Navigator.of(context)
-        .pushNamed('Incidente', arguments: datos) as bool;
-    if (result) setState(() {});
+        .pushNamed('Incidente', arguments: datos);
+    if (result as bool) setState(() {});
   }
 }
 
