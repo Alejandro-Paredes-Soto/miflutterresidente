@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import '../utils/utils.dart';
 import 'constantes_provider.dart' as constantes;
 
 import 'package:http/http.dart' as http;
@@ -48,14 +50,20 @@ class LoginProvider {
                 'y que los servicios internos de la aplicación se pueden conectar a Firebase'
       };
     Map<String, dynamic> mapResp = Map<String, dynamic>();
-    final authData = {
-      'id': idUsuario ?? _prefs.usuarioLogged,
-      'token': token ?? _prefs.token,
-      'dispositivo': dispositivo,
-      'fecha':
-          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString()
-    };
     try {
+      final deviceData = await getDeviceData();
+      final infoApp = await PackageInfo.fromPlatform();
+      final authData = {
+        'id': idUsuario ?? _prefs.usuarioLogged,
+        'token': token ?? _prefs.token,
+        'dispositivo': dispositivo,
+        'fecha':
+            DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString(),
+        'versionApp': infoApp.version,
+        'SODevice': deviceData['os'],
+        'brand': deviceData['brand'],
+        'model': deviceData['nameModel'],
+      };
       final resp =
           await http.post(Uri.parse('${constantes.urlApp}/registrar_token_disp.php'), body: authData);
       List decodeResp = json.decode(resp.body);

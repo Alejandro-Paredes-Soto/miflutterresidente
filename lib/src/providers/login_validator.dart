@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import '../utils/utils.dart';
 import 'constantes_provider.dart' as constantes;
 
 import 'package:http/http.dart' as http;
@@ -30,17 +32,22 @@ class LoginValidator {
 
  Future<Null> verificaSesion() async {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
-    final authData = {
-      'id': _prefs.usuarioLogged,
-      'token': _prefs.token,
-      'playerID':_prefs.playerID,
-      'fecha':
-          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString()
-    };
     try {
+      final deviceData = await getDeviceData();
+      final infoApp = await PackageInfo.fromPlatform();
+      final authData = {
+        'id': _prefs.usuarioLogged,
+        'token': _prefs.token,
+        'playerID':_prefs.playerID,
+        'fecha':
+            DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString(),
+        'versionApp': infoApp.version,
+        'SODevice': deviceData['os'],
+        'brand': deviceData['brand'],
+        'model': deviceData['nameModel'],
+      };
       final resp = await http.post(Uri.parse('${constantes.urlApp}/validar_sesion2.php'), body: authData);
       mapResp = json.decode(resp.body);
-      //decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
       if (resp.statusCode != 404 || resp.statusCode != 500) {
         if (mapResp.containsKey('estatus')) {
           sesion.drain();

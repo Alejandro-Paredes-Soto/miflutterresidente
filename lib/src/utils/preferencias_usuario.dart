@@ -62,6 +62,14 @@ class PreferenciasUsuario {
     _prefs.setString('tema', value);
   }
 
+  String get versionApp {
+    return _prefs.getString('versionApp') ?? '';
+  }
+
+  set versionApp(String value) {
+    _prefs.setString('versionApp', value);
+  }
+
   borraPrefs() async {
     await _prefs.remove('usuario');
   }
