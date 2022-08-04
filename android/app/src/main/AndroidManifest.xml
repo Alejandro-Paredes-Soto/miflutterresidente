@@ -1,5 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.dostop.dostop">
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -31,12 +30,11 @@
     </queries>
      <!-- <application android:name=".Application"/> -->
     <application
-        android:name="io.flutter.app.FlutterApplication"
         android:label="Dostop"
+        android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
-        android:requestLegacyExternalStorage="true"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:requestLegacyExternalStorage="true">
         <!-- FCM - se agrega fragmento para cambiar el color y el icono de la notificación -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
@@ -68,5 +66,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
     </application>
 </manifest>

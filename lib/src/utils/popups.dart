@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 showOptionPhoto(
-    BuildContext context, Function onPressedTake, Function onPressedGalery) {
+    BuildContext context, Function() onPressedTake, Function() onPressedGalery) {
   showCupertinoModalPopup(
       context: context,
       builder: (_) => CupertinoActionSheet(

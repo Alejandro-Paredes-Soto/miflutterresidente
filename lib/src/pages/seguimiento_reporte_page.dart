@@ -7,7 +7,7 @@ class SeguimientoIncidentePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ReporteModel _reporte = ModalRoute.of(context).settings.arguments;
+    final ReporteModel _reporte = ModalRoute.of(context)!.settings.arguments as ReporteModel;
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'Seguimiento'),
       body: _creaBody(context, _reporte),

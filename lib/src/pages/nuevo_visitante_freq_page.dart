@@ -2,6 +2,7 @@ import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/widgets/custom_qr.dart';
 import 'package:flutter/services.dart';
+import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 
 import 'package:dostop_v2/src/providers/login_validator.dart';
@@ -38,10 +39,10 @@ class _NuevoVisitanteFrecuentePageState
   bool _registrando = false;
   bool _visitanteRegistrado = false;
   bool _bloqueaCompartir = false;
-  String phone;
+  String? phone;
   String _codigo = '00000000';
-  List<TipoVisitanteModel> tipoVisita = new List();
-  List<DropdownMenuItem<String>> listTipo = new List();
+  List<TipoVisitanteModel> tipoVisita = [];
+  List<DropdownMenuItem<String>> listTipo = [];
 
   @override
   void initState() {
@@ -162,12 +163,13 @@ class _NuevoVisitanteFrecuentePageState
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               ClipRRect(
-                borderRadius: BorderRadius.circular(15.0),
-                child: CustomQr(code: _codigo)),
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: CustomQr(code: _codigo)),
               SizedBox(height: 20),
-              RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15))),
                 child: Container(
                   height: 60,
                   child: Row(
@@ -200,9 +202,11 @@ class _NuevoVisitanteFrecuentePageState
                       },
               ),
               SizedBox(height: 10),
-              FlatButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
+              TextButton(
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                ),
                 child: Container(
                   height: 60,
                   child: Row(
@@ -241,20 +245,20 @@ class _NuevoVisitanteFrecuentePageState
   }
 
   Widget _crearText(
-      {TextEditingController controller,
-      FocusNode focus,
-      FocusNode focusNext,
-      String label,
-      String hint,
-      String textValidate,
-      int maxLength}) {
+      {TextEditingController? controller,
+      FocusNode? focus,
+      FocusNode? focusNext,
+      String? label,
+      String? hint,
+      String textValidate = '',
+      int? maxLength}) {
     return TextFormField(
       controller: controller,
       focusNode: focus,
       maxLength: maxLength,
       enabled: !_registrando,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZáéíóúÁÉÍÓÚñÑ -]+'))
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-ZÀ-ÿ -]+'))
       ],
       textInputAction: TextInputAction.next,
       onEditingComplete: FocusScope.of(context).unfocus,
@@ -268,7 +272,7 @@ class _NuevoVisitanteFrecuentePageState
         if (focusNext != null) FocusScope.of(context).requestFocus(focusNext);
       },
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return textValidate;
         else
           return null;
@@ -281,18 +285,17 @@ class _NuevoVisitanteFrecuentePageState
       controller: _txtTelefono,
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9]+'))],
-      searchText: 'Buscar país/región',
-      maxLength: 10,
+      pickerDialogStyle: PickerDialogStyle(
+          searchFieldInputDecoration:
+              InputDecoration(labelText: 'Buscar país/región')),
       decoration: InputDecoration(
           labelText: label,
           hintText: hint,
           contentPadding: const EdgeInsets.all(0)),
       initialCountryCode: 'MX',
-      autoValidate: false,
       validator: (number) {
-        if (utils.textoVacio(number))
-          return 'Ingresa el teléfono';
-        if(number.length < 10)
+        if (utils.textoVacio(number!.number)) return 'Ingresa el teléfono';
+        if (number.number.length < 10)
           return 'Ingrese el teléfono correctamente';
         else
           return null;
@@ -315,9 +318,9 @@ class _NuevoVisitanteFrecuentePageState
             {'text': 'Invitar con Parco', 'value': 'parco'},
             {'text': 'QR de única ocasión', 'value': 'dostop'}
           ]),
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionTipoInvite = opc;
+              _seleccionTipoInvite = opc!;
             });
           },
         ),
@@ -327,7 +330,7 @@ class _NuevoVisitanteFrecuentePageState
 
   List<DropdownMenuItem<String>> _returnDropdownMenuItem(
       List<Map<String, dynamic>> listItems) {
-    List<DropdownMenuItem<String>> listDropdownMenuItem = new List();
+    List<DropdownMenuItem<String>> listDropdownMenuItem = [];
 
     for (var item in listItems) {
       listDropdownMenuItem.add(DropdownMenuItem(
@@ -348,9 +351,9 @@ class _NuevoVisitanteFrecuentePageState
           isExpanded: true,
           value: _seleccionTipoVisitante,
           items: listTipo,
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionTipoVisitante = opc;
+              _seleccionTipoVisitante = opc!;
             });
           },
         ),
@@ -367,9 +370,9 @@ class _NuevoVisitanteFrecuentePageState
           isExpanded: true,
           value: _seleccionVigencia,
           items: getOpcionesDropdown(),
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionVigencia = opc;
+              _seleccionVigencia = opc!;
             });
           },
         ),
@@ -385,7 +388,7 @@ class _NuevoVisitanteFrecuentePageState
       {'text': '1 Mes', 'value': 'next month'},
       {'text': 'Indefinido', 'value': 'indefinido'},
     ];
-    List<DropdownMenuItem<String>> listDropdownMenuItem = new List();
+    List<DropdownMenuItem<String>> listDropdownMenuItem = [];
 
     for (var item in listItems) {
       listDropdownMenuItem.add(DropdownMenuItem(
@@ -418,11 +421,13 @@ class _NuevoVisitanteFrecuentePageState
             'El tiempo de validez comienza a partir de seleccionar "Crear invitación"',
             style: utils.estiloTextoAppBar(16)),
         SizedBox(height: 10),
-        RaisedButton(
-          color: utils.colorAcentuado,
-          disabledColor: utils.colorSecundario,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: utils.colorAcentuado,
+            onSurface: utils.colorSecundario,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          ),
           child: Container(
               alignment: Alignment.center,
               width: double.infinity,
@@ -454,10 +459,10 @@ class _NuevoVisitanteFrecuentePageState
   }
 
   void _submit() {
-    if (!formKey.currentState.validate())
+    if (!formKey.currentState!.validate())
       return;
     else {
-      formKey.currentState.save();
+      formKey.currentState!.save();
 
       setState(() => _registrando = true);
       _creaVisitante();
@@ -477,21 +482,12 @@ class _NuevoVisitanteFrecuentePageState
         flagOrigen: _seleccionTipoInvite);
     switch (estatus['statusCode']) {
       case 200:
-        if (estatus['codigo']!= null && estatus['codigo'].isNotEmpty) {
+        if (estatus['codigo'] != null && estatus['codigo'].isNotEmpty) {
           setState(() {
             _visitanteRegistrado = true;
             _codigo = estatus['codigo'] ?? '00000000';
           });
-        }else if(estatus.containsKey('info_extra')){
-          creaDialogSimple(
-            context,
-            estatus['info_extra'],
-            '',
-            'Aceptar', () {
-          Navigator.pop(context);
-          Navigator.pop(context, false);
-        });
-        }else{
+        } else {
           Navigator.pop(context, true);
         }
 

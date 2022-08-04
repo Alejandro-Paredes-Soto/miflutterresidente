@@ -9,7 +9,7 @@ class EmergenciaProvider {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
 
     try {
-      final resp = await http.post('${constantes.urlApp}/emergencias.php', body: {'id': idUsuario});
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/emergencias.php'), body: {'id': idUsuario});
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
     } catch (e) {

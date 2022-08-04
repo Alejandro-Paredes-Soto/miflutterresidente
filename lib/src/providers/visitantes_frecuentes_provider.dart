@@ -14,9 +14,9 @@ class VisitantesFreqProvider {
     validaSesion.verificaSesion();
     try {
       final resp = await http.post(
-          '${constantes.urlApp}/obtener_frecuentes.php',
+          Uri.parse('${constantes.urlApp}/obtener_frecuentes.php'),
           body: {'id_colono': idUsuario, 'tipo_frecuente': '$tipo'});
-      Map decodeResp = json.decode(resp.body);
+      Map? decodeResp = json.decode(resp.body);
       final List<VisitanteFreqModel> visitantes = [];
       if (decodeResp == null) return [];
       if (decodeResp.containsKey('lista_frecuente'))
@@ -38,7 +38,7 @@ class VisitantesFreqProvider {
       String idFrecuente, String idUsuario, int tipo) async {
     try {
       final resp = await http
-          .post('${constantes.urlApp}/eliminar_frecuente.php', body: {
+          .post(Uri.parse('${constantes.urlApp}/eliminar_frecuente.php'), body: {
         'id_frecuente': idFrecuente,
         'id_colono': idUsuario,
         'tipo_frecuente': '$tipo'
@@ -59,7 +59,7 @@ class VisitantesFreqProvider {
 
   Future<Map<String, dynamic>> archivarQR(String idFrecuente) async {
     try {
-      final url = Uri.tryParse('${constantes.ulrApiProd}/visita/');
+      final url = Uri.parse('${constantes.ulrApiProd}/visita/');
       var request = http.Request('DELETE', url);
       request.body = json.encode({'idVisitante': idFrecuente});
       request.headers.addAll({'Content-Type': 'application/json'});
@@ -85,14 +85,16 @@ class VisitantesFreqProvider {
   }
 
   Future<Map<String, dynamic>> nuevoVisitanteFrecuente(
-      {String idUsuario,
-      String nombre,
-      String apPaterno,
-      String apMaterno,
-      String vigencia,
-      String tipoVisitante,
-      String flagOrigen,
-      String telefono}) async {
+      {
+      required String idUsuario,
+      required String nombre,
+      required String apPaterno,
+      required String apMaterno,
+      required String vigencia,
+      bool? esUnico,
+      required String tipoVisitante,
+      required String flagOrigen,
+      String? telefono}) async {
     final visitanteData = {
       'idColonos': idUsuario,
       'nombre': nombre,
@@ -109,7 +111,7 @@ class VisitantesFreqProvider {
       'usosParco': -1
     };
     try {
-      final resp = await http.post('${constantes.ulrApiProd}/visita/nueva/',
+      final resp = await http.post(Uri.parse('${constantes.ulrApiProd}/visita/nueva/'),
           headers: {'Content-Type': 'application/json'},
           body: json.encode(visitanteData));
 
@@ -127,19 +129,21 @@ class VisitantesFreqProvider {
     } catch (e) {
       var message = e.runtimeType.toString() == 'SocketException'
           ? 'Ha ocurrido un error, favor verificar conexión a internet.'
-          : e.message;
+          : 'Ha ocurrido un error ${e.toString()}';
       return {'statusCode': 0, 'status': e.runtimeType, 'codigo': message};
     }
   }
 
+
   Future<Map<String, dynamic>> nuevoAccesoRostro(
-      {String idUsuario,
-      String nombre,
-      String apPaterno,
-      String apMaterno,
-      String imgRostroB64,
-      String tipoAcceso,
-      int tipo,
+      {
+      required String idUsuario,
+      required String nombre,
+      required String apPaterno,
+      required String apMaterno,
+      required String imgRostroB64,
+      String? tipoAcceso,
+      required int tipo,
       String tipoVisitante = ""}) async {
     final visitanteData = {
       'id_colono': idUsuario,
@@ -152,7 +156,7 @@ class VisitantesFreqProvider {
       'tipo_visitante': tipoVisitante.toString()
     };
     try {
-      final resp = await http.post('${constantes.urlApp}/registrar_rostro.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/registrar_rostro.php'),
           body: visitanteData);
       Map mapResp = json.decode(resp.body);
       if (mapResp['estatus'].toString().contains('1')) {
@@ -174,11 +178,12 @@ class VisitantesFreqProvider {
     }
   }
 
-  Future<Map<String, dynamic>> changeImage(
-      {String idUsuario,
-      String idFrecuente,
-      String image,
-      String tipo}) async {
+    Future<Map<String, dynamic>> changeImage(
+      {
+      required String idUsuario,
+      required String idFrecuente,
+      required String image,
+      required String tipo}) async {
     final visitanteData = {
       'idColono': idUsuario,
       'idFrecuente': idFrecuente,
@@ -186,7 +191,7 @@ class VisitantesFreqProvider {
       'tipoFrecuente': tipo.toString(),
     };
     try {
-      final resp = await http.post('${constantes.urlApp}/changeFaceImage.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/changeFaceImage.php'),
           body: json.encode(visitanteData), headers: {'Content-Type': 'application/json'});
 
       if (resp.statusCode == 404) {

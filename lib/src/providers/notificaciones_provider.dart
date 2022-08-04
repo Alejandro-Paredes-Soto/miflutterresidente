@@ -7,11 +7,11 @@ import 'package:http/http.dart' as http;
 
 class NotificacionesProvider {
 
-  Future<VisitaModel> obtenerUltimaNotificacion(String idUsuario) async {
+  Future<dynamic> obtenerUltimaNotificacion(String idUsuario) async {
     try {
       final resp = await http
-          .post('${constantes.urlApp}/revisa_notificacion_visita.php', body: {'id': idUsuario});
-      Map decodeResp = json.decode(resp.body);
+          .post(Uri.parse('${constantes.urlApp}/revisa_notificacion_visita.php'), body: {'id': idUsuario});
+      Map? decodeResp = json.decode(resp.body);
       // print(decodeResp);
       if (decodeResp == null) return null;
       if (decodeResp.containsKey('visita')) {
@@ -36,13 +36,13 @@ class NotificacionesProvider {
   Future<Map<String, dynamic>> respuestaVisita(
       String idUsuario, String idVisita, int respuesta) async {
     try {
-      final resp = await http.post('${constantes.urlApp}/actualizar_visita_notificacion.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/actualizar_visita_notificacion.php'),
           body: {
             'id': idUsuario,
             'id_visita': idVisita,
             'respuesta_visita': respuesta.toString()
           });
-      Map decodeResp = json.decode(resp.body);
+      Map? decodeResp = json.decode(resp.body);
       // print(decodeResp);
       if (decodeResp == null) return {'OK': 2, 'mensaje': 'No se pudo enviar la respuesta'};
       if (decodeResp.containsKey('estatus')) {
@@ -67,10 +67,10 @@ class NotificacionesProvider {
 
   Future<bool> actualizarEstadoNotif(String idUsuario) async {
     try {
-      final resp = await http.post('${constantes.urlApp}/actualizar_notificacion2.php', body: {
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/actualizar_notificacion2.php'), body: {
         'id': idUsuario,
       });
-      Map decodeResp = json.decode(resp.body);
+      Map? decodeResp = json.decode(resp.body);
       // print(decodeResp);
       if (decodeResp == null) return false;
       if (decodeResp.containsKey('estatus')) {

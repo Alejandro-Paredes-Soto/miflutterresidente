@@ -2,16 +2,6 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-/*
-  Recordar instalar el paquete de:
-    shared_preferences:
-  Inicializar en el main
-    final prefs = new PreferenciasUsuario();
-    await prefs.initPrefs();
-    
-    Recordar que el main() debe de ser async {...
-*/
-
 class PreferenciasUsuario {
   static final PreferenciasUsuario _instancia =
       new PreferenciasUsuario._internal();
@@ -22,15 +12,23 @@ class PreferenciasUsuario {
 
   PreferenciasUsuario._internal();
 
-  SharedPreferences _prefs;
+  late SharedPreferences _prefs;
   Codec<String, String> stringToBase64 = utf8.fuse(base64);
 
   initPrefs() async {
     this._prefs = await SharedPreferences.getInstance();
   }
 
+  bool get qrResidente {
+    return _prefs.getBool('qrResidente') ?? false;
+  }
+
+  set qrResidente(bool value) {
+    _prefs.setBool('qrResidente', value);
+  }
+
   // GET y SET del token
-  get token {
+  String get token {
     return _prefs.getString('token') ?? '';
   }
 
@@ -39,7 +37,7 @@ class PreferenciasUsuario {
   }
 
   // GET y SET del player ID
-  get playerID {
+  String get playerID {
     return _prefs.getString('playerID') ?? '';
   }
 
@@ -48,7 +46,7 @@ class PreferenciasUsuario {
   }
 
   // GET y SET del idUsuario
-  get usuarioLogged {
+  String get usuarioLogged {
     return _prefs.getString('usuario') ?? '';
   }
 
@@ -56,12 +54,20 @@ class PreferenciasUsuario {
     _prefs.setString('usuario', value);
   }
 
-  get themeMode {
+  String get themeMode {
     return _prefs.getString('tema') ?? 'Dark';
   }
 
   set themeMode(String value) {
     _prefs.setString('tema', value);
+  }
+
+  String get versionApp {
+    return _prefs.getString('versionApp') ?? '';
+  }
+
+  set versionApp(String value) {
+    _prefs.setString('versionApp', value);
   }
 
   borraPrefs() async {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dostop_v2/src/models/area_comun_model.dart';
 export 'package:dostop_v2/src/models/area_comun_model.dart';
@@ -17,9 +18,9 @@ class AreasComunesProvider {
     validaSesion.verificaSesion();
     try {
       final resp = await http
-          .post('${constantes.urlApp}/obtener_areas_comunes.php', body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
-      final List<AreaComunModel> areas = new List();
+          .post(Uri.parse('${constantes.urlApp}/obtener_areas_comunes.php'), body: {'id': idUsuario});
+      List? decodeResp = json.decode(resp.body);
+      final List<AreaComunModel> areas = [];
       if (decodeResp == null) return [];
       decodeResp.forEach((area) {
         //  print('$area');
@@ -38,12 +39,11 @@ class AreasComunesProvider {
     validaSesion.verificaSesion();
     try {
       final resp = await http
-          .post('${constantes.urlApp}/obtener_mis_reservas.php', body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
-      final List<AreaReservadaModel> reservas = new List();
+          .post(Uri.parse('${constantes.urlApp}/obtener_mis_reservas.php'), body: {'id': idUsuario});
+      List? decodeResp = json.decode(resp.body);
+      final List<AreaReservadaModel> reservas = [];
       if (decodeResp == null) return [];
       decodeResp.forEach((reserva) {
-        //  print('$reserva');
         final tempreserva = AreaReservadaModel.fromJson(reserva);
         reservas.add(tempreserva);
       });
@@ -59,13 +59,13 @@ class AreasComunesProvider {
       String idUsuario, String idAreaComun) async {
       validaSesion.verificaSesion();
     try {
-      final resp = await http.post('${constantes.urlApp}/obtener_areas_reservadas.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/obtener_areas_reservadas.php'),
           body: {'id': idUsuario, 'idArea': idAreaComun});
-      List decodeResp = json.decode(resp.body);
-      final List<String> reservasCalendario = new List();
-      if (decodeResp == null) return [];
+      log(resp.body.toString());
+      var decodeResp = json.decode(resp.body);
+      final List<String> reservasCalendario = [];
+      if (decodeResp == null || !(decodeResp is  List)) return [];
       decodeResp.forEach((reserva) {
-        //  print('${reserva['fecha']}');
         final tempreserva = reserva['fecha'];
         reservasCalendario.add(tempreserva);
       });
@@ -81,7 +81,7 @@ class AreasComunesProvider {
       String idUsuario, String fecha, String idArea) async {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
     try {
-      final resp = await http.post('${constantes.urlApp}/confirmar_reserva_area.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/confirmar_reserva_area.php'),
           body: {'id': idUsuario, 'fecha': fecha, 'idArea': idArea});
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((k, v) {

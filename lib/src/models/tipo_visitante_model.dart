@@ -7,7 +7,9 @@ class TipoVisitanteModel {
   String idTipoVisitante;
   String tipo;
 
-  TipoVisitanteModel({this.idTipoVisitante, this.tipo});
+  TipoVisitanteModel({
+    required this.idTipoVisitante, 
+    required this.tipo});
 
   factory TipoVisitanteModel.fromJson(Map<String, dynamic> json) =>
       TipoVisitanteModel(

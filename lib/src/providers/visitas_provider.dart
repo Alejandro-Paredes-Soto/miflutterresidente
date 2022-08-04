@@ -17,14 +17,14 @@ class VisitasProvider {
     validaSesion.verificaSesion();
     try {
       final resp =
-          await http.post('${constantes.urlApp}/buscador_visitas2.php', body: {
+          await http.post(Uri.parse('${constantes.urlApp}/buscador_visitas2.php'), body: {
         'id': idUsuario,
         'fecha_ini': fechaInicio,
         'fecha_fin': fechaFin,
         'page_no': pagina.toString()
       });
-      final Map<String, dynamic> decodeResp = json.decode(resp.body);
-      final List<VisitaModel> visitas = new List();
+      final Map<String, dynamic>? decodeResp = json.decode(resp.body);
+      final List<VisitaModel> visitas = [];
       if (decodeResp == null) return [];
       if (!decodeResp.containsKey('message')) {
         for (Map<String, dynamic> visita in decodeResp['busqueda']) {
@@ -49,10 +49,10 @@ class VisitasProvider {
 
   Future<List<VisitaModel>> obtenerUltimasVisitas(String idUsuario) async {
     try {
-      final resp = await http.post('${constantes.urlApp}/ultimas_visitas3.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/ultimas_visitas3.php'),
           body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
-      final List<VisitaModel> visitas = new List();
+      List? decodeResp = json.decode(resp.body);
+      final List<VisitaModel> visitas = [];
       if (decodeResp == null) return [];
       decodeResp.forEach((visita) {
         final tempVisita = VisitaModel.fromJson(visita);
@@ -72,7 +72,7 @@ class VisitasProvider {
         'Content-Type': 'application/json',
       };
 
-      final resp = await http.post('${constantes.urlApp}/serviceCall.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/serviceCall.php'),
           headers: headers, body: json.encode({'idVisit': idVisit, 'status': status}));
       final Map<String, dynamic> decodeResp = json.decode(resp.body);
       return decodeResp;

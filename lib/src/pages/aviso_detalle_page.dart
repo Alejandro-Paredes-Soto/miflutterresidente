@@ -5,17 +5,16 @@ import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:flutter_swiper_plus/flutter_swiper_plus.dart';
 import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 
 class AvisoDetallePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final aviso = ModalRoute.of(context).settings.arguments;
+    final aviso = ModalRoute.of(context)!.settings.arguments as AvisoModel;
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'Aviso'),
       body: _creaBody(context, aviso),
-      //floatingActionButton: _creaFAB(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -31,7 +30,8 @@ class AvisoDetallePage extends StatelessWidget {
               child: Hero(
                 tag: aviso.idAviso,
                 child: Material(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0)),
                   elevation: 0,
                   child: Scrollbar(
                     child: ElevatedContainer(
@@ -40,7 +40,8 @@ class AvisoDetallePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
                           Text(
-                              utils.fechaCompleta(DateTime.tryParse(aviso.fecha)),
+                              utils.fechaCompleta(
+                                  DateTime.tryParse(aviso.fecha)),
                               style: utils.estiloFechaAviso(12)),
                           SizedBox(height: 5),
                           Flexible(
@@ -52,19 +53,20 @@ class AvisoDetallePage extends StatelessWidget {
                                     child: Text(
                                       aviso.descripcion,
                                       style: TextStyle(
-                                          fontWeight: FontWeight.w700, fontSize: 15),
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15),
                                     ),
                                   ),
                                   Visibility(
-                                    visible: aviso.descripcion.isNotEmpty && aviso.imgAviso.isNotEmpty,
-                                    child: SizedBox(height: 25)),
-                                   _imagenAviso(aviso.idAviso, validaImagenes([aviso.imgAviso]))
+                                      visible: aviso.descripcion.isNotEmpty &&
+                                          aviso.imgAviso.isNotEmpty,
+                                      child: SizedBox(height: 25)),
+                                  _imagenAviso(aviso.idAviso,
+                                      validaImagenes([aviso.imgAviso]))
                                 ],
                               ),
                             ),
                           ),
-                          
-                         
                         ],
                       ),
                     ),
@@ -73,9 +75,11 @@ class AvisoDetallePage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-            RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                ),
                 child: Container(
                     width: 100,
                     alignment: Alignment.center,
@@ -99,49 +103,47 @@ class AvisoDetallePage extends StatelessWidget {
       return Column(
         children: <Widget>[
           Container(
-              height: 500,
-              child: Swiper(
-                  loop: false,
-                  itemCount: imagenes.length,
-                  pagination: imagenes.length > 1
-                      ? SwiperPagination(
-                          margin: EdgeInsets.all(2),
-                          alignment: Alignment.bottomCenter,
-                          builder: DotSwiperPaginationBuilder(
-                              color: Colors.white60,
-                              activeColor: Colors.white60,
-                              activeSize: 20.0))
-                      : null,
-                  scale: 0.85,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      child: PinchZoomImage(
-                        image: ClipRRect(
-                          //borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: double.infinity,
-                            child: CachedNetworkImage(
-                              placeholder: (context, url) =>
-                                  Image.asset(utils.rutaGifLoadRed),
-                              errorWidget: (context, url, error) => Container(
-                                  height: 240,
-                                  child:
-                                      Center(child: Icon(Icons.broken_image))),
-                              imageUrl: imagenes[index],
-                              fit: BoxFit.scaleDown,
-                              fadeInDuration: Duration(milliseconds: 300),
-                            ),
+            height: 500,
+            child: Swiper(
+                loop: false,
+                itemCount: imagenes.length,
+                pagination: imagenes.length > 1
+                    ? SwiperPagination(
+                        margin: EdgeInsets.all(2),
+                        alignment: Alignment.bottomCenter,
+                        builder: DotSwiperPaginationBuilder(
+                            color: Colors.white60,
+                            activeColor: Colors.white60,
+                            activeSize: 20.0))
+                    : null,
+                scale: 0.85,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    child: PinchZoomImage(
+                      image: ClipRRect(
+                        //borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          width: double.infinity,
+                          child: CachedNetworkImage(
+                            placeholder: (context, url) =>
+                                Image.asset(utils.rutaGifLoadRed),
+                            errorWidget: (context, url, error) => Container(
+                                height: 240,
+                                child: Center(child: Icon(Icons.broken_image))),
+                            imageUrl: imagenes[index],
+                            fit: BoxFit.scaleDown,
+                            fadeInDuration: Duration(milliseconds: 300),
                           ),
                         ),
                       ),
-                      onLongPress: () {
-                        HapticFeedback.vibrate();
-                        descargaImagen(context, imagenes[index]);
-                      },
-                    );
-                  }),
-            ),
-          
+                    ),
+                    onLongPress: () {
+                      HapticFeedback.vibrate();
+                      descargaImagen(context, imagenes[index]);
+                    },
+                  );
+                }),
+          ),
         ],
       );
   }

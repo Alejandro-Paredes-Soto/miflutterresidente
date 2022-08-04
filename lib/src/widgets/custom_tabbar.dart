@@ -7,7 +7,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -76,7 +75,7 @@ class CustomTabBar extends StatefulWidget {
     this._widgets,
     this._valueGetter,
     this._onTap, {
-    Key key,
+    Key? key,
     this.useSeparators: false,
     this.useShadow: true,
     this.innerHorizontalPadding: 10.0,
@@ -100,34 +99,34 @@ class CustomTabBar extends StatefulWidget {
 }
 
 class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderStateMixin {
-  List<GlobalKey> _globalKeys;
-  double _maxWidth;
-  double _maxHeight;
-  double _fullWidth;
-  double _fullHeight;
-  double _preferredHeight;
-  double _preferredWidth;
-  double _usedHeight;
-  double _usedWidth;
-  double _singleHeight;
-  double _singleWidth;
-  double _outerContainerHeight;
-  double _outerContainerWidth;
-  double _innerContainerHeight;
-  double _innerContainerWidth;
-  double _separatorHeight;
-  double _separatorWidth;
-  double _indicatorHeight;
-  double _indicatorWidth;
-  bool _showSelf;
+  late List<GlobalKey> _globalKeys;
+  late double _maxWidth;
+  late double _maxHeight;
+  late double _fullWidth;
+  late double _fullHeight;
+  late double _preferredHeight;
+  late double _preferredWidth;
+  late double _usedHeight;
+  late double _usedWidth;
+  late double _singleHeight;
+  late double _singleWidth;
+  late double _outerContainerHeight;
+  late double _outerContainerWidth;
+  late double _innerContainerHeight;
+  late double _innerContainerWidth;
+  late double _separatorHeight;
+  late double _separatorWidth;
+  late double _indicatorHeight;
+  late double _indicatorWidth;
+  late bool _showSelf;
 
-  ScrollController _scrollController;
-  double _initialScrollOffset;
-  bool _userHasScrolled;
+  ScrollController? _scrollController;
+  late double _initialScrollOffset;
+  late bool _userHasScrolled;
 
-  AnimationController _animationController;
-  Timer _animationTimer;
-  List<double> _tresholds;
+  AnimationController? _animationController;
+  late Timer _animationTimer;
+  late List<double> _tresholds;
 
   bool get _shouldBeExpanded => widget.allowExpand && !widget.allowScrollable;
   bool get _shouldBeScrollable => !widget.allowExpand && widget.allowScrollable && _preferredWidth > _fullWidth;
@@ -135,12 +134,12 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
   bool get _shouldBeAnimated => widget.animateWhenScrollable;
   bool get _shouldCalculateFullDimensions => widget.allowExpand || widget.allowScrollable;
 
-  bool get _isScrollByUser => _animationController == null || !_animationController.isAnimating;
-  bool get _shouldBeReanimated => widget.animateUntilScrolled && !_userHasScrolled && _animationController.isCompleted;
+  bool get _isScrollByUser => _animationController == null || !_animationController!.isAnimating;
+  bool get _shouldBeReanimated => widget.animateUntilScrolled && !_userHasScrolled && _animationController!.isCompleted;
 
-  bool get _shouldBeRescrolled => _scrollController.offset != _offset;
+  bool get _shouldBeRescrolled => _scrollController?.offset != _offset;
   double get _offset {
-    double _scrollControllerOffset = _scrollController != null && _scrollController.positions.isNotEmpty ? _scrollController.offset : 0.0;
+    double _scrollControllerOffset = _scrollController != null && _scrollController!.positions.isNotEmpty ? _scrollController!.offset : 0.0;
     double _areaStartingPoint = _scrollControllerOffset;
     double _areaEndingPoint = _areaStartingPoint + _fullWidth;
     double _tabStartingPoint = widget.outerHorizontalPadding / 2.0 + _singleWidth * widget._valueGetter();
@@ -159,26 +158,26 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
   Alignment get _alignment => Alignment((_isRTL ? -1 : 1) * (-1.0 + widget._valueGetter() / (widget._widgets.length - 1) * 2), 0.0);
 
   void _startAnimation() {
-    _animationTimer = Timer(const Duration(seconds: 4), () => _animationController.forward(from: 0.0));
+    _animationTimer = Timer(const Duration(seconds: 4), () => _animationController?.forward(from: 0.0));
   }
 
   void _stopAnimation() {
     _userHasScrolled = true;
     _animationController?.stop();
-    _animationTimer?.cancel();
+    _animationTimer.cancel();
   }
 
   void _applyAnimation() {
-    if (_animationController.value < _tresholds[0]) {
-      _scrollController.jumpTo(_initialScrollOffset + _animationController.value);
-    } else if (_animationController.value >= _tresholds[0] && _animationController.value < _tresholds[1]) {
-      _scrollController.jumpTo(_initialScrollOffset + _tresholds[0] - (_animationController.value - _tresholds[0]));
-    } else if (_animationController.value >= _tresholds[1] && _animationController.value < _tresholds[2]) {
-      _scrollController.jumpTo(_initialScrollOffset - _tresholds[0] + (_animationController.value - _tresholds[1]));
-    } else if (_animationController.value >= _tresholds[2] && _animationController.value < _animationController.upperBound * 0.95) {
-      _scrollController.jumpTo(_initialScrollOffset + _tresholds[0] - (_animationController.value - _tresholds[2]));
+    if (_animationController!.value < _tresholds[0]) {
+      _scrollController!.jumpTo(_initialScrollOffset + _animationController!.value);
+    } else if (_animationController!.value >= _tresholds[0] && _animationController!.value < _tresholds[1]) {
+      _scrollController!.jumpTo(_initialScrollOffset + _tresholds[0] - (_animationController!.value - _tresholds[0]));
+    } else if (_animationController!.value >= _tresholds[1] && _animationController!.value < _tresholds[2]) {
+      _scrollController!.jumpTo(_initialScrollOffset - _tresholds[0] + (_animationController!.value - _tresholds[1]));
+    } else if (_animationController!.value >= _tresholds[2] && _animationController!.value < _animationController!.upperBound * 0.95) {
+      _scrollController!.jumpTo(_initialScrollOffset + _tresholds[0] - (_animationController!.value - _tresholds[2]));
     } else {
-      _scrollController.jumpTo(_initialScrollOffset);
+      _scrollController!.jumpTo(_initialScrollOffset);
     }
   }
 
@@ -190,7 +189,7 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
 
   void animationListener() {
     setState(() {
-      if (_animationController.isAnimating) {
+      if (_animationController!.isAnimating) {
         _applyAnimation();
       }
       if (_shouldBeReanimated) {
@@ -205,7 +204,7 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
         _maxWidth = 0;
         _maxHeight = 0;
         for (int i = 0; i < widget._widgets.length; i++) {
-          RenderBox _renderBox = _globalKeys[i].currentContext.findRenderObject();
+          RenderBox _renderBox = _globalKeys[i].currentContext!.findRenderObject() as RenderBox;
           if (_renderBox.size.width > _maxWidth) {
             _maxWidth = _renderBox.size.width;
           }
@@ -217,7 +216,7 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
         _maxHeight += widget.innerVerticalPadding * 4.0;
 
         if (_shouldCalculateFullDimensions) {
-          RenderBox _renderBox = _globalKeys.last.currentContext.findRenderObject();
+          RenderBox _renderBox = _globalKeys.last.currentContext!.findRenderObject() as RenderBox;
           _fullWidth = _renderBox.size.width > _maxWidth ? _renderBox.size.width : _maxWidth;
           _fullHeight = _renderBox.size.height > _maxHeight ? _renderBox.size.height : _maxHeight;
         }
@@ -251,7 +250,7 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _globalKeys = List<GlobalKey>();
+    _globalKeys = <GlobalKey>[];
     for (int i = 0; i < widget._widgets.length; i++) {
       _globalKeys.add(GlobalKey());
     }
@@ -259,20 +258,20 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
       _globalKeys.add(GlobalKey());
     }
     _showSelf = false;
-    WidgetsBinding.instance.addPostFrameCallback(onPostFrameCallback);
+    WidgetsBinding.instance?.addPostFrameCallback(onPostFrameCallback);
   }
 
   @override
   void dispose() {
-    if (_scrollController != null) _scrollController.dispose();
-    if (_animationController != null) _animationController.dispose();
+    if (_scrollController != null) _scrollController!.dispose();
+    if (_animationController != null) _animationController!.dispose();
     super.dispose();
   }
 
   void onTap(int index) {
     widget._onTap(index);
     if (_shouldBeScrollable && _shouldBeRescrolled) {
-      _scrollController.animateTo(_offset, duration: widget.duration, curve: Curves.decelerate);
+      _scrollController!.animateTo(_offset, duration: widget.duration, curve: Curves.decelerate);
     }
   }
 
@@ -297,7 +296,7 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
 
   Widget _wrapByRegularMiddleContainer(Widget child) {
     return _RegularMiddleContainer(
-      _scrollController,
+      _scrollController!,
       child,
       widget.outerHorizontalPadding,
       widget.outerVerticalPadding,
@@ -397,11 +396,11 @@ class _CustomTabBarState extends State<CustomTabBar> with SingleTickerProviderSt
               upperBound: _singleWidth * 2.0,
               duration: const Duration(milliseconds: 500),
             )..addListener(animationListener);
-            _animationTimer = Timer(const Duration(seconds: 2), () => _animationController.forward(from: 0.0));
+            _animationTimer = Timer(const Duration(seconds: 2), () => _animationController!.forward(from: 0.0));
             _tresholds = [
-              _animationController.upperBound / 6.0,
-              _animationController.upperBound / 6.0 * 3.0,
-              _animationController.upperBound / 6.0 * 5.0,
+              _animationController!.upperBound / 6.0,
+              _animationController!.upperBound / 6.0 * 3.0,
+              _animationController!.upperBound / 6.0 * 5.0,
             ];
           }
         }
@@ -585,7 +584,7 @@ class _RegularInnerContainer extends StatelessWidget {
 }
 
 class _FittedMiddleContainer extends StatelessWidget {
-  final ScrollController _scrollController;
+  final ScrollController? _scrollController;
   final Widget _child;
 
   const _FittedMiddleContainer(

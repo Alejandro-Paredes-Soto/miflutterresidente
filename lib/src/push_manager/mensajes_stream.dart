@@ -18,6 +18,6 @@ class MensajeStream {
   }
 
   dispose() {
-    _mensajesStreamController?.close();
+    _mensajesStreamController.close();
   }
 }

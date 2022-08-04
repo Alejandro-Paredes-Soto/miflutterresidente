@@ -1,3 +1,4 @@
 {
-    "java.configuration.updateBuildConfiguration": "disabled"
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "dart.flutterSdkPath": "/Users/desarrollo-dostop/fvm/versions/2.10.5"
 }

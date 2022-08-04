@@ -9,8 +9,8 @@ class ReporteModel {
     Datos datos;
 
     ReporteModel({
-        this.estatus,
-        this.datos,
+        required this.estatus,
+        required this.datos,
     });
 
     factory ReporteModel.fromJson(Map<String, dynamic> json) => ReporteModel(
@@ -26,10 +26,10 @@ class Datos {
     String fechaRespuesta;
 
     Datos({
-        this.mensaje,
-        this.fechaMensaje,
-        this.respuesta,
-        this.fechaRespuesta,
+        required this.mensaje,
+        required this.fechaMensaje,
+        required this.respuesta,
+        required this.fechaRespuesta,
     });
 
     factory Datos.fromJson(Map<String, dynamic> json) => Datos(

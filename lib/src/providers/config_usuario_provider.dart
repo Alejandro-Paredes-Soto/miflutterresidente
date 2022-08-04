@@ -13,7 +13,7 @@ class ConfigUsuarioProvider {
   ) async {
     try {
       final resp =
-          await http.post('${constantes.urlApp}/modificar_configuraciones_usuario.php', body: {
+          await http.post(Uri.parse('${constantes.urlApp}/modificar_configuraciones_usuario.php'), body: {
         'id': idUsuario,
         'tipoConfig': tipoConfig.toString(),
         'valorConfig': valor ? '1' : '0'
@@ -39,7 +39,7 @@ class ConfigUsuarioProvider {
   ) async {
     try {
       final resp =
-          await http.post('${constantes.urlApp}/obtener_configuraciones_usuario.php', body: {
+          await http.post(Uri.parse('${constantes.urlApp}/obtener_configuraciones_usuario.php'), body: {
         'id': idUsuario,
         'tipoConfig': tipoConfig.toString(),
       });

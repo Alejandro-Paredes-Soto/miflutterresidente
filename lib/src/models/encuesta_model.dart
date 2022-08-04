@@ -6,9 +6,9 @@ EncuestaModel encuestaModelFromJson(String str) => EncuestaModel.fromJson(json.d
 
 class EncuestaModel {
     EncuestaModel({
-        this.idEncuesta,
-        this.pregunta,
-        this.respuestas,
+        required this.idEncuesta,
+        required this.pregunta,
+        required this.respuestas,
     });
 
     String idEncuesta;
@@ -24,8 +24,8 @@ class EncuestaModel {
 
 class Respuesta {
     Respuesta({
-        this.idRespuestaEncuesta,
-        this.respuestaEncuesta,
+        required this.idRespuestaEncuesta,
+        required this.respuestaEncuesta,
     });
 
     String idRespuestaEncuesta;

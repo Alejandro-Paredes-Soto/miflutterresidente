@@ -14,8 +14,8 @@ class EstadoDeCuentaProvider {
   Future<String> obtenerSaldoTotal(String idUsuario) async {
     validaSesion.verificaSesion();
     try {
-      final resp = await http.post('${constantes.urlApp}/obtener_saldo.php', body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/obtener_saldo.php'), body: {'id': idUsuario});
+      List? decodeResp = json.decode(resp.body);
       if (decodeResp == null) return '\$0.00';
       if(decodeResp.length>0)
         if(decodeResp[0].containsKey('saldo'))
@@ -30,9 +30,9 @@ class EstadoDeCuentaProvider {
   Future<List<CuentaModel>> obtenerEgresos(String idUsuario) async {
     try {
       final resp = await http
-          .post('${constantes.urlApp}/obtener_egresos.php', body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
-      final List<CuentaModel> egresos = new List();
+          .post(Uri.parse('${constantes.urlApp}/obtener_egresos.php'), body: {'id': idUsuario});
+      List? decodeResp = json.decode(resp.body);
+      final List<CuentaModel> egresos = [];
       if (decodeResp == null) return [];
       decodeResp.forEach((egreso) {
         //  print('$egreso');
@@ -50,9 +50,9 @@ class EstadoDeCuentaProvider {
     Future<List<CuentaModel>> obtenerIngresos(String idUsuario) async {
     try {
       final resp = await http
-          .post('${constantes.urlApp}/obtener_ingresos.php', body: {'id': idUsuario});
-      List decodeResp = json.decode(resp.body);
-      final List<CuentaModel> ingresos = new List();
+          .post(Uri.parse('${constantes.urlApp}/obtener_ingresos.php'), body: {'id': idUsuario});
+      List? decodeResp = json.decode(resp.body);
+      final List<CuentaModel> ingresos = [];
       if (decodeResp == null) return [];
       decodeResp.forEach((ingreso) {
         //  print('$ingreso');

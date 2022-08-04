@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
@@ -20,48 +21,45 @@ class PushNotificationsManager {
 
   MensajeStream mensajeStream = MensajeStream.instancia;
   final notifProvider = NotificacionesProvider();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  List<String> idsVisitas = List();
+  List<String> idsVisitas = [];
 
   Future<void> initNotifications() async {
-    _firebaseMessaging.requestNotificationPermissions();
+    final FirebaseMessaging messaging = FirebaseMessaging.instance;
+    messaging.requestPermission();
 
-    _firebaseMessaging.getToken().then((token) {
-      _prefs.token = token;
-      // print('==== FCM TOKEN =====\n${_prefs.token}');
+    messaging.getToken().then((token) {
+      log("token $token");
+      if(token != null){
+        _prefs.token = token;
+      }
     });
 
-    _firebaseMessaging.configure(
-      onMessage: (info) async {
-      // print('==== ON MESSAGE ====');
-      // print(info);
-      _evaluaMensaje(info);
-    }, onLaunch: (info) async {
-      // print('==== ON LAUNCH ====');
-      // print(info);
-      _evaluaMensaje(info);
-    }, onResume: (info) async {
-      // print('==== ON RESUME ====');
-      // print(info);
-      _evaluaMensaje(info);
+    FirebaseMessaging.onMessage.listen((event) async {
+      log('message');
+      if(event.notification != null)
+        _evaluaMensaje(event);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      log("message ${event.notification}");
+      if(event.notification != null)
+        _evaluaMensaje(event);
     });
   }
 
-  _evaluaMensaje(Map info) async {
-    // detenerTimer();
+  _evaluaMensaje(RemoteMessage info) async {
     String titulo = '';
     String mensaje = '';
-    var data = null;
     String imgAviso = '';
-    print(info);
+  
     if (Platform.isAndroid) {
-      titulo = info['data']['title'].toString().toLowerCase();
-      mensaje = info['data']['message'];
-      imgAviso = titulo == 'aviso' ? json.decode(info['data']['data'])['img'] : '';
+      titulo = info.notification!.title.toString().toLowerCase();
+      mensaje = info.notification!.body ?? '';
+      imgAviso = titulo == 'aviso' ? json.decode(info.data['data'])['img'] : '';
     } else {
-      titulo = info['title'].toString().toLowerCase();
-      mensaje = info['message'];
-      imgAviso = titulo == 'aviso' ? json.decode(info['data'])['img'] : '';
+      titulo = info.notification!.title.toString().toLowerCase();
+      mensaje = info.notification!.body ?? '';
+      imgAviso = titulo == 'aviso' ? json.decode(info.data['data'])['img'] : '';
     }
     switch (titulo) {
       case 'encuesta':
@@ -113,7 +111,7 @@ class PushNotificationsManager {
         break;
       case 'áreas comunes':
         mensajeStream.addMessage(
-            {'areas': mensaje ?? 'Nueva notificación en áreas comunes'});
+            {'areas': mensaje});
         break;
       //IMPLEMENTACIÓN A FUTURO, EN RESPUESTA DE LUIS PARA APLICARLO Y DE FERNANDO PARA VALIDARLO
       //   case 'respuesta incidente':

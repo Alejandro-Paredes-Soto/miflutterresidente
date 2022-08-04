@@ -8,7 +8,7 @@ class CodigosResidenteProvider {
 
   Future<Map<String, dynamic>> newCodigoResidente(String idUsuario) async {
     try {
-      final resp = await http.post('${constantes.ulrApiProd}/visita/extraordinaria/',
+      final resp = await http.post(Uri.parse('${constantes.ulrApiProd}/visita/extraordinaria/'),
           body: json.encode({'idColonos': idUsuario}), headers: {'Content-Type': 'application/json'});
 
       if (resp.statusCode == 201) {
@@ -18,9 +18,9 @@ class CodigosResidenteProvider {
 
       return {'statusCode': resp.statusCode, 'status': resp.reasonPhrase};
     } catch (e) {
-      var message = e.runtimeType == 'SocketException'
+      var message = e.runtimeType.toString() == 'SocketException'
           ? 'Ha ocurrido un error, favor verificar conexión a internet.'
-          : e.message;
+          : 'Ha ocurrido un error ${e.toString()}';
       return {'statusCode': 0, 'status': e.runtimeType, 'codigo': message};
     }
   }

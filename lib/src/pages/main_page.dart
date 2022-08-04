@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dostop_v2/src/providers/login_validator.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
@@ -6,6 +8,7 @@ import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
 import 'package:flutter/material.dart';
 
+import '../providers/config_usuario_provider.dart';
 import 'home_page.dart';
 
 class MainPage extends StatefulWidget {
@@ -17,26 +20,26 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   final _prefs = PreferenciasUsuario();
   final pushManager = PushNotificationsManager();
   final _validaSesion = LoginValidator();
+   final configUsuarioProvider = ConfigUsuarioProvider();
   final GlobalKey<NavigatorState> navigatorKey =
       new GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => Future.delayed(
+    WidgetsBinding.instance?.addPostFrameCallback((_) => Future.delayed(
         Duration(milliseconds: 2300), () => pushManager.mostrarUltimaVisita()));
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
     _validaSesion.sesion.listen((sesionValida) {
       if (sesionValida == 0) {
         if (navigatorKey.currentContext != null) {
           _prefs.borraPrefs();
-          //print('${_prefs.usuarioLogged}');
-          Navigator.of(navigatorKey.currentContext).pushNamedAndRemoveUntil(
+          Navigator.of(navigatorKey.currentContext!).pushNamedAndRemoveUntil(
               'login', (Route<dynamic> route) => false);
         }
       }
       if (sesionValida == 2) {
-        creaDialogBloqueo(navigatorKey.currentContext, 'Cuenta Suspendida',
+        creaDialogBloqueo(navigatorKey.currentContext!, 'Cuenta Suspendida',
             'Tu cuenta ha sido suspendida. Para reactivarla, comunícate con tu administración.');
       }
     });
@@ -46,14 +49,19 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
             .creaSnackPersistent(
                 Icons.notifications_active, data['areas'], Colors.white,
                 dismissible: true)
-            .show(navigatorKey.currentContext);
+            .show(navigatorKey.currentContext!);
       if (data.containsKey('aviso'))
-        Navigator.pushNamed(navigatorKey.currentContext, 'AvisoDetalle',
+        Navigator.pushNamed(navigatorKey.currentContext!, 'AvisoDetalle',
             arguments: data['aviso']);
+      if(data.containsKey('encuesta')){
+        if (!mounted) return;
+        setState(() {});
+      }
+
       if (data.containsKey('visita')) {
         ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
         if (!mounted) return;
-        await Navigator.pushNamed(navigatorKey.currentContext, 'VisitaNotif',
+        await Navigator.pushNamed(navigatorKey.currentContext!, 'VisitaNotif',
             arguments: data['visita']);
         setState(() {});
       }
@@ -84,7 +92,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(key: navigatorKey, body: HomePage());
+    return Scaffold(key: navigatorKey, body: 
+    HomePage());
   }
 
   @override
@@ -95,6 +104,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     super.dispose();
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
   }
 }

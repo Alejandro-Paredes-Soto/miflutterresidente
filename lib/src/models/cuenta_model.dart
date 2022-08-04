@@ -11,10 +11,10 @@ class CuentaModel {
   List<ListElement> list;
 
   CuentaModel({
-    this.mes,
-    this.anio,
-    this.tipoCuentaMes,
-    this.list,
+    required this.mes,
+    required this.anio,
+    required this.tipoCuentaMes,
+    required this.list,
   });
 
   factory CuentaModel.fromJson(Map<String, dynamic> json) => CuentaModel(
@@ -34,9 +34,9 @@ class ListElement {
   String nombreProv;
 
   ListElement({
-    this.concepto,
-    this.monto,
-    this.nombreProv,
+    required this.concepto,
+    required this.monto,
+    required this.nombreProv,
   });
 
   factory ListElement.fromJson(Map<String, dynamic> json) => ListElement(

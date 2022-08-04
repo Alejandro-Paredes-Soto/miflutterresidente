@@ -39,8 +39,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   int _tabIndex = 0;
   int _obteniendoConfig = 0;
   String _tipoServicio = '';
-  Map<String, dynamic> _tipoAcceso;
-  Timer timer;
+  Map<String, dynamic>? _tipoAcceso;
+  late Timer timer;
   bool _dialogAbierto = false;
   bool _registrandoImg = false;
 
@@ -80,7 +80,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       body: _creaBody(),
       floatingActionButton: _creaFABMultiple(context, _tipoServicio),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      // bottomNavigationBar: _creaBoton(),
     );
   }
 
@@ -159,7 +158,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       builder: (BuildContext context,
           AsyncSnapshot<List<VisitanteFreqModel>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done)
-          return _creaListadoFrecuentes(snapshot.data);
+          return _creaListadoFrecuentes(snapshot.data!);
         else
           return Center(
             child: CircularProgressIndicator(),
@@ -170,8 +169,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
 
   Widget _creaListadoFrecuentes(List<VisitanteFreqModel> lista) {
     if (lista.length > 0) {
-      return Container(
-          child: ListView.separated(
+      return ListView.separated(
         separatorBuilder: (context, index) => SizedBox(height: 15),
         padding: EdgeInsets.only(top: 15.0),
         itemCount: lista.length,
@@ -187,7 +185,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 ))
           ],
         ),
-      ));
+      );
     } else {
       return Center(
         child: Text(
@@ -231,11 +229,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                         : utils.estiloTituloTarjeta(
                             12,
                           )),
-                (visitante.vigencia != null &&
-                        visitante.vigencia
-                            .isBefore(DateTime.now().add(Duration(days: 31))))
+                visitante.vigencia != null &&
+                        visitante.vigencia!
+                            .isBefore(DateTime.now().add(Duration(days: 31)))
                     ? CountdownTimer(
-                        endTime: visitante.vigencia.millisecondsSinceEpoch,
+                        endTime: visitante.vigencia!.millisecondsSinceEpoch,
                         defaultDays: '0',
                         defaultHours: '00',
                         defaultMin: '00',
@@ -262,17 +260,17 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    color: utils.colorPrincipal,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      primary: utils.colorPrincipal,
+                    ),
                     child: Container(
                       width: 100,
                       height: 50,
                       alignment: Alignment.center,
                       child: Text(
-                        (visitante.telefono != null &&
-                                    visitante.codigo == null) ||
                                 (visitante.telefono.isNotEmpty &&
                                     visitante.codigo.isEmpty)
                             ? 'Invitación Parco'
@@ -281,38 +279,38 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                       ),
                     ),
                     onPressed: () {
-                      if ((visitante.telefono != null &&
-                              visitante.codigo == null) ||
-                          (visitante.telefono.isNotEmpty &&
+                      if((visitante.telefono.isNotEmpty &&
                               visitante.codigo.isEmpty)) {
                         creaDialogInvite(
-                            _scaffoldKey.currentContext,
+                            _scaffoldKey.currentContext!,
                             'Invitación con Parco',
                             _crearDatosInvite(visitante),
                             'Cancelar',
                             () => {},
-                            () => Navigator.of(_scaffoldKey.currentContext)
+                            () => Navigator.of(_scaffoldKey.currentContext!)
                                 .pop('dialog'));
                       } else {
                         creaDialogQR(
-                            _scaffoldKey.currentContext,
+                            _scaffoldKey.currentContext!,
                             '',
                             _creaQR(visitante.codigo),
                             'Compartir',
                             'Cancelar',
                             () => utils.compartir(visitante.codigo),
-                            () => Navigator.of(_scaffoldKey.currentContext)
+                            () => Navigator.of(_scaffoldKey.currentContext!)
                                 .pop('dialog'));
                       }
                     },
                   ),
                   SizedBox(height: 15),
-                  RaisedButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : utils.colorFondoPrincipalDark,
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                        primary: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : utils.colorFondoPrincipalDark,
+                      ),
                     child: Container(
                         width: 100,
                         height: 50,
@@ -325,16 +323,13 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                         )),
                     onPressed: () {
                       _eliminaVisitanteFreq(
-                          _scaffoldKey.currentContext, visitante);
+                          _scaffoldKey.currentContext!, visitante);
                     },
                   )
-                ],
-              ),
+                ]),
             ),
-          )
-        ],
-      ),
-    );
+          ),
+        ]));
   }
 
   Widget _crearDatosInvite(VisitanteFreqModel visitante) {
@@ -369,10 +364,10 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 : utils.estiloTextoSombreado(12,
                     dobleSombra: false, fontWeight: FontWeight.w500)),
         visitante.vigencia != null &&
-                visitante.vigencia
+                visitante.vigencia!
                     .isBefore(DateTime.now().add(Duration(days: 31)))
             ? CountdownTimer(
-                endTime: visitante.vigencia.millisecondsSinceEpoch,
+                endTime: visitante.vigencia!.millisecondsSinceEpoch,
                 defaultDays: '0',
                 defaultHours: '00',
                 defaultMin: '00',
@@ -561,13 +556,19 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       switch (estatus['OK']) {
         case 1:
           setState(() {});
-          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.delete), 'Visitante eliminado', 5));
+          ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.delete,
+                  color: Theme.of(context).snackBarTheme.actionTextColor),
+              'Visitante eliminado',
+              5));
           break;
         case 2:
           _dialogAbierto = false;
-          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.error), 'No se pudo eliminar al visitante', 5));
+          ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.error,
+                  color: Theme.of(context).snackBarTheme.actionTextColor),
+              'No se pudo eliminar al visitante',
+              5));
           break;
       }
       _dialogAbierto = false;
@@ -598,21 +599,27 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   List<SpeedDialChild> _obtenerElementosFAB(String valor) {
     List<SpeedDialChild> elementos = [
       _elementoFAB(
-          titulo: 'Nuevo residente rostro',
-          icon: Icon(Icons.home),
-          pageRoute: 'NuevoVisitRostro',
-          tipoRostro: 1,
-          tipoAcceso: _tipoAcceso),
+          titulo: 'Nuevo visitante QR',
+          icon: Icon(Icons.qr_code, color: Colors.white),
+          pageRoute: 'NuevoVisitFreq'),
       _elementoFAB(
           titulo: 'Nuevo visitante rostro',
-          icon: Icon(Icons.person_add),
+          icon: Icon(
+            Icons.person_add,
+            color: Colors.white,
+          ),
           pageRoute: 'NuevoVisitRostro',
           tipoRostro: 2,
           tipoAcceso: _tipoAcceso),
       _elementoFAB(
-          titulo: 'Nuevo visitante QR',
-          icon: Icon(Icons.qr_code),
-          pageRoute: 'NuevoVisitFreq'),
+          titulo: 'Nuevo residente rostro',
+          icon: Icon(
+            Icons.home,
+            color: Colors.white,
+          ),
+          pageRoute: 'NuevoVisitRostro',
+          tipoRostro: 1,
+          tipoAcceso: _tipoAcceso),
     ];
     if (valor == '0') {
       elementos.removeAt(0);
@@ -627,11 +634,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   SpeedDialChild _elementoFAB(
-      {String titulo,
-      Widget icon,
-      @required String pageRoute,
-      int tipoRostro,
-      Map tipoAcceso}) {
+      {String? titulo,
+      Widget? icon,
+      required String pageRoute,
+      int? tipoRostro,
+      Map? tipoAcceso}) {
     return SpeedDialChild(
         child: Container(padding: EdgeInsets.all(10), child: icon),
         backgroundColor: utils.colorPrincipal,
@@ -687,11 +694,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   void obtenerImagen(
       picker.ImageSource source, VisitanteFreqModel visitante) async {
     try {
-      timer?.cancel();
+      timer.cancel();
       if (Platform.isAndroid) {
         if (!await utils.obtenerPermisosAndroid()) throw 'permission_denied';
       }
-      var imgFile = await picker.ImagePicker.pickImage(
+      var imgFile = await picker.ImagePicker().pickImage(
           source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
       if (imgFile != null) {
         var fixedImg = await utils.fixExifRotation(imgFile.path);
@@ -705,7 +712,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
 
           setState(() {
             _registrandoImg = false;
-            _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+            ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
                 respChange['status'] != 'OK'
                     ? Icon(Icons.error)
                     : Icon(Icons.done_outline_rounded),
@@ -713,7 +720,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 2));
           });
         } else {
-          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+          ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.error), 'La imagen no está en formato vertical', 2));
           setState(() {
             _registrandoImg = false;
@@ -726,7 +733,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       }
     } on PlatformException catch (e) {
       String mensajeError = utils.messageImagePlatformException(e);
-      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
           Icon(Icons.error),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
@@ -734,8 +741,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         _registrandoImg = false;
       });
     } catch (e) {
-      String mensajeError = utils.messageErrorImage(e);
-      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+      String mensajeError = utils.messageErrorImage(e as Exception);
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
           Icon(Icons.error),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
@@ -750,17 +757,14 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     });
   }
 
-  _navegaPaginaRespuesta(BuildContext context, String pageRoute, int tipoRostro,
-      Map tipoAcceso) async {
-    //Agregamos argumento para saber que tipo de pantalla de rostro mostrar, si el argumento se pasa
-    //a otra pantalla este es ignorado
+  _navegaPaginaRespuesta(BuildContext context, String pageRoute, int? tipoRostro,
+      Map? tipoAcceso) async {
     final result = await Navigator.of(context)
-            .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]) ??
-        false;
-    if (result) {
+        .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]) ?? false;
+    if (result as bool) {
       setState(() {});
       Future.delayed(Duration(milliseconds: 500), () {
-        _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
+        ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
             SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
                 height: utils.tamanoIcoSnackbar,
                 color: Theme.of(context).snackBarTheme.actionTextColor),
@@ -774,7 +778,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
 
   @override
   void dispose() {
-    timer?.cancel();
+    timer.cancel();
     super.dispose();
   }
 }
