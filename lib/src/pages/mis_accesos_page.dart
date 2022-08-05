@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:flutter/cupertino.dart';
@@ -61,7 +59,6 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
         child: Column(
           children: [
             _creaSwitchNotifAccesos(),
-            _creaListaVehiculos(),
             Expanded(child: _cargaListadoAccesos()),
             _creaBannerIconos()
           ],
@@ -99,10 +96,6 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
     });
   }
 
-  Widget _creaListaVehiculos() {
-    return Container();
-  }
-
   Future<List<AccesoModel>> _dataRequester(int offset) async {
     page = (offset / 10).ceil() + 1;
     List<AccesoModel> list =
@@ -136,10 +129,10 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
           Padding(
             padding: const EdgeInsets.only(right: 10.0),
             child: Icon(
-              acceso.accion == '1'
+              (acceso.accion == '1' || acceso.accion == '3')
                   ? Icons.arrow_circle_up
                   : Icons.arrow_circle_down,
-              color: acceso.accion == '1'
+              color: acceso.accion == '1' || acceso.accion == '3'
                   ? utils.colorContenedorSaldo
                   : utils.colorToastRechazada,
               size: 40,
@@ -150,26 +143,30 @@ class _MisAccesosPageState extends State<MisAccesosPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(acceso.tipoAcceso == '2' ? 'Persona' : 'Vehiculo',
+                Text(acceso.tipoAcceso == '2' ? 'Persona' : 
+                acceso.tipoAcceso == '3' ? acceso.accionNombre! :'Vehiculo',
                     style: utils.estiloTituloTarjeta(14)),
-                Text(
-                    acceso.tipoAcceso == '2'
-                        ? acceso.nombreAcceso
-                        : '${acceso.marca} ${acceso.modelo} ${acceso.color}',
-                    style: utils.estiloSubtituloTarjeta(17)),
                 Visibility(
-                    visible: acceso.tipoAcceso != '2',
+                  visible: acceso.tipoAcceso != '3',
+                  child: Text(
+                      acceso.tipoAcceso == '2'
+                          ? acceso.nombreAcceso
+                          : '${acceso.marca} ${acceso.modelo} ${acceso.color}',
+                      style: utils.estiloSubtituloTarjeta(17)),
+                ),
+                Visibility(
+                    visible: acceso.tipoAcceso == '1',
                     child:
                         Text('Placas', style: utils.estiloTituloTarjeta(14))),
                 Visibility(
-                    visible: acceso.tipoAcceso != '2',
+                    visible: acceso.tipoAcceso == '1',
                     child: Text('${acceso.placas}',
                         style: utils.estiloSubtituloTarjeta(17))),
                 SizedBox(height: 5),
                 Text(
                     acceso.tipoAcceso == '2'
                         ? 'Acceso con rostro'
-                        : 'Acceso con tag',
+                        : acceso.tipoAcceso == '3' ? 'Acceso con código' :'Acceso con tag',
                     style: utils.estiloTituloTarjeta(14)),
                 Padding(
                   padding: EdgeInsets.only(top: 10.0),

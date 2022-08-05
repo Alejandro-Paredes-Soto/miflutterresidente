@@ -24,9 +24,12 @@ class EmergenciasPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
-            child: RaisedButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: utils.colorPrincipal,
+                shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+              ),
               child: Container(
                 height: 200,
                 alignment: Alignment.center,
@@ -36,17 +39,19 @@ class EmergenciasPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              onPressed: () => _confirmaApoyoCaseta(context),
-              color: utils.colorPrincipal,
+              onPressed: () => _confirmaApoyoCaseta(context)
             ),
           ),
           SizedBox(
             height: 20,
           ),
           Expanded(
-            child: RaisedButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: utils.colorPrincipal,
+                shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+              ),
               child: Container(
                 alignment: Alignment.center,
                 height: 200,
@@ -58,7 +63,6 @@ class EmergenciasPage extends StatelessWidget {
                 ),
               ),
               onPressed: () => _llama911(),
-              color: utils.colorPrincipal,
             ),
           ),
           SizedBox(
@@ -85,12 +89,12 @@ class EmergenciasPage extends StatelessWidget {
     Map estatus =
         await _emergenciasProvider.pedirApoyoCaseta(_prefs.usuarioLogged);
     if (estatus['OK'])
-      Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
           SvgPicture.asset(utils.rutaIconoEmergencia, height: utils.tamanoIcoSnackbar, color: Colors.white),
           'Se envió la alerta a caseta correctamente',
           5));
     else
-    Scaffold.of(context).showSnackBar(utils.creaSnackBarIcon(
+    ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
           Icon(Icons.error_outline),
           'No se pudo enviar la notificación',
           5));
@@ -98,8 +102,8 @@ class EmergenciasPage extends StatelessWidget {
 
   _llama911() async {
     const url = 'tel:911';
-    if (await canLaunch(url)) {
-      await launch(url);
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
     } else {
       print('No se pudo llamar a $url');
     }

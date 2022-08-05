@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dostop_v2/src/providers/areas_comunes_provider.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';

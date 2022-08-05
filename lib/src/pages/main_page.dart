@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dostop_v2/src/providers/login_validator.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
