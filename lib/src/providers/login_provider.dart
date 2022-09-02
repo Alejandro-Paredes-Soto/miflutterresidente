@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
@@ -50,7 +49,6 @@ class LoginProvider {
             'No se ha podido obtener el token desde One Signal, revisar que los servicios esten funcionando '
                 'y que los servicios internos de la aplicación se pueden conectar a One Signal'
       };
-    Map<String, dynamic> mapResp = Map<String, dynamic>();
     try {
       final deviceData = await getDeviceData();
       final infoApp = await PackageInfo.fromPlatform();
@@ -68,10 +66,9 @@ class LoginProvider {
       };
       // final resp =
           // await http.post(Uri.parse('${constantes.urlApp}/registrar_token_disp_os.php'), body: authData);
-           final resp =
+      final resp =
           await http.post(Uri.parse('http://192.168.100.14/WebServiceApp/register_playerID.php'), body: authData);
       Map<String, dynamic> decodeResp = json.decode(resp.body);
-      log(decodeResp.toString());
 
       if(resp.statusCode == 200){
         _prefs.token = '';
@@ -80,8 +77,6 @@ class LoginProvider {
 
       return decodeResp;
     } catch (e) {
-      print(
-          'Ocurrió un error en la llamada al Servicio de LOGIN - REGISTRA TOKEN:\n $e');
       return {
         'statusCode': 0,
         'message':

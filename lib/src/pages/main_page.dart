@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dostop_v2/src/providers/login_validator.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
@@ -47,7 +45,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
       if (data.containsKey('visita')) {
         ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
         if (!mounted) return;
-        log("Aqui5");
         await Navigator.pushNamed(navigatorKey.currentContext!, 'VisitaNotif',
             arguments: data['visita']);
         setState(() {});

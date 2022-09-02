@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
 import 'package:dostop_v2/src/push_manager/mensajes_stream.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../providers/login_provider.dart';
@@ -33,19 +31,16 @@ class PushNotificationsManager {
     messaging.requestPermission();
 
     messaging.getToken().then((token) {
-      log("token $token");
       if (token != null) {
         _prefs.token = token;
       }
     });
 
     FirebaseMessaging.onMessage.listen((event) async {
-      log('message');
       if (event.notification != null) _evaluaMensaje(event);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
-      log("message ${event.notification}");
       if (event.notification != null) _evaluaMensaje(event);
     });
   }
@@ -55,13 +50,11 @@ class PushNotificationsManager {
     await OneSignal.shared.setAppId("42665aa6-8bda-4596-b0fb-9ca0b5569b8d");
 
     OneSignal.shared.setNotificationWillShowInForegroundHandler((event) {
-      log("Aqui2");
       _evaluaPayload(event.notification);
     });
 
     OneSignal.shared
         .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
-      log("aqui1");
       _evaluaPayload(result.notification);
     });
 
