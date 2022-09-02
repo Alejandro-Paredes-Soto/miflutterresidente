@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dostop_v2/src/pages/areas_comunes_page.dart';
 import 'package:dostop_v2/src/pages/aviso_detalle_page.dart';
 import 'package:dostop_v2/src/pages/avisos_page.dart';
@@ -18,7 +20,9 @@ import 'package:dostop_v2/src/pages/reportar_incidente_page.dart';
 import 'package:dostop_v2/src/pages/visita_notificacion_page.dart';
 import 'package:dostop_v2/src/pages/visitantes_frecuentes_page.dart';
 import 'package:dostop_v2/src/pages/visitas_page.dart';
+import 'package:dostop_v2/src/providers/login_provider.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
+import 'package:dostop_v2/src/push_manager/push_notification_manager_onesignal.dart';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
@@ -45,7 +49,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final pushManager = PushNotificationsManager();
+  final pushOneSignal = PushNotificationsManagerOneSignal();
   final prefs = new PreferenciasUsuario();
+  final _loginProvider = LoginProvider();
   final GlobalKey<NavigatorState> navigatorKey =
       new GlobalKey<NavigatorState>();
 
@@ -53,8 +60,14 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     //Agregar al main_page. para solo recibir notificaciones si esta logueado
-    final pushManager = PushNotificationsManager();
-    pushManager.initNotifications();
+    pushOneSignal.initNotifications();
+    if (prefs.usuarioLogged.isNotEmpty && prefs.playerID.isEmpty) {
+      pushManager.initNotifications();
+    }
+
+    if(prefs.usuarioLogged.isNotEmpty && prefs.playerID.isNotEmpty && !prefs.registeredPlayerID){
+      _loginProvider.registrarTokenOS();
+    }
   }
 
   @override

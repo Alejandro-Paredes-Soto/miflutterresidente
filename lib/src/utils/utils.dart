@@ -483,17 +483,6 @@ Future<bool> obtenerPermisosAndroid() async {
   return false;
 }
 
-String obtenerIDPlataforma(BuildContext context) {
-  switch (Theme.of(context).platform) {
-    case TargetPlatform.iOS:
-      return '1';
-    case TargetPlatform.android:
-      return '2';
-    default:
-      return '1';
-  }
-}
-
 Future<Map<String, dynamic>> getDeviceData() async {
     final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
     var deviceData = <String, dynamic>{};

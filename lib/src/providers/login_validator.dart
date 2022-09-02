@@ -46,7 +46,9 @@ class LoginValidator {
         'brand': deviceData['brand'],
         'model': deviceData['nameModel'],
       };
-      final resp = await http.post(Uri.parse('${constantes.urlApp}/validar_sesion2.php'), body: authData);
+      
+      final endpoint = _prefs.playerID.isNotEmpty ? 'validar_sesion_os.php' : 'validar_sesion2.php';
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/$endpoint'), body: authData);
       mapResp = json.decode(resp.body);
       if (resp.statusCode != 404 || resp.statusCode != 500) {
         if (mapResp.containsKey('estatus')) {
