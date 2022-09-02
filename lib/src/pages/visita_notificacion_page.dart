@@ -4,7 +4,6 @@ import 'package:dostop_v2/src/pages/agora_page.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
 import 'package:dostop_v2/src/providers/visitas_provider.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
-import 'package:dostop_v2/src/push_manager/push_notification_manager_onesignal.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:dostop_v2/src/widgets/countdown_timer.dart';
@@ -26,7 +25,6 @@ class VisitaNofificacionPage extends StatefulWidget {
 class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   final _notifProvider = NotificacionesProvider();
   final _pushManager = PushNotificationsManager();
-  final _pushManagerOS = PushNotificationsManagerOneSignal();
 
   final _serviceCall = VisitasProvider();
   bool _respuestaEnviada = false,
@@ -502,7 +500,6 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   void dispose() {
     _notifProvider.actualizarEstadoNotif(_prefs.usuarioLogged);
     _pushManager.idsVisitas.remove(id);
-    _pushManagerOS.idsVisitas.remove(id);
     super.dispose();
   }
 }
