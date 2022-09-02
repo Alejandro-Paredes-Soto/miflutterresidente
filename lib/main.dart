@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dostop_v2/src/pages/areas_comunes_page.dart';
 import 'package:dostop_v2/src/pages/aviso_detalle_page.dart';
 import 'package:dostop_v2/src/pages/avisos_page.dart';
