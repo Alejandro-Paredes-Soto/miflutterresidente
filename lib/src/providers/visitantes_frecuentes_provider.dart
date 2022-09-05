@@ -21,7 +21,6 @@ class VisitantesFreqProvider {
       if (decodeResp == null) return [];
       if (decodeResp.containsKey('lista_frecuente'))
         decodeResp['lista_frecuente'].forEach((visitante) {
-          // print('$visitante');
           final tempFrecuente = VisitanteFreqModel.fromJson(visitante);
           visitantes.add(tempFrecuente);
         });
@@ -34,15 +33,44 @@ class VisitantesFreqProvider {
     }
   }
 
+  Future<Map<String, dynamic>> archivarQR(String idFrecuente) async {
+    try {
+      final url = Uri.parse('${constantes.ulrApiProd}/visita/');
+
+      var request = http.Request('DELETE', url);
+      request.body = json.encode({'idVisitante': idFrecuente});
+      request.headers.addAll({'Content-Type': 'application/json'});
+      final resp = await request.send();
+
+      if (resp.statusCode != 404) {
+        Map mapResp = json.decode(await resp.stream.bytesToString());
+
+        if (mapResp['statusCode'] == 200) {
+          return {'OK': 1};
+        } else {
+          return {'OK': 2, 'message': mapResp['message']};
+        }
+      }
+
+      return {'OK': 2};
+    } catch (e) {
+      print(
+          'Ocurrió un error en la llamada al Servicio de VISITANTES FRECUENTES - ELIMINAR VISITANTE:\n $e');
+
+      return {'OK': 2};
+    }
+  }
+
   Future<Map<String, dynamic>> eliminaVisitanteFrecuente(
       String idFrecuente, String idUsuario, int tipo) async {
     try {
-      final resp = await http
-          .post(Uri.parse('${constantes.urlApp}/eliminar_frecuente.php'), body: {
-        'id_frecuente': idFrecuente,
-        'id_colono': idUsuario,
-        'tipo_frecuente': '$tipo'
-      });
+      final resp = await http.post(
+          Uri.parse('${constantes.urlApp}/eliminar_frecuente.php'),
+          body: {
+            'id_frecuente': idFrecuente,
+            'id_colono': idUsuario,
+            'tipo_frecuente': '$tipo'
+          });
       Map mapResp = json.decode(resp.body);
       // print(decodeResp);
       if (mapResp['estatus'].toString().contains('1')) {
@@ -58,8 +86,7 @@ class VisitantesFreqProvider {
   }
 
   Future<Map<String, dynamic>> nuevoVisitanteFrecuente(
-      {
-      required String idUsuario,
+      {required String idUsuario,
       required String nombre,
       required String apPaterno,
       required String apMaterno,
@@ -100,8 +127,7 @@ class VisitantesFreqProvider {
   }
 
   Future<Map<String, dynamic>> nuevoAccesoRostro(
-      {
-      required String idUsuario,
+      {required String idUsuario,
       required String nombre,
       required String apPaterno,
       required String apMaterno,
@@ -120,7 +146,8 @@ class VisitantesFreqProvider {
       'tipo_visitante': tipoVisitante.toString()
     };
     try {
-      final resp = await http.post(Uri.parse('${constantes.urlApp}/registrar_rostro.php'),
+      final resp = await http.post(
+          Uri.parse('${constantes.urlApp}/registrar_rostro.php'),
           body: visitanteData);
       Map mapResp = json.decode(resp.body);
       if (mapResp['estatus'].toString().contains('1')) {
@@ -139,6 +166,47 @@ class VisitantesFreqProvider {
       print(
           'Ocurrió un error en la llamada al Servicio de VISITANTES FRECUENTES - NUEVO VISITANTE:\n $e');
       return {'OK': 2};
+    }
+  }
+
+  Future<Map<String, dynamic>> changeImage(
+      {required String idUsuario,
+      required String idFrecuente,
+      required String image,
+      required String tipo}) async {
+    final visitanteData = {
+      'idColono': idUsuario,
+      'idFrecuente': idFrecuente,
+      'image': image,
+      'tipoFrecuente': tipo.toString(),
+    };
+
+    try {
+      final resp = await http.post(
+          Uri.parse('${constantes.urlApp}/changeFaceImage.php'),
+          body: json.encode(visitanteData),
+          headers: {'Content-Type': 'application/json'});
+
+      if (resp.statusCode == 404) {
+        return {
+          'status': 'NOT FOUND',
+          'statusCode': 400,
+          'message': 'Servicio no encontrado'
+        };
+      }
+
+      Map<String, dynamic> mapResp = json.decode(resp.body);
+
+      return mapResp;
+    } catch (e) {
+      print(
+          'Ocurrió un error en la llamada al Servicio de VISITANTES FRECUENTES - NUEVO VISITANTE:\n $e');
+
+      return {
+        'status': e.runtimeType.toString(),
+        'statusCode': 0,
+        'message': 'Ocurrio un error inesperado.'
+      };
     }
   }
 }

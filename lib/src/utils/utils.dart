@@ -10,8 +10,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image/image.dart' as imageTools;
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_extend/share_extend.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 
@@ -413,7 +417,7 @@ Future<List<Map<String, dynamic>>> validaImagenesOrientacion(
 
   for (var i = 0; i < imagenes.length; i++) {
     // ignore: unnecessary_null_comparison
-    if (imagenes[i] != null && imagenes[i] != '' ) {
+    if (imagenes[i] != null && imagenes[i] != '') {
       ui.Image img = await getImage(imagenes[i]);
       list.add({'img': imagenes[i], 'isVertical': img.height > img.width});
     }
@@ -437,10 +441,8 @@ Future<ui.Image> getImage(String path) async {
 
 void descargaImagen(BuildContext context, String url) async {
   ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
-      Icon(
-        Icons.cloud_download,
-        color: Theme.of(context).snackBarTheme.actionTextColor
-      ),
+      Icon(Icons.cloud_download,
+          color: Theme.of(context).snackBarTheme.actionTextColor),
       'Descargando...',
       1));
   try {
@@ -452,18 +454,14 @@ void descargaImagen(BuildContext context, String url) async {
     var res = await http.get(Uri.parse(url));
     await ImageGallerySaver.saveImage(Uint8List.fromList(res.bodyBytes));
     ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
-        Icon(
-          Icons.file_download,
-          color: Theme.of(context).snackBarTheme.actionTextColor
-        ),
+        Icon(Icons.file_download,
+            color: Theme.of(context).snackBarTheme.actionTextColor),
         'Imagen guardada',
         2));
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
-        Icon(
-          Icons.error,
-          color: Theme.of(context).snackBarTheme.actionTextColor
-        ),
+        Icon(Icons.error,
+            color: Theme.of(context).snackBarTheme.actionTextColor),
         'La imagen no pudo ser guardada',
         2));
   }
@@ -483,75 +481,161 @@ Future<bool> obtenerPermisosAndroid() async {
   return false;
 }
 
-Future<Map<String, dynamic>> getDeviceData() async {
-    final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    var deviceData = <String, dynamic>{};
+void compartir(String codigo) async {
+  try {
+    Directory dir = await getTemporaryDirectory();
 
-    try {
-      if (Platform.isIOS) {
-        deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
-      } else {
-        deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
-      }
-    } on PlatformException {
-      deviceData = <String, dynamic>{
-        'Error:': 'Failed to get platform version.'
-      };
+    File imagenQR = new File("${dir.path}/${codigo}QR.png");
+
+    if (await imagenQR.exists()) {
+      imagenQR.delete();
     }
 
-    return deviceData;
+    await imagenQR.create(recursive: true);
+
+    imagenQR.writeAsBytes(await toQrImageData(codigo));
+
+    ShareExtend.share(imagenQR.path, Platform.isAndroid ? 'image' : 'file');
+  } catch (e) {
+    print('Ocurrió un error al compartir:\n $e');
+  }
+}
+
+Future<List<int>> toQrImageData(String codigo) async {
+  final imageqr = await QrPainter(
+          data: codigo,
+          version: QrVersions.auto,
+          color: Colors.black,
+          emptyColor: Colors.white,
+          gapless: true)
+      .toImageData(350);
+
+  imageTools.Image image = imageTools.Image(450, 530);
+
+  imageTools.fill(image, imageTools.getColor(255, 255, 255));
+
+  imageTools.drawImage(
+      image, imageTools.decodePng(imageqr!.buffer.asUint8List())!,
+      dstX: 50, dstY: 40);
+
+  imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
+      color: imageTools.getColor(0, 0, 0));
+
+  imageTools.drawString(
+      image, imageTools.arial_24, 60, 450, 'Presenta este QR en la entrada',
+      color: imageTools.getColor(0, 0, 0));
+
+  imageTools.drawString(
+      image, imageTools.arial_24, 15, 470, '                    para acceder',
+      color: imageTools.getColor(0, 0, 0));
+
+  imageTools.drawString(
+      image, imageTools.arial_24, 100, 500, '     www.dostop.mx',
+      color: imageTools.getColor(0, 0, 0));
+
+  return imageTools.encodeJpg(image);
+}
+
+String messageImagePlatformException(PlatformException e) {
+  String message = '';
+
+  if (e.code.toString().contains('photo_access_denied'))
+    message = 'Otorga el permiso de almacenamiento por favor';
+  else if (e.code.toString().contains('camera_access_denied'))
+    message = 'Otorga el permiso de la cámara por favor';
+  else
+    message = e.message ?? '';
+  return message;
+}
+
+String messageErrorImage(Exception e) {
+  if (e.toString().contains('permission_denied'))
+    return 'Otorga los permisos correspondientes.';
+  else
+    return e.toString();
+}
+
+Future<File> fixExifRotation(String imagePath) async {
+  final originalFile = File(imagePath);
+
+  final imageTools.Image capturedImage =
+      imageTools.decodeImage(await originalFile.readAsBytes())!;
+
+  final imageTools.Image orientedImage =
+      imageTools.bakeOrientation(capturedImage);
+
+  await originalFile
+      .writeAsBytes(imageTools.encodeJpg(orientedImage, quality: 50));
+
+  return originalFile;
+}
+
+Future<Map<String, dynamic>> getDeviceData() async {
+  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  var deviceData = <String, dynamic>{};
+
+  try {
+    if (Platform.isIOS) {
+      deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+    } else {
+      deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+    }
+  } on PlatformException {
+    deviceData = <String, dynamic>{'Error:': 'Failed to get platform version.'};
   }
 
-  Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
-    return <String, dynamic>{
-      'os': 'Android ${build.version.release}',
-      'nameModel': build.model,
-      'version.securityPatch': build.version.securityPatch,
-      'version.sdkInt': build.version.sdkInt,
-      'version.release': build.version.release,
-      'version.previewSdkInt': build.version.previewSdkInt,
-      'version.incremental': build.version.incremental,
-      'version.codename': build.version.codename,
-      'version.baseOS': build.version.baseOS,
-      'board': build.board,
-      'bootloader': build.bootloader,
-      'brand': build.brand,
-      'device': build.device,
-      'display': build.display,
-      'fingerprint': build.fingerprint,
-      'hardware': build.hardware,
-      'host': build.host,
-      'id': build.id,
-      'manufacturer': build.manufacturer,
-      'model': build.model,
-      'product': build.product,
-      'supported32BitAbis': build.supported32BitAbis,
-      'supported64BitAbis': build.supported64BitAbis,
-      'supportedAbis': build.supportedAbis,
-      'tags': build.tags,
-      'type': build.type,
-      'isPhysicalDevice': build.isPhysicalDevice,
-      'androidId': build.androidId,
-      'systemFeatures': build.systemFeatures,
-    };
-  }
+  return deviceData;
+}
 
-  Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
-    return <String, dynamic>{
-      'brand': 'Apple',
-      'nameModel': data.name,
-      'os': '${data.systemName} ${data.systemVersion}',
-      'systemName': data.systemName,
-      'systemVersion': data.systemVersion,
-      'model': data.model,
-      'localizedModel': data.localizedModel,
-      'identifierForVendor': data.identifierForVendor,
-      'isPhysicalDevice': data.isPhysicalDevice,
-      'utsname.sysname:': data.utsname.sysname,
-      'utsname.nodename:': data.utsname.nodename,
-      'utsname.release:': data.utsname.release,
-      'utsname.version:': data.utsname.version,
-      'utsname.machine:': data.utsname.machine,
-    };
-  }
+Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+  return <String, dynamic>{
+    'os': 'Android ${build.version.release}',
+    'nameModel': build.model,
+    'version.securityPatch': build.version.securityPatch,
+    'version.sdkInt': build.version.sdkInt,
+    'version.release': build.version.release,
+    'version.previewSdkInt': build.version.previewSdkInt,
+    'version.incremental': build.version.incremental,
+    'version.codename': build.version.codename,
+    'version.baseOS': build.version.baseOS,
+    'board': build.board,
+    'bootloader': build.bootloader,
+    'brand': build.brand,
+    'device': build.device,
+    'display': build.display,
+    'fingerprint': build.fingerprint,
+    'hardware': build.hardware,
+    'host': build.host,
+    'id': build.id,
+    'manufacturer': build.manufacturer,
+    'model': build.model,
+    'product': build.product,
+    'supported32BitAbis': build.supported32BitAbis,
+    'supported64BitAbis': build.supported64BitAbis,
+    'supportedAbis': build.supportedAbis,
+    'tags': build.tags,
+    'type': build.type,
+    'isPhysicalDevice': build.isPhysicalDevice,
+    'androidId': build.androidId,
+    'systemFeatures': build.systemFeatures,
+  };
+}
 
+Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+  return <String, dynamic>{
+    'brand': 'Apple',
+    'nameModel': data.name,
+    'os': '${data.systemName} ${data.systemVersion}',
+    'systemName': data.systemName,
+    'systemVersion': data.systemVersion,
+    'model': data.model,
+    'localizedModel': data.localizedModel,
+    'identifierForVendor': data.identifierForVendor,
+    'isPhysicalDevice': data.isPhysicalDevice,
+    'utsname.sysname:': data.utsname.sysname,
+    'utsname.nodename:': data.utsname.nodename,
+    'utsname.release:': data.utsname.release,
+    'utsname.version:': data.utsname.version,
+    'utsname.machine:': data.utsname.machine,
+  };
+}
