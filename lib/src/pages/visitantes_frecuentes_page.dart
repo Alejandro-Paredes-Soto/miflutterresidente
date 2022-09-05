@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -395,7 +394,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   Widget _crearItemRostro(BuildContext context, VisitanteFreqModel visitante) {
-    log(visitante.expiroTolerancia.toString());
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
       child: Container(

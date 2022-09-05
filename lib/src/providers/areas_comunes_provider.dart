@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:dostop_v2/src/models/area_comun_model.dart';
 export 'package:dostop_v2/src/models/area_comun_model.dart';
@@ -61,7 +60,6 @@ class AreasComunesProvider {
     try {
       final resp = await http.post(Uri.parse('${constantes.urlApp}/obtener_areas_reservadas.php'),
           body: {'id': idUsuario, 'idArea': idAreaComun});
-      log(resp.body.toString());
       var decodeResp = json.decode(resp.body);
       final List<String> reservasCalendario = [];
       if (decodeResp == null || !(decodeResp is  List)) return [];

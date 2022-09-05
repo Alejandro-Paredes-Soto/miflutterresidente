@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dostop_v2/src/providers/visitas_provider.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
@@ -226,7 +224,6 @@ class _VisitasPageState extends State<VisitasPage> {
 
   Future<List<VisitaModel>> _dataRequester(int offset) async {
     page = (offset / 10).ceil() + 1;
-    log('pagina $page');
     List<VisitaModel> list = await visitasProvider.buscarVisitasXFecha(
         _prefs.usuarioLogged,
         _fechaInicio.isEmpty

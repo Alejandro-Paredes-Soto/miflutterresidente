@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
@@ -62,7 +61,6 @@ class PushNotificationsManager {
         .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
       if (!changes.from.isSubscribed && changes.to.isSubscribed) {
         _prefs.playerID = changes.to.userId!;
-        log(_prefs.playerID.toString());
         if (_prefs.usuarioLogged.isNotEmpty && _prefs.playerID.isNotEmpty) {
           _loginProvider.registrarTokenOS();
         }
