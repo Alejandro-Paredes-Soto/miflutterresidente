@@ -61,7 +61,9 @@ class _MyAppState extends State<MyApp> {
       pushManager.initNotifications();
     }
 
-    if(prefs.usuarioLogged.isNotEmpty && prefs.playerID.isNotEmpty && !prefs.registeredPlayerID){
+    if (prefs.usuarioLogged.isNotEmpty &&
+        prefs.playerID.isNotEmpty &&
+        !prefs.registeredPlayerID) {
       _loginProvider.registrarTokenOS();
     }
   }
@@ -174,6 +176,7 @@ class _MyAppState extends State<MyApp> {
                 color: utils.colorFondoPrincipalLight),
             scaffoldBackgroundColor: utils.colorFondoPrincipalLight),
         darkTheme: ThemeData(
+            dialogBackgroundColor: utils.colorFondoTarjetaDark,
             disabledColor: utils.colorSecundario,
             visualDensity: VisualDensity.adaptivePlatformDensity,
             inputDecorationTheme: InputDecorationTheme(

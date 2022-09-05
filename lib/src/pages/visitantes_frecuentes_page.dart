@@ -9,7 +9,6 @@ import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/utils/popups.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/svg.dart';
@@ -23,7 +22,6 @@ import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
-import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
 class VisitantesFrecuentesPage extends StatefulWidget {
