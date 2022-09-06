@@ -64,10 +64,8 @@ class LoginProvider {
         'brand': deviceData['brand'],
         'model': deviceData['nameModel'],
       };
-      // final resp =
-          // await http.post(Uri.parse('${constantes.urlApp}/registrar_token_disp_os.php'), body: authData);
       final resp =
-          await http.post(Uri.parse('http://192.168.100.14/WebServiceApp/register_playerID.php'), body: authData);
+          await http.post(Uri.parse('${constantes.urlApp}/register_playerID.php'), body: authData);
       Map<String, dynamic> decodeResp = json.decode(resp.body);
 
       if(resp.statusCode == 200){
