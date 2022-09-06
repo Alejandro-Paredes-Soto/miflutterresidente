@@ -67,6 +67,10 @@ android {
 
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+          signingConfig signingConfigs.config
+        }
     }
 }
 
@@ -90,6 +94,7 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.huawei.agconnect'
 repositories {
     mavenCentral()
 }
