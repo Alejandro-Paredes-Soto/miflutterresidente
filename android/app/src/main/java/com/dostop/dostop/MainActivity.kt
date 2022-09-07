@@ -18,7 +18,7 @@ class MainActivity : FlutterActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val soundUri = Uri.parse("android.resource://" + applicationContext.packageName + "/" + R.raw.doorbell)
             val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .build()
 
             // Creating Channel
