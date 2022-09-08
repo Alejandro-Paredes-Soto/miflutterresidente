@@ -11,7 +11,8 @@
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		4810FCF323E9E865007129B5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4810FCF223E9E865007129B5 /* GoogleService-Info.plist */; };
 		4841DD2524885B43000B1286 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4841DD2424885B42000B1286 /* Assets.xcassets */; };
-		48F45D50253E752A00429124 /* doorbell.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 48F45D4F253E752A00429124 /* doorbell.mp3 */; };
+		4847A7F828CA554D0074062E /* doorbell.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4847A7F728CA554D0074062E /* doorbell.mp3 */; };
+		48B45AE928CA512500749185 /* doorbell.wav in Resources */ = {isa = PBXBuildFile; fileRef = 48B45AE828CA512500749185 /* doorbell.wav */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -40,7 +41,8 @@
 		480FFF0E23DA5FB60071C0C8 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		4810FCF223E9E865007129B5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		4841DD2424885B42000B1286 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		48F45D4F253E752A00429124 /* doorbell.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = doorbell.mp3; sourceTree = "<group>"; };
+		4847A7F728CA554D0074062E /* doorbell.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = doorbell.mp3; sourceTree = "<group>"; };
+		48B45AE828CA512500749185 /* doorbell.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = doorbell.wav; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -87,7 +89,8 @@
 		48EDE13023DF46DA00F6987E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				48F45D4F253E752A00429124 /* doorbell.mp3 */,
+				4847A7F728CA554D0074062E /* doorbell.mp3 */,
+				48B45AE828CA512500749185 /* doorbell.wav */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -214,10 +217,11 @@
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
+				4847A7F828CA554D0074062E /* doorbell.mp3 in Resources */,
 				4841DD2524885B43000B1286 /* Assets.xcassets in Resources */,
+				48B45AE928CA512500749185 /* doorbell.wav in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				4810FCF323E9E865007129B5 /* GoogleService-Info.plist in Resources */,
-				48F45D50253E752A00429124 /* doorbell.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -461,7 +465,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 46;
 				DEVELOPMENT_TEAM = 8NQS6RSXW6;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -599,7 +603,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 46;
 				DEVELOPMENT_TEAM = 8NQS6RSXW6;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -630,7 +634,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 46;
 				DEVELOPMENT_TEAM = 8NQS6RSXW6;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
