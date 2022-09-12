@@ -44,7 +44,7 @@
             android:resource="@color/dostop_color" />
         <meta-data
             android:name="com.onesignal.messaging.default_notification_icon"
-            android:resource="@drawable/logo_badget" />
+            android:resource="@drawable/ic_stat_onesignal_default" />
         <meta-data
             android:name="com.onesignal.messaging.default_notification_color"
             android:resource="@color/dostop_color" />
