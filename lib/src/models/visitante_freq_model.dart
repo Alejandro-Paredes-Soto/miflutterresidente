@@ -43,6 +43,7 @@ class VisitanteFreqModel {
   factory VisitanteFreqModel.fromJson(Map<String, dynamic> json) =>
       VisitanteFreqModel(
         nombre: json["nombre"],
+        telefono: json["tel"] ?? "",
         descripcion: json["descripcion"],
         fechaAlta: json["fecha_alta"],
         codigo: json["codigo"] ?? '',
@@ -56,6 +57,5 @@ class VisitanteFreqModel {
         activo: json["activo"] ?? "",
         expiroTolerancia: json["expiro_tolerancia"] == "true" ? true : false,
         tipoVisitante: json["tipo_visitante"] ?? "", 
-        telefono: json["tel"] ?? ""
       );
 }

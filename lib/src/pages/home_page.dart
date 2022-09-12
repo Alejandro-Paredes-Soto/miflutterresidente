@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
+import 'package:dostop_v2/src/widgets/custom_qr.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -84,6 +85,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         });
       }
     });
+
+    configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 7)
+        .then((estadoAccesos) {
+      ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
+      if (!mounted) return;
+      setState(() {
+        if (estadoAccesos.containsKey('valor')) {
+          _qrResidente = estadoAccesos['valor'] == '1';
+        }
+      });
+    });
+
     configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 2)
         .then((estadoAccesos) {
@@ -169,7 +183,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ],
             ),
           ),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           IconButton(
               padding: EdgeInsets.all(0),
               icon: Column(

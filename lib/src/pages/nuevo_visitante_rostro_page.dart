@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/utils/popups.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -410,46 +411,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   void _mostrarOpcImagen() {
-    showCupertinoModalPopup(
-        context: context,
-        builder: (_) => CupertinoActionSheet(
-              actions: [
-                CupertinoActionSheetAction(
-                    child: Text(
-                      'Tomar fotografía',
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          color: Theme.of(context).iconTheme.color),
-                      textScaleFactor: 1.0,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop('dialog');
-                      obtenerImagen(picker.ImageSource.camera);
-                    }),
-                CupertinoActionSheetAction(
-                    child: Text(
-                      'Escoger de la galería',
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          color: Theme.of(context).iconTheme.color),
-                      textScaleFactor: 1.0,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop('dialog');
-                      obtenerImagen(picker.ImageSource.gallery);
-                    }),
-              ],
-              cancelButton: CupertinoActionSheetAction(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Cancelar',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textScaleFactor: 1.0,
-                ),
-              ),
-            ));
+    showOptionPhoto(context, () {
+      Navigator.of(context).pop('dialog');
+      obtenerImagen(picker.ImageSource.camera);
+    }, () {
+      Navigator.of(context).pop('dialog');
+      obtenerImagen(picker.ImageSource.gallery);
+    });
   }
 
   void obtenerImagen(picker.ImageSource source) async {
@@ -460,7 +428,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       var imgFile = await picker.ImagePicker().pickImage(
           source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
       if (imgFile != null) {
-        var fixedImg = await fixExifRotation(imgFile.path);
+        var fixedImg = await utils.fixExifRotation(imgFile.path);
         var img = await decodeImageFromList(fixedImg.readAsBytesSync());
         if (img.height > img.width) {
           _imgRostro = fixedImg;
@@ -474,7 +442,6 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               'La imagen no está en formato vertical',
               2));
         }
-        print(await imgFile.length());
       }
     } on PlatformException catch (e) {
       //buscamos el error. Si contiene el texto photo_access_deined de los permisos de android
