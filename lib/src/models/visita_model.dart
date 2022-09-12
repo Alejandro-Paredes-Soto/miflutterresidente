@@ -7,8 +7,8 @@ class VisitaModel {
   String idVisitas;
   String fechaEntrada;
   String horaEntrada;
-  String fechaSalida;
-  String horaSalida;
+  String? fechaSalida;
+  String? horaSalida;
   String placa;
   String color;
   String marca;
@@ -20,40 +20,41 @@ class VisitaModel {
   String imgRostro;
   int tipoVisita = 1;
   String codigo;
-  String estatus;
-  String reporte;
-  String noMolestar;
-  DateTime fechaCompleta;
+  String? estatus;
+  String? reporte;
+  String? noMolestar;
+  DateTime? fechaCompleta;
   String servicioLlamada;
   String appIdAgora;
   String channelCall;
   String tipoVisitante;
 
   VisitaModel(
-      {this.idVisitas,
-      this.fechaEntrada,
-      this.horaEntrada,
+      {
+      required this.idVisitas,
+      required this.fechaEntrada,
+      required this.horaEntrada,
       this.fechaSalida,
       this.horaSalida,
-      this.placa,
-      this.color,
-      this.marca,
-      this.modelo,
-      this.visitante,
-      this.motivoVisita,
-      this.imgPlaca,
-      this.imgId,
-      this.imgRostro,
-      this.tipoVisita,
-      this.codigo,
+      required this.placa,
+      required this.color,
+      required this.marca,
+      required this.modelo,
+      required this.visitante,
+      required this.motivoVisita,
+      required this.imgPlaca,
+      required this.imgId,
+      required this.imgRostro,
+      this.tipoVisita = 1,
+      required this.codigo,
       this.estatus,
       this.reporte,
       this.noMolestar,
-      this.fechaCompleta,
-      this.servicioLlamada,
-      this.appIdAgora,
-      this.channelCall,
-      this.tipoVisitante});
+      required this.fechaCompleta,
+      required this.servicioLlamada,
+      required this.appIdAgora,
+      required this.channelCall,
+      required this.tipoVisitante});
 
   factory VisitaModel.fromJson(Map<String, dynamic> json) => VisitaModel(
       idVisitas: json["idVisitas"],
@@ -61,16 +62,16 @@ class VisitaModel {
       horaEntrada: json["hora_entrada"],
       fechaSalida: json['fecha_salida'],
       horaSalida: json["hora_salida"],
-      placa: json["placa"],
-      color: json["color"],
-      marca: json["marca"],
-      modelo: json["modelo"],
+      placa: json["placa"] ?? '',
+      color: json["color"] ?? '',
+      marca: json["marca"] ?? '',
+      modelo: json["modelo"] ?? '',
       visitante: json["visitante"],
-      motivoVisita: json["motivo_visita"],
-      imgPlaca: json["img_placa"],
-      imgId: json["img_id"],
-      imgRostro: json["img_rostro"],
-      codigo: json["codigo"],
+      motivoVisita: json["motivo_visita"] ?? '',
+      imgPlaca: json["img_placa"] ?? '',
+      imgId: json["img_id"] ?? '',
+      imgRostro: json["img_rostro"] ?? '',
+      codigo: json["codigo"] ?? '',
       estatus: json["estatus"],
       reporte: json["reporte"],
       noMolestar: json["no_molestar"],

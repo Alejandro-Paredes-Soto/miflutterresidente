@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void creaDialogSimple(BuildContext context, String titulo, String contenido,
-    String textOpcionOK, Function funcionOK) {
+    String textOpcionOK, Function() funcionOK) {
   showCupertinoDialog(
       context: context,
       builder: (ctx) {
@@ -67,7 +67,7 @@ creaDialogBloqueo(BuildContext context, String titulo, String mensaje) {
 }
 
 creaDialogWidget(BuildContext context, String titulo, Widget widget,
-    String textOpcionOK, Function funcionOK) {
+    String textOpcionOK, Function() funcionOK) {
   showCupertinoDialog(
       context: context,
       builder: (ctx) => ButtonBarTheme(
@@ -98,7 +98,7 @@ creaDialogWidget(BuildContext context, String titulo, Widget widget,
                         ),
                       ))),
               actions: [
-                FlatButton(
+                TextButton(
                   child: Text(
                     textOpcionOK,
                     style: TextStyle(fontSize: 20),
@@ -116,8 +116,8 @@ void creaDialogYesNo(
     String contenido,
     String textOpcionPos,
     String textOpcionNeg,
-    Function funcionPos,
-    Function funcionNeg) {
+    Function() funcionPos,
+    Function() funcionNeg) {
   showCupertinoDialog(
       context: context,
       builder: (ctx) {
@@ -146,8 +146,8 @@ void creaDialogYesNoAlt(
     String contenido,
     String textOpcionPos,
     String textOpcionNeg,
-    Function funcionPos,
-    Function funcionNeg) {
+    Function() funcionPos,
+    Function() funcionNeg) {
   showCupertinoDialog(
       context: context,
       builder: (ctx) {
@@ -179,8 +179,8 @@ void creaDialogQR(
     Widget contenido,
     String textOpcionPos,
     String textOpcionNeg,
-    Function funcionPos,
-    Function funcionNeg,
+    Function() funcionPos,
+    Function() funcionNeg,
     {bool barrierDismissible = true,
     bool btnPos = true}) {
   showDialog(
@@ -221,10 +221,7 @@ void creaDialogQR(
                       Visibility(
                         visible: btnPos,
                         child: Flexible(
-                          child: RaisedButton(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
+                          child: ElevatedButton(
                             child: Container(
                               alignment: Alignment.center,
                               height: 60,
@@ -237,30 +234,34 @@ void creaDialogQR(
                               ),
                             ),
                             onPressed: funcionPos,
-                          ),
-                        ),
-                      ),
-                      Visibility(
-                        visible: btnPos,
-                        child: SizedBox(height: 20)),
-                      Flexible(
-                        child: RaisedButton(
-                          color: colorPrincipal,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 60,
-                            width: 220,
-                            child: AutoSizeText(
-                              textOpcionNeg,
-                              maxLines: 1,
-                              style: estiloBotones(13),
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
                             ),
                           ),
-                          onPressed: funcionNeg,
                         ),
                       ),
+                      SizedBox(height: 20),
+                      Flexible(
+                          child: ElevatedButton(
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 60,
+                          width: 220,
+                          child: AutoSizeText(
+                            textOpcionNeg,
+                            maxLines: 1,
+                            style: estiloBotones(13),
+                          ),
+                        ),
+                        onPressed: funcionNeg,
+                        style: ElevatedButton.styleFrom(
+                          primary: colorPrincipal,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                        ),
+                      ))
                     ],
                   ),
                 ),
@@ -272,7 +273,7 @@ void creaDialogQR(
 }
 
 void creaDialogInvite(BuildContext context, String titulo, Widget contenido,
-    String textOpcionNeg, Function funcionPos, Function funcionNeg,
+    String textOpcionNeg, Function() funcionPos, Function() funcionNeg,
     {bool barrierDismissible = true}) {
   showDialog(
       barrierDismissible: barrierDismissible,
@@ -308,10 +309,12 @@ void creaDialogInvite(BuildContext context, String titulo, Widget contenido,
                       Container(width: 220, child: contenido),
                       SizedBox(height: 20),
                       Flexible(
-                        child: RaisedButton(
-                          color: colorPrincipal,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15)),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: colorPrincipal,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                          ),
                           child: Container(
                             alignment: Alignment.center,
                             height: 60,

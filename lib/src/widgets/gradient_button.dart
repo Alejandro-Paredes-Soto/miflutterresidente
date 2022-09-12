@@ -4,17 +4,17 @@ import 'elevated_container.dart';
 
 class RaisedGradientButton extends StatelessWidget {
   final Widget child;
-  final Gradient gradient;
-  final Gradient disabledGradient;
+  final Gradient? gradient;
+  final Gradient? disabledGradient;
 
-  final Function onPressed;
-  final BorderRadius borderRadius;
+  final Function()? onPressed;
+  final BorderRadius? borderRadius;
   final double elevation;
   final EdgeInsetsGeometry padding;
 
   const RaisedGradientButton({
-    Key key,
-    @required this.child,
+    Key? key,
+    required this.child,
     this.gradient,
     this.disabledGradient,
     this.onPressed,
@@ -29,7 +29,7 @@ class RaisedGradientButton extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+        shape: RoundedRectangleBorder(borderRadius: borderRadius ?? BorderRadius.circular(15)),
         child: InkWell(
           borderRadius: borderRadius,
           onTap: onPressed,

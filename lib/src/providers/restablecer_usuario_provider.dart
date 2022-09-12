@@ -10,7 +10,7 @@ class RestablecerUsuarioProvider {
     Map<String, dynamic> mapResp = Map<String, dynamic>();
 
     try {
-      final resp = await http.post('${constantes.urlApp}/recuperarpass.php', body: {'usuario': email});
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/recuperarpass.php'), body: {'usuario': email});
       List decodeResp = json.decode(resp.body);
       decodeResp[0].forEach((String k, dynamic v) => mapResp[k] = v);
     } catch (e) {

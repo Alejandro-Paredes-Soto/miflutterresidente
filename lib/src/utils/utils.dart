@@ -1,17 +1,19 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flushbar/flushbar.dart';
+import 'package:another_flushbar/flushbar.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image/image.dart' as imageTools;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image/image.dart' as imageTools;
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permissions_plugin/permissions_plugin.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -96,7 +98,7 @@ String rutaIconTipoAcceso = 'assets/accessType.svg';
 String rutaIconQR = 'assets/IconoQR.svg';
 
 AppBar appBarLogo(
-    {@required String titulo, BackButton backbtn = const BackButton()}) {
+    {required String titulo, Widget? backbtn = const BackButton()}) {
   return AppBar(
     automaticallyImplyLeading: false,
     centerTitle: false,
@@ -196,7 +198,7 @@ Brightness temaStatusBar(BuildContext context) {
 }
 
 bool correoValido(String email) {
-  Pattern patternCorreoValido =
+  String patternCorreoValido =
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
   if (!RegExp(patternCorreoValido).hasMatch(email))
     return false;
@@ -212,10 +214,10 @@ bool textoVacio(String text) {
 }
 
 Flushbar creaSnackPersistent(IconData icon, String texto, Color color,
-    {Duration duration, dismissible = false}) {
+    {Duration? duration, dismissible = false}) {
   return Flushbar(
     flushbarPosition: FlushbarPosition.BOTTOM,
-    borderRadius: 5,
+    borderRadius: BorderRadius.circular(5),
     animationDuration: Duration(milliseconds: 300),
     icon: Icon(
       icon,
@@ -270,27 +272,30 @@ SnackBar creaSnackBarIconFn(Widget icon, String texto, int segundos,
     duration: Duration(seconds: segundos),
     action: SnackBarAction(
       label: textFn,
-      onPressed: funcionSnack,
+      onPressed: funcionSnack.call(),
     ),
   );
 }
 
-abrirPaginaWeb({@required String url}) async {
-  if (await canLaunch(url)) if (url.contains(RegExp(
-      r'(https?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)|(https?:\/\/)?(www\.)?(?!ww)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)')))
-    await launch(url);
-  else
-    print('No es una dirección válida');
-  else
-    print('No se pudo abrir: $url');
+abrirPaginaWeb({required String url}) async {
+  if (await launchUrl(Uri.parse(url))) {
+    if (url.contains(RegExp(
+        r'(https?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)|(https?:\/\/)?(www\.)?(?!ww)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)'))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      log('No es una dirección válida');
+    }
+  } else {
+    log('No se pudo abrir: $url');
+  }
 }
 
-String fechaCompleta(DateTime tm, {bool showTime = false}) {
+String fechaCompleta(DateTime? tm, {bool showTime = false}) {
   if (tm == null) return "";
   DateTime today = new DateTime.now();
   Duration oneDay = new Duration(days: 1);
   Duration twoDay = new Duration(days: 2);
-  String month;
+  late String month;
   switch (tm.month) {
     case 1:
       month = 'enero';
@@ -342,12 +347,12 @@ String fechaCompleta(DateTime tm, {bool showTime = false}) {
   }
 }
 
-String fechaCompletaFuturo(DateTime tm, {String articuloDef = ''}) {
+String fechaCompletaFuturo(DateTime? tm, {String articuloDef = ''}) {
   if (tm == null) return '';
   DateTime today = DateTime.now();
   Duration oneDay = Duration(days: 1);
   final tomorrow = today.add(oneDay);
-  String month;
+  late String month;
   switch (tm.month) {
     case 1:
       month = 'enero';
@@ -400,7 +405,7 @@ List<String> validaImagenes(List<String> imagenes) {
   List<String> list = [];
 
   list.addAll(imagenes);
-  imagenes.forEach((item) {
+  imagenes.forEach((String? item) {
     if (item == '' || item == null) list.remove(item);
   });
   return list;
@@ -411,7 +416,8 @@ Future<List<Map<String, dynamic>>> validaImagenesOrientacion(
   List<Map<String, dynamic>> list = [];
 
   for (var i = 0; i < imagenes.length; i++) {
-    if (imagenes[i] != '' && imagenes[i] != null) {
+    // ignore: unnecessary_null_comparison
+    if (imagenes[i] != null && imagenes[i] != '') {
       ui.Image img = await getImage(imagenes[i]);
       list.add({'img': imagenes[i], 'isVertical': img.height > img.width});
     }
@@ -434,89 +440,61 @@ Future<ui.Image> getImage(String path) async {
 }
 
 void descargaImagen(BuildContext context, String url) async {
-  Scaffold.of(context).showSnackBar(
-      creaSnackBarIcon(Icon(Icons.cloud_download), 'Descargando...', 1));
+  ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
+      Icon(Icons.cloud_download,
+          color: Theme.of(context).snackBarTheme.actionTextColor),
+      'Descargando...',
+      1));
   try {
     if (Platform.isAndroid) {
-      if (!await obtenerPermisosAndroid())
+      if (!await obtenerPermisosAndroid()) {
         throw 'No tienes permisos de almacenamiento';
+      }
     }
-    var res = await http.get(url);
+    var res = await http.get(Uri.parse(url));
     await ImageGallerySaver.saveImage(Uint8List.fromList(res.bodyBytes));
-    // print(result);
-    Scaffold.of(context).showSnackBar(
-        creaSnackBarIcon(Icon(Icons.file_download), 'Imagen guardada', 2));
+    ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
+        Icon(Icons.file_download,
+            color: Theme.of(context).snackBarTheme.actionTextColor),
+        'Imagen guardada',
+        2));
   } catch (e) {
-    Scaffold.of(context).showSnackBar(creaSnackBarIcon(
-        Icon(Icons.error), 'La imagen no pudo ser guardada', 2));
+    ScaffoldMessenger.of(context).showSnackBar(creaSnackBarIcon(
+        Icon(Icons.error,
+            color: Theme.of(context).snackBarTheme.actionTextColor),
+        'La imagen no pudo ser guardada',
+        2));
   }
 }
 
 Future<bool> obtenerPermisosAndroid() async {
-  Map<Permission, PermissionState> permission =
-      await PermissionsPlugin.checkPermissions(
-          [Permission.WRITE_EXTERNAL_STORAGE]);
+  var status = await Permission.storage.status;
 
-  if (permission[Permission.WRITE_EXTERNAL_STORAGE] !=
-      PermissionState.GRANTED) {
-    try {
-      permission = await PermissionsPlugin.requestPermissions(
-          [Permission.WRITE_EXTERNAL_STORAGE]);
-    } on Exception {
-      return false;
-    }
+  if (status.isDenied) {
+    status = await Permission.storage.request();
+  }
 
-    if (permission[Permission.WRITE_EXTERNAL_STORAGE] ==
-        PermissionState.GRANTED)
-      return true;
-    else
-      return false;
-  } else {
+  if (status.isGranted) {
     return true;
   }
-}
 
-Future<bool> obtenerPermisosAndroidMic() async {
-  Map<Permission, PermissionState> permission =
-      await PermissionsPlugin.checkPermissions([Permission.RECORD_AUDIO]);
-
-  if (permission[Permission.RECORD_AUDIO] != PermissionState.GRANTED) {
-    try {
-      permission =
-          await PermissionsPlugin.requestPermissions([Permission.RECORD_AUDIO]);
-    } on Exception {
-      return false;
-    }
-
-    if (permission[Permission.RECORD_AUDIO] == PermissionState.GRANTED)
-      return true;
-    else
-      return false;
-  } else {
-    return true;
-  }
-}
-
-String obtenerIDPlataforma(BuildContext context) {
-  switch (Theme.of(context).platform) {
-    case TargetPlatform.iOS:
-      return '1';
-    case TargetPlatform.android:
-      return '2';
-    default:
-      return '1';
-  }
+  return false;
 }
 
 void compartir(String codigo) async {
   try {
     Directory dir = await getTemporaryDirectory();
+
     File imagenQR = new File("${dir.path}/${codigo}QR.png");
+
     if (await imagenQR.exists()) {
       imagenQR.delete();
     }
+
     await imagenQR.create(recursive: true);
+
     imagenQR.writeAsBytes(await toQrImageData(codigo));
+
     ShareExtend.share(imagenQR.path, Platform.isAndroid ? 'image' : 'file');
   } catch (e) {
     print('Ocurrió un error al compartir:\n $e');
@@ -533,18 +511,24 @@ Future<List<int>> toQrImageData(String codigo) async {
       .toImageData(350);
 
   imageTools.Image image = imageTools.Image(450, 530);
+
   imageTools.fill(image, imageTools.getColor(255, 255, 255));
+
   imageTools.drawImage(
-      image, imageTools.decodePng(imageqr.buffer.asUint8List()),
+      image, imageTools.decodePng(imageqr!.buffer.asUint8List())!,
       dstX: 50, dstY: 40);
+
   imageTools.drawString(image, imageTools.arial_48, 112, 400, codigo,
       color: imageTools.getColor(0, 0, 0));
+
   imageTools.drawString(
       image, imageTools.arial_24, 60, 450, 'Presenta este QR en la entrada',
       color: imageTools.getColor(0, 0, 0));
+
   imageTools.drawString(
       image, imageTools.arial_24, 15, 470, '                    para acceder',
       color: imageTools.getColor(0, 0, 0));
+
   imageTools.drawString(
       image, imageTools.arial_24, 100, 500, '     www.dostop.mx',
       color: imageTools.getColor(0, 0, 0));
@@ -554,12 +538,13 @@ Future<List<int>> toQrImageData(String codigo) async {
 
 String messageImagePlatformException(PlatformException e) {
   String message = '';
+
   if (e.code.toString().contains('photo_access_denied'))
     message = 'Otorga el permiso de almacenamiento por favor';
   else if (e.code.toString().contains('camera_access_denied'))
     message = 'Otorga el permiso de la cámara por favor';
   else
-    message = e.message;
+    message = e.message ?? '';
   return message;
 }
 
@@ -572,11 +557,85 @@ String messageErrorImage(Exception e) {
 
 Future<File> fixExifRotation(String imagePath) async {
   final originalFile = File(imagePath);
+
   final imageTools.Image capturedImage =
-      imageTools.decodeImage(await originalFile.readAsBytes());
+      imageTools.decodeImage(await originalFile.readAsBytes())!;
+
   final imageTools.Image orientedImage =
       imageTools.bakeOrientation(capturedImage);
+
   await originalFile
       .writeAsBytes(imageTools.encodeJpg(orientedImage, quality: 50));
+
   return originalFile;
+}
+
+Future<Map<String, dynamic>> getDeviceData() async {
+  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  var deviceData = <String, dynamic>{};
+
+  try {
+    if (Platform.isIOS) {
+      deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+    } else {
+      deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+    }
+  } on PlatformException {
+    deviceData = <String, dynamic>{'Error:': 'Failed to get platform version.'};
+  }
+
+  return deviceData;
+}
+
+Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+  return <String, dynamic>{
+    'os': 'Android ${build.version.release}',
+    'nameModel': build.model,
+    'version.securityPatch': build.version.securityPatch,
+    'version.sdkInt': build.version.sdkInt,
+    'version.release': build.version.release,
+    'version.previewSdkInt': build.version.previewSdkInt,
+    'version.incremental': build.version.incremental,
+    'version.codename': build.version.codename,
+    'version.baseOS': build.version.baseOS,
+    'board': build.board,
+    'bootloader': build.bootloader,
+    'brand': build.brand,
+    'device': build.device,
+    'display': build.display,
+    'fingerprint': build.fingerprint,
+    'hardware': build.hardware,
+    'host': build.host,
+    'id': build.id,
+    'manufacturer': build.manufacturer,
+    'model': build.model,
+    'product': build.product,
+    'supported32BitAbis': build.supported32BitAbis,
+    'supported64BitAbis': build.supported64BitAbis,
+    'supportedAbis': build.supportedAbis,
+    'tags': build.tags,
+    'type': build.type,
+    'isPhysicalDevice': build.isPhysicalDevice,
+    'androidId': build.androidId,
+    'systemFeatures': build.systemFeatures,
+  };
+}
+
+Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+  return <String, dynamic>{
+    'brand': 'Apple',
+    'nameModel': data.name,
+    'os': '${data.systemName} ${data.systemVersion}',
+    'systemName': data.systemName,
+    'systemVersion': data.systemVersion,
+    'model': data.model,
+    'localizedModel': data.localizedModel,
+    'identifierForVendor': data.identifierForVendor,
+    'isPhysicalDevice': data.isPhysicalDevice,
+    'utsname.sysname:': data.utsname.sysname,
+    'utsname.nodename:': data.utsname.nodename,
+    'utsname.release:': data.utsname.release,
+    'utsname.version:': data.utsname.version,
+    'utsname.machine:': data.utsname.machine,
+  };
 }

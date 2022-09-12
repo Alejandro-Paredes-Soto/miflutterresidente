@@ -34,6 +34,8 @@
 	<string>Uso de ubicación</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Uso de ubicación</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Dostop requires location for better user experience.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Uso de microfono para integración de visdeollamada</string>
 	<key>NSMotionUsageDescription</key>

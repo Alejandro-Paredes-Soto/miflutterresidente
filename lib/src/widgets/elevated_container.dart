@@ -8,20 +8,20 @@ class ElevatedContainer extends StatelessWidget {
   final double offsetX;
   final double offsetY;
   const ElevatedContainer({
-    @required this.child,
+    required this.child,
     this.padding = const EdgeInsets.all(0),
     this.opacity = 0.18,
     this.blurRadius = 20.0,
     this.offsetX = 3.0,
     this.offsetY = 3.0,
-    Key key,
+    Key? key,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15.0),
+        borderRadius: BorderRadius.circular(20.0),
         color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(

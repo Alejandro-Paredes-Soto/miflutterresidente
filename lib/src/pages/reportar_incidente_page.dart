@@ -5,28 +5,26 @@ import 'package:dostop_v2/src/providers/reporte_incidente_provider.dart';
 
 import 'package:flutter/material.dart';
 
-
-
 class ReportarIncidentePage extends StatefulWidget {
-  const ReportarIncidentePage({Key key}) : super(key: key);
+  const ReportarIncidentePage({Key? key}) : super(key: key);
 
   @override
   _ReportarIncidentePageState createState() => _ReportarIncidentePageState();
 }
 
 class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
-  
-  bool _registrando=false;
+  bool _registrando = false;
   final formKey = GlobalKey<FormState>();
   final _txtIncidenteCtrl = TextEditingController();
   final reportesProvider = ReportesProvider();
-  String _idVisita;
+  late String _idVisita;
   final _prefs = PreferenciasUsuario();
-  
+
   @override
   Widget build(BuildContext context) {
-    final List<String> _datosVisita = ModalRoute.of(context).settings.arguments;
-    _idVisita=_datosVisita[0];
+    final List<String> _datosVisita =
+        ModalRoute.of(context)!.settings.arguments as List<String>;
+    _idVisita = _datosVisita[0];
     return Scaffold(
       appBar: utils.appBarLogo(titulo: 'Reportar'),
       body: _creaBody(context, _datosVisita[1]),
@@ -35,85 +33,89 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
 
   _creaBody(BuildContext context, String nombreVisitante) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(10),
-      child: Column(
-      children: <Widget>[
-        Text('Escribe el problema que tuviste con la visita de $nombreVisitante',style: TextStyle(fontSize: 20),),
-        SizedBox(height: 20),
-        _creaTextIncidente(context,'Comentarios', 'Ej. No conozco a la persona.'),
-        SizedBox(height: 20),
-        _creaBtnEnviar()
-      ],
-    ));
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: <Widget>[
+            Text(
+              'Escribe el problema que tuviste con la visita de $nombreVisitante',
+              style: TextStyle(fontSize: 20),
+            ),
+            SizedBox(height: 20),
+            _creaTextIncidente(
+                context, 'Comentarios', 'Ej. No conozco a la persona.'),
+            SizedBox(height: 20),
+            _creaBtnEnviar()
+          ],
+        ));
   }
 
-   Widget _creaTextIncidente(BuildContext context, String label, String hint) {
+  Widget _creaTextIncidente(BuildContext context, String label, String hint) {
     return Form(
       key: formKey,
       child: TextFormField(
         controller: _txtIncidenteCtrl,
         style: TextStyle(fontSize: 18),
-        maxLines:6,
+        maxLines: 6,
         enabled: !_registrando,
         onEditingComplete: FocusScope.of(context).unfocus,
         textInputAction: TextInputAction.done,
         keyboardType: TextInputType.text,
         maxLength: 250,
         decoration: InputDecoration(
-          border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15)
-        ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
           hintText: hint,
           labelText: label,
         ),
         validator: (texto) {
-          if (utils.textoVacio(texto))
+          if (utils.textoVacio(texto!))
             return 'Escribe el problema por favor';
           else
             return null;
         },
       ),
     );
-   }
-
-  _creaBtnEnviar() {
-    return RaisedButton(
-          color: utils.colorPrincipal,
-          disabledColor: utils.colorSecundario,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: Container(
-              alignment: Alignment.center,
-              width: double.infinity,
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Visibility(
-                    visible: _registrando,
-                    child: CircularProgressIndicator(
-                      backgroundColor: utils.colorSecundario,
-                      valueColor: AlwaysStoppedAnimation<Color>(utils.colorPrincipal),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    _registrando ? 'Enviando reporte...' : 'Enviar reporte',
-                    style: utils.estiloBotones(15),
-                  ),
-                ],
-              )),
-          onPressed: _registrando ? null : _submit,
-        );
   }
 
-   void _submit() {
-    if (!formKey.currentState.validate())
+  _creaBtnEnviar() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        primary: utils.colorPrincipal,
+        onSurface: utils.colorSecundario,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+      child: Container(
+          alignment: Alignment.center,
+          width: double.infinity,
+          height: 60,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Visibility(
+                visible: _registrando,
+                child: CircularProgressIndicator(
+                  backgroundColor: utils.colorSecundario,
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(utils.colorPrincipal),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                _registrando ? 'Enviando reporte...' : 'Enviar reporte',
+                style: utils.estiloBotones(15),
+              ),
+            ],
+          )),
+      onPressed: _registrando ? null : _submit,
+    );
+  }
+
+  void _submit() {
+    if (!formKey.currentState!.validate())
       return;
     else {
-      formKey.currentState.save();
+      formKey.currentState!.save();
 
       setState(() => _registrando = true);
       _enviaReporte();
@@ -121,21 +123,23 @@ class _ReportarIncidentePageState extends State<ReportarIncidentePage> {
     // FocusScope.of(context).unfocus();
   }
 
-  void _enviaReporte() async{
-     Map estatus = await reportesProvider.enviaReporteIncidente(
-        idUsuario: _prefs.usuarioLogged,
-        reporte: _txtIncidenteCtrl.text,
-        idVisita: _idVisita,);
+  void _enviaReporte() async {
+    Map estatus = await reportesProvider.enviaReporteIncidente(
+      idUsuario: _prefs.usuarioLogged,
+      reporte: _txtIncidenteCtrl.text,
+      idVisita: _idVisita,
+    );
     switch (estatus['OK']) {
       case 1:
         Navigator.pop(context, true);
         break;
       case 2:
-        creaDialogSimple(context, '¡Ups! Algo salió mal','',
-            'Aceptar', () { Navigator.pop(context);
-        Navigator.pop(context, false);});
+        creaDialogSimple(context, '¡Ups! Algo salió mal', '', 'Aceptar', () {
+          Navigator.pop(context);
+          Navigator.pop(context, false);
+        });
         break;
-  }
-  setState(() => _registrando = false);
+    }
+    setState(() => _registrando = false);
   }
 }

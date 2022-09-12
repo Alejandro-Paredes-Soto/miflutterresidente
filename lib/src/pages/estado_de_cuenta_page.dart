@@ -15,8 +15,8 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
   final _prefs = PreferenciasUsuario();
   final _pageCuentasEgCtrl = PageController();
   final _pageCuentasInCtrl = PageController();
-  Future<List<CuentaModel>> _obtenerEgresos;
-  Future<List<CuentaModel>> _obtenerIngresos;
+  Future<List<CuentaModel>>? _obtenerEgresos;
+  Future<List<CuentaModel>>? _obtenerIngresos;
   String _saldo = '';
   int _tabIndex = 0;
 
@@ -135,13 +135,13 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
   }
 
   Widget _crearLista(
-      Future<List<CuentaModel>> future, PageController controller) {
+      Future<List<CuentaModel>>? future, PageController controller) {
     return FutureBuilder(
       future: future,
       builder:
           (BuildContext context, AsyncSnapshot<List<CuentaModel>> snapshot) {
-        if (snapshot.hasData) if (snapshot.data.length > 0) {
-          int _totalPaginas = snapshot.data.length;
+        if (snapshot.hasData) if (snapshot.data!.length > 0) {
+          int _totalPaginas = snapshot.data!.length;
           return Stack(
             children: <Widget>[
               PageView.builder(
@@ -149,7 +149,7 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
                   reverse: true,
                   itemCount: _totalPaginas,
                   itemBuilder: (context, index) {
-                    return _creaItem(context, snapshot.data[index]);
+                    return _creaItem(context, snapshot.data![index]);
                   }),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -158,7 +158,7 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
                     icon: Icon(Icons.arrow_back_ios),
                     onPressed: () {
                       setState(() {
-                        if (controller.page < _totalPaginas - 1)
+                        if (controller.page! < _totalPaginas - 1)
                           controller.nextPage(
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut);
@@ -169,7 +169,7 @@ class _EstadoDeCuentaPageState extends State<EstadoDeCuentaPage> {
                     icon: Icon(Icons.arrow_forward_ios),
                     onPressed: () {
                       setState(() {
-                        if (controller.page > 0)
+                        if (controller.page! > 0)
                           controller.previousPage(
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut);

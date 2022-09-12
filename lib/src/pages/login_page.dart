@@ -2,7 +2,6 @@ import 'package:dostop_v2/src/providers/login_provider.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:dostop_v2/src/widgets/gradient_button.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 class LoginPage extends StatefulWidget {
@@ -82,9 +81,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _creaAppBar() {
+  AppBar _creaAppBar() {
     return AppBar(
-      brightness: Brightness.dark,
+      //brightness: Brightness.dark,
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       elevation: 0,
       backgroundColor: Colors.transparent,
     );
@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
         FocusScope.of(context).requestFocus(sigFocusText);
       },
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa tu correo electrónico';
         else if (!utils.correoValido(texto))
           return 'El correo escrito no es válido';
@@ -138,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
         hintStyle: TextStyle(color: utils.colorTextoPrincipalDark),
       ),
       validator: (texto) {
-        if (utils.textoVacio(texto)) return 'Escribe tu contraseña';
+        if (utils.textoVacio(texto!)) return 'Escribe tu contraseña';
         return null;
       },
     );
@@ -178,10 +178,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _submit() {
-    if (!formKey.currentState.validate())
+    if (!formKey.currentState!.validate())
       return;
     else {
-      formKey.currentState.save();
+      formKey.currentState!.save();
 
       setState(() => _iniciando = true);
       _login();
@@ -214,20 +214,16 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _navegarAHome() async {
-    Map estatus = await loginProvider
-        .registrarTokenFCM(utils.obtenerIDPlataforma(context));
-    switch (estatus['OK']) {
+    Map response = await loginProvider
+        .registrarTokenOS();
+    switch (response['statusCode']) {
       case 0:
-        print(estatus['message']);
+        print(response['message']);
         break;
-      case 1:
-        print(estatus['message']);
+      case 200:
         break;
-      case 2:
-        print(estatus['message']);
-        break;
-      case 3:
-        print(estatus['message']);
+      case 500:
+        print(response['message']);
         break;
     }
   }
@@ -236,10 +232,19 @@ class _LoginPageState extends State<LoginPage> {
     return ButtonTheme(
       height: 60,
       minWidth: double.infinity,
-      child: RaisedButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-        color: utils.colorAcentuado,
-        disabledColor: utils.colorAcentuado,
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed))
+                return Theme.of(context).colorScheme.primary.withOpacity(0.5);
+              return utils.colorAcentuado; // Use the component's default.
+            },
+          ),
+          minimumSize: MaterialStateProperty.all(Size(double.infinity, 60)),
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0))
+        ),
+        ),
         child: Text(
           'Olvidé mi contraseña',
           style: utils.estiloBotones(15),

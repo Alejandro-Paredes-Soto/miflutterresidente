@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
 import 'package:dostop_v2/src/push_manager/mensajes_stream.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+
+import '../providers/login_provider.dart';
 
 class PushNotificationsManager {
   final _prefs = PreferenciasUsuario();
+  final _loginProvider = LoginProvider();
 
   static final PushNotificationsManager _instancia =
       new PushNotificationsManager._internal();
@@ -20,57 +23,84 @@ class PushNotificationsManager {
 
   MensajeStream mensajeStream = MensajeStream.instancia;
   final notifProvider = NotificacionesProvider();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  List<String> idsVisitas = List();
+  List<String> idsVisitas = [];
 
   Future<void> initNotifications() async {
-    _firebaseMessaging.requestNotificationPermissions();
+    final FirebaseMessaging messaging = FirebaseMessaging.instance;
+    messaging.requestPermission();
 
-    _firebaseMessaging.getToken().then((token) {
-      _prefs.token = token;
-      // print('==== FCM TOKEN =====\n${_prefs.token}');
+    messaging.getToken().then((token) {
+      if (token != null) {
+        _prefs.token = token;
+      }
     });
 
-    _firebaseMessaging.configure(
-      onMessage: (info) async {
-      // print('==== ON MESSAGE ====');
-      // print(info);
-      _evaluaMensaje(info);
-    }, onLaunch: (info) async {
-      // print('==== ON LAUNCH ====');
-      // print(info);
-      _evaluaMensaje(info);
-    }, onResume: (info) async {
-      // print('==== ON RESUME ====');
-      // print(info);
-      _evaluaMensaje(info);
+    FirebaseMessaging.onMessage.listen((event) async {
+      if (event.notification != null) _evaluaMensaje(event);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      if (event.notification != null) _evaluaMensaje(event);
     });
   }
 
-  _evaluaMensaje(Map info) async {
-    // detenerTimer();
-    String titulo = '';
-    String mensaje = '';
-    var data = null;
-    String imgAviso = '';
-    print(info);
-    if (Platform.isAndroid) {
-      titulo = info['data']['title'].toString().toLowerCase();
-      mensaje = info['data']['message'];
-      imgAviso = titulo == 'aviso' ? json.decode(info['data']['data'])['img'] : '';
-    } else {
-      titulo = info['title'].toString().toLowerCase();
-      mensaje = info['message'];
-      imgAviso = titulo == 'aviso' ? json.decode(info['data'])['img'] : '';
-    }
-    switch (titulo) {
+  Future<void> initNotificationsOS() async {
+    OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+    await OneSignal.shared.setAppId("42665aa6-8bda-4596-b0fb-9ca0b5569b8d");
+
+    OneSignal.shared.setNotificationWillShowInForegroundHandler((event) {
+      _evaluaPayload(event.notification);
+    });
+
+    OneSignal.shared
+        .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
+      _evaluaPayload(result.notification);
+    });
+
+    OneSignal.shared
+        .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
+      if (!changes.from.isSubscribed && changes.to.isSubscribed) {
+        _prefs.playerID = changes.to.userId!;
+        if (_prefs.usuarioLogged.isNotEmpty && _prefs.playerID.isNotEmpty) {
+          _loginProvider.registrarTokenOS();
+        }
+      }
+    });
+  }
+
+  _evaluaMensaje(RemoteMessage info) async {
+    String title = '';
+    String message = '';
+    String img = '';
+
+    title = info.notification!.title.toString().toLowerCase();
+    message = info.notification!.body ?? '';
+    img = title == 'aviso' ? json.decode(info.data['data'])['img'] : '';
+    _messageStream(title, message, img);
+  }
+
+  _evaluaPayload(OSNotification payload) {
+    String title = payload.title!.toLowerCase();
+    String message = payload.body ?? 'Nueva notificación en áreas comunes';
+    String img = payload.additionalData?['img'] ?? "";
+    _messageStream(title, message, img);
+    if (title == 'visita' ||
+        title == 'visita frecuente' ||
+        title == 'visita rechazada')
+      OneSignal.shared.completeNotification(payload.notificationId, false);
+  }
+
+  _messageStream(String title, String message, String? img) {
+    switch (title) {
       case 'encuesta':
         mensajeStream.addMessage({'encuesta': 'encuesta'});
         break;
       case 'aviso':
         mensajeStream.addMessage({
           'aviso': new AvisoModel(
-              descripcion: mensaje, fecha: DateTime.now().toString(), imgAviso: imgAviso)
+              descripcion: message,
+              fecha: DateTime.now().toString(),
+              imgAviso: img!)
         });
         break;
       case 'visita':
@@ -98,7 +128,7 @@ class PushNotificationsManager {
           }
         });
         break;
-        case 'visita rechazada':
+      case 'visita rechazada':
         notifProvider
             .obtenerUltimaNotificacion(_prefs.usuarioLogged)
             .then((visita) {
@@ -112,15 +142,11 @@ class PushNotificationsManager {
         });
         break;
       case 'áreas comunes':
-        mensajeStream.addMessage(
-            {'areas': mensaje ?? 'Nueva notificación en áreas comunes'});
+        mensajeStream.addMessage({'areas': message});
         break;
-      //IMPLEMENTACIÓN A FUTURO, EN RESPUESTA DE LUIS PARA APLICARLO Y DE FERNANDO PARA VALIDARLO
-      //   case 'respuesta incidente':
-      //     mensajeStream.addMessage({'incidente': 'El guardia respondió tu reporte: $mensaje'??'Nueva notificación'});
-      //     break;
     }
   }
+
   mostrarUltimaVisita() async {
     final visita = await notifProvider
         .obtenerUltimaNotificacion(_prefs.usuarioLogged)
@@ -130,11 +156,11 @@ class PushNotificationsManager {
     if (visita != null) {
       if (!idsVisitas.contains(visita.idVisitas)) {
         idsVisitas.add(visita.idVisitas);
-        if (visita.codigo != '' || visita.noMolestar=='1') visita.tipoVisita = 2;
+        if (visita.codigo != '' || visita.noMolestar == '1')
+          visita.tipoVisita = 2;
 
         mensajeStream.addMessage({'visita': visita});
       }
     }
   }
 }
-

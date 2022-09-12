@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dostop_v2/src/models/visita_model.dart';
 import 'package:dostop_v2/src/pages/agora_page.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
 import 'package:dostop_v2/src/providers/visitas_provider.dart';
@@ -11,11 +10,11 @@ import 'package:dostop_v2/src/widgets/countdown_timer.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart' as toast;
 
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_swiper_plus/flutter_swiper_plus.dart';
 import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 
 class VisitaNofificacionPage extends StatefulWidget {
@@ -26,14 +25,15 @@ class VisitaNofificacionPage extends StatefulWidget {
 class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   final _notifProvider = NotificacionesProvider();
   final _pushManager = PushNotificationsManager();
+
   final _serviceCall = VisitasProvider();
   bool _respuestaEnviada = false,
       _tiempoVencido = false,
       _conectandoLlamada = false;
   final _prefs = PreferenciasUsuario();
-  double availableHeight;
+  late double availableHeight;
   String id = '';
-  List imagenes = [];
+  List<Map<String, dynamic>> imagenes = [];
   bool loadImg = false;
 
   @override
@@ -44,7 +44,8 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
 
   @override
   Widget build(BuildContext context) {
-    final VisitaModel visita = ModalRoute.of(context).settings.arguments;
+    final VisitaModel visita =
+        ModalRoute.of(context)!.settings.arguments as VisitaModel;
     id = visita.idVisitas;
     if (visita.tipoVisita == 3) {
       _tiempoVencido = true;
@@ -93,7 +94,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   Widget _creaBody(VisitaModel visita) {
     DateTime fecha = visita.fechaCompleta == null
         ? DateTime.now()
-        : visita.fechaCompleta.add(Duration(minutes: 1));
+        : visita.fechaCompleta!.add(Duration(minutes: 1));
     return SingleChildScrollView(
       padding: EdgeInsets.all(10),
       child: Stack(
@@ -105,8 +106,8 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
                   builder:
                       (BuildContext context, AsyncSnapshot<List> snapshot) {
                     if (snapshot.hasData) {
-                      imagenes = snapshot.data;
-                      return _imagenesVisitante(snapshot.data, visita, fecha);
+                      imagenes = snapshot.data as List<Map<String, dynamic>>;
+                      return _imagenesVisitante(imagenes, visita, fecha);
                     } else {
                       return Stack(children: [
                         Image.asset(utils.rutaGifLoadRed,
@@ -313,8 +314,7 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
           Text(visita.tipoVisitante == '' ? 'Visita' : visita.tipoVisitante,
               style: utils.estiloTextoSombreado(16, dobleSombra: false)),
           Visibility(
-            visible:visita.tipoVisita == 1,
-            child: SizedBox(height: 10)),
+              visible: visita.tipoVisita == 1, child: SizedBox(height: 10)),
           Text(visita.tipoVisita == 1 ? 'Motivo' : '',
               style: utils.estiloTituloInfoVisita(12)),
           Text(visita.tipoVisita == 1 ? visita.motivoVisita : '',
@@ -325,8 +325,10 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
     );
   }
 
-  Widget _creaFABAprobar(BuildContext context, String idVisita, DateTime fecha,
-      {String servicioLlamada = '0', String appIdAgora, String channelCall}) {
+  Widget _creaFABAprobar(BuildContext context, String idVisita, DateTime? fecha,
+      {String servicioLlamada = '0',
+      required String appIdAgora,
+      required String channelCall}) {
     return AnimatedCrossFade(
       sizeCurve: Curves.bounceInOut,
       duration: Duration(milliseconds: 200),
@@ -385,7 +387,8 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
     );
   }
 
-  Widget _crearBtnLlamada({String idVisita, channelCall, appIdAgora, fecha}) {
+  Widget _crearBtnLlamada(
+      {required String idVisita, channelCall, appIdAgora, fecha}) {
     return RawMaterialButton(
       onPressed: _respuestaEnviada || _conectandoLlamada
           ? null
@@ -425,18 +428,20 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   }
 
   Widget _crearBtnRespuesta({
-    String titulo,
-    int idRespuesta,
-    String idVisita,
+    required String titulo,
+    required int idRespuesta,
+    required String idVisita,
   }) {
     return ElevatedContainer(
-      child: RaisedButton(
-          padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          color: idRespuesta == 1
-              ? utils.colorAcentuado
-              : utils.colorToastRechazada,
+      child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              primary: idRespuesta == 1
+                  ? utils.colorAcentuado
+                  : utils.colorToastRechazada),
           child: Container(
               alignment: Alignment.center,
               width: 100,
@@ -477,21 +482,23 @@ class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   }
 
   Widget _creaFABOK(BuildContext context) {
-    return RaisedButton(
-        color: utils.colorPrincipal,
+    return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: utils.colorPrincipal,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        ),
         child: Container(
             width: 100,
             height: 60,
             alignment: Alignment.center,
             child: Text('Cerrar', style: utils.estiloBotones(12))),
-        onPressed: () => Navigator.pop(context),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)));
+        onPressed: () => Navigator.pop(context));
   }
 
   @override
   void dispose() {
     _notifProvider.actualizarEstadoNotif(_prefs.usuarioLogged);
-    // _pushManager.notificacionForeground = false;
     _pushManager.idsVisitas.remove(id);
     super.dispose();
   }

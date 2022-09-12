@@ -12,7 +12,7 @@ class MiCasaPage extends StatefulWidget {
 class _MiCasaPageState extends State<MiCasaPage> {
   final miCasaProvider = MiCasaProvider();
   final _prefs = PreferenciasUsuario();
-  Future<Map<int, dynamic>> _datosPagoFuture;
+  late Future<Map<int, dynamic>> _datosPagoFuture;
   @override
   void initState() {
     super.initState();
@@ -44,8 +44,8 @@ class _MiCasaPageState extends State<MiCasaPage> {
       builder:
           (BuildContext context, AsyncSnapshot<Map<int, dynamic>> snapshot) {
         if (snapshot.hasData) {
-          if (snapshot.data.containsKey(1)) {
-            final PagosUsuarioModel datosPago = snapshot.data[1];
+          if (snapshot.data!.containsKey(1)) {
+            final PagosUsuarioModel datosPago = snapshot.data![1];
             Map<String, dynamic> saldo = funcionSaldo(datosPago.saldo);
             return Container(
               child: Column(
@@ -99,7 +99,7 @@ class _MiCasaPageState extends State<MiCasaPage> {
             );
           }
           return Center(
-              child: Text(snapshot.data[2], style: TextStyle(fontSize: 16)));
+              child: Text(snapshot.data![2], style: TextStyle(fontSize: 16)));
         } else {
           return Center(child: CircularProgressIndicator());
         }

@@ -6,19 +6,20 @@ import 'countdown_timer.dart';
 
 class CustomQr extends StatefulWidget {
   final String code;
-  final DateTime date;
+  final DateTime? date;
   final double sizeQRImage;
   final double height;
   final double width;
   final double fontSize;
 
   const CustomQr({
-    Key key, 
-    @required this.code, 
+    Key? key, 
+    required this.code, 
     this.sizeQRImage = 100, 
     this.height = 200, 
     this.width = 200, 
-    this.fontSize = 28, this.date = null}) : super(key: key);
+    this.fontSize = 28, 
+    this.date}) : super(key: key);
 
   @override
   _CustomQrState createState() => _CustomQrState();
@@ -65,9 +66,9 @@ class _CustomQrState extends State<CustomQr> {
                   Text('Vence en:', style: utils.estiloBotones(15,
                           color: utils.colorPrincipal)),
                   CountdownTimer(
-                    mainAxisSize: MainAxisSize.min,
+                    // mainAxisSize: MainAxisSize.min,
                     showZeroNumbers: false,
-                    endTime: widget.date.millisecondsSinceEpoch,
+                    endTime: widget.date!.millisecondsSinceEpoch,
                     minSymbol: 'm',
                     secSymbol: 's',
                     textStyle: utils.estiloBotones(15,

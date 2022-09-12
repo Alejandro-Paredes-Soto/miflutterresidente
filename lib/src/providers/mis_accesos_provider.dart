@@ -14,12 +14,12 @@ class MisAccesosProvider {
       {bool vaciarLista = false}) async {
     _validaSesion.verificaSesion();
     try {
-      final resp = await http.post('${constantes.urlApp}/obtener_accesos_colono_facial_vehicular.php',
+      final resp = await http.post(Uri.parse('${constantes.urlApp}/obtener_accesos_residente.php'),
           body: {'id': idUsuario, 'page_no': pagina.toString()});
-      final Map<String, dynamic> decodeResp = json.decode(resp.body);
+      final Map<String, dynamic>? decodeResp = json.decode(resp.body);
       if (decodeResp == null) return [];
       if (decodeResp.containsKey('datos')) {
-        final List<AccesoModel> accesos = new List();
+        final List<AccesoModel> accesos = [];
         for (Map<String, dynamic> acceso in decodeResp['datos']) {
           // print('$acceso');
           final tempAcceso = AccesoModel.fromJson(acceso);

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/utils/popups.dart';
@@ -32,20 +33,20 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   final _txtApMatCtrl = TextEditingController();
   final visitanteProvider = VisitantesFreqProvider();
   final _configUsuarioProvider = ConfigUsuarioProvider();
-  String _seleccionTipoAcceso;
-  String _seleccionTipoVisitante;
+  String? _seleccionTipoAcceso;
+  String? _seleccionTipoVisitante;
   bool _registrando = false;
   bool _imagenLista = false, _mostrarErrorImg = false;
   bool _mostrarErrorAcceso = false;
   bool _visitanteRegistrado = false;
-  File _imgRostro;
+  File? _imgRostro;
   int _tipoRostro = 0;
   List arg = [];
   String _tipoAccesoVisitante = '';
   String _tipoAccesoColono = '';
-  String _tempTipoAccess;
-  List<TipoVisitanteModel> tipoVisita = new List();
-  List<DropdownMenuItem<String>> listTipo = new List();
+  late String _tempTipoAccess;
+  List<TipoVisitanteModel> tipoVisita = [];
+  List<DropdownMenuItem<String>> listTipo = [];
 
   @override
   void initState() {
@@ -70,7 +71,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
 
   @override
   Widget build(BuildContext context) {
-    arg = ModalRoute.of(context).settings.arguments;
+    arg = ModalRoute.of(context)!.settings.arguments as List<dynamic>;
     _tipoRostro = arg[0];
     _tipoAccesoVisitante = arg[1]['acceso_visitante'];
     _tipoAccesoColono = arg[1]['acceso_colono'];
@@ -113,12 +114,72 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaTextoErrorImg(),
               SizedBox(height: 10.0),
               _creaRecomendacionImg(),
+              _imageRecommendations(),
               SizedBox(height: 10.0),
               _creaBtnRegistrar(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _imageRecommendations() {
+    return ElevatedButton(
+      onPressed: () {
+        creaDialogWidget(
+            context,
+            '',
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Text('Recomendaciones: ',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Text(
+                      '1. La fotografía debe de tomarse en un área bien iluminada. Se recomienda utilizar fondo blanco.'),
+                  Text(
+                      '2. En la fotografía deberá salir todo el rostro sin cubrebocas, lentes de sol o gorros. '
+                      'El rostro puede contar con lentes oftálmicos siempre y cuando no sean polarizados.'),
+                  const SizedBox(height: 10),
+                  Text('Ejemplo de fotografía:'),
+                  const SizedBox(height: 15),
+                  ElevatedContainer(
+                    blurRadius: 15,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedNetworkImage(
+                          height: 200,
+                          width: 150,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              Image.asset(utils.rutaGifLoadRed),
+                          imageUrl:
+                              'https://dostop.mx/dostop/public/imageFacialRegistrationRecommendations.jpg',
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.broken_image)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            'Cerrar',
+            (() => Navigator.of(context).pop()));
+      },
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.info, color: Theme.of(context).iconTheme.color),
+        const SizedBox(width: 10),
+        Text('Recomendaciones',
+            style:
+                TextStyle(color: Theme.of(context).textTheme.bodyText2!.color)),
+      ]),
+      style: ElevatedButton.styleFrom(
+          elevation: 0,
+          primary: Colors.transparent,
+          textStyle:
+              TextStyle(color: Theme.of(context).textTheme.bodyText2!.color)),
     );
   }
 
@@ -151,7 +212,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         labelText: label,
       ),
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el nombre';
         else
           return null;
@@ -174,7 +235,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         labelText: label,
       ),
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el apellido paterno';
         else
           return null;
@@ -196,7 +257,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         labelText: label,
       ),
       validator: (texto) {
-        if (utils.textoVacio(texto))
+        if (utils.textoVacio(texto!))
           return 'Ingresa el apellido materno';
         else
           return null;
@@ -213,9 +274,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           isExpanded: true,
           value: _seleccionTipoVisitante,
           items: listTipo,
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionTipoVisitante = opc;
+              _seleccionTipoVisitante = opc!;
             });
           },
         ),
@@ -248,9 +309,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
                 : Theme.of(context).disabledColor,
           ),
           items: getOpcionesDropdown(),
-          onChanged: (opc) {
+          onChanged: (String? opc) {
             setState(() {
-              _seleccionTipoAcceso = opc;
+              _seleccionTipoAcceso = opc!;
             });
           },
         ),
@@ -316,7 +377,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       onTap: _registrando ? null : _mostrarOpcImagen,
       child: ElevatedContainer(
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(15),
           child: Container(
             width: 200,
             height: 250,
@@ -335,7 +396,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
                   ? Container(
                       width: double.infinity,
                       child: Image.file(
-                        _imgRostro,
+                        _imgRostro!,
                         errorBuilder: (context, error, stackTrace) =>
                             Container(),
                         fit: BoxFit.cover,
@@ -364,7 +425,7 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
       if (Platform.isAndroid) {
         if (!await utils.obtenerPermisosAndroid()) throw 'permission_denied';
       }
-      var imgFile = await picker.ImagePicker.pickImage(
+      var imgFile = await picker.ImagePicker().pickImage(
           source: source, maxHeight: 1024, maxWidth: 768, imageQuality: 50);
       if (imgFile != null) {
         var fixedImg = await utils.fixExifRotation(imgFile.path);
@@ -375,24 +436,49 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
             _imagenLista = true;
           });
         } else {
-          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.error), 'La imagen no está en formato vertical', 2));
+          ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+              Icon(Icons.error,
+                  color: Theme.of(context).snackBarTheme.actionTextColor),
+              'La imagen no está en formato vertical',
+              2));
         }
       }
     } on PlatformException catch (e) {
-      String mensajeError = utils.messageImagePlatformException(e);
-      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error),
+      //buscamos el error. Si contiene el texto photo_access_deined de los permisos de android
+      // o directamente de la plataforma ios cambiamos el mensaje.
+      String mensajeError = '';
+      if (e.code.toString().contains('photo_access_denied'))
+        mensajeError = 'Otorga el permiso de almacenamiento por favor';
+      else if (e.code.toString().contains('camera_access_denied'))
+        mensajeError = 'Otorga el permiso de la cámara por favor';
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+          Icon(Icons.error,
+              color: Theme.of(context).snackBarTheme.actionTextColor),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     } catch (e) {
-      String mensajeError = utils.messageErrorImage(e);
-      
-      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error),
+      String mensajeError = '';
+      if (e.toString().contains('permission_denied'))
+        mensajeError = 'Otorga los permisos correspondientes.';
+      else
+        mensajeError = e.toString();
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+          Icon(Icons.error,
+              color: Theme.of(context).snackBarTheme.actionTextColor),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     }
+  }
+
+  Future<File> fixExifRotation(String imagePath) async {
+    final originalFile = File(imagePath);
+    final imgTools.Image capturedImage =
+        imgTools.decodeImage(await originalFile.readAsBytes())!;
+    final imgTools.Image orientedImage =
+        imgTools.bakeOrientation(capturedImage);
+    await originalFile
+        .writeAsBytes(imgTools.encodeJpg(orientedImage, quality: 50));
+    return originalFile;
   }
 
   Widget _creaTextoErrorImg() {
@@ -428,10 +514,13 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   Widget _creaBtnRegistrar() {
-    return RaisedButton(
-        color: utils.colorAcentuado,
-        disabledColor: utils.colorSecundario,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: utils.colorAcentuado,
+          onSurface: utils.colorSecundario,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        ),
         child: Container(
             height: 60,
             width: double.infinity,
@@ -457,10 +546,10 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
   }
 
   _submitForm() {
-    if (_formKey.currentState.validate() &&
+    if (_formKey.currentState!.validate() &&
         _seleccionTipoAcceso != null &&
         _imgRostro != null) {
-      _formKey.currentState.save();
+      _formKey.currentState!.save();
       _mostrarErrorImg = false;
       _mostrarErrorAcceso = false;
       _registrando = true;
@@ -487,9 +576,9 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         apPaterno: _txtApPatCtrl.text,
         apMaterno: _txtApMatCtrl.text,
         tipoAcceso: _seleccionTipoAcceso,
-        imgRostroB64: base64Encode(_imgRostro.readAsBytesSync()),
+        imgRostroB64: base64Encode(_imgRostro!.readAsBytesSync()),
         tipo: _tipoRostro,
-        tipoVisitante: _tipoRostro != 1 ? _seleccionTipoVisitante : "");
+        tipoVisitante: _tipoRostro != 1 ? _seleccionTipoVisitante! : "");
     switch (estatus['OK']) {
       case 1:
         //

@@ -14,21 +14,21 @@ class AreasComunesPage extends StatefulWidget {
 }
 
 class _AreasComunesPageState extends State<AreasComunesPage> {
-  AreaComunModel _seleccionArea;
+  AreaComunModel? _seleccionArea;
   bool _reservando = true;
-  CalendarController _calendarController;
-  AreasComunesProvider _areasComunesProvider;
+  // CalendarController _calendarController;
+  late AreasComunesProvider _areasComunesProvider;
   final _prefs = PreferenciasUsuario();
-  List<String> _fechasNoDispsList = List();
-  Future<List<AreaReservadaModel>> _areasResevadasFuture;
-  Future<List<AreaComunModel>> _areasComunesFuture;
+  List<String> _fechasNoDispsList = [];
+  late Future<List<AreaReservadaModel>> _areasResevadasFuture;
+  late Future<List<AreaComunModel>> _areasComunesFuture;
   final _scrollController = ScrollController();
-   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  DateTime _selectedDay = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _calendarController = CalendarController();
     _areasComunesProvider = AreasComunesProvider();
     _areasComunesFuture =
         _areasComunesProvider.obtenerListadoAreas(_prefs.usuarioLogged);
@@ -38,9 +38,8 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
 
   @override
   Widget build(BuildContext context) {
-  
     return Scaffold(
-      key:_scaffoldKey,
+      key: _scaffoldKey,
       appBar: utils.appBarLogo(titulo: 'Áreas Comunes'),
       body: _creaBody(),
     );
@@ -68,20 +67,20 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
       builder:
           (BuildContext context, AsyncSnapshot<List<AreaComunModel>> snapshot) {
         if (snapshot.hasData) {
-          if (snapshot.data.length > 0) {
+          if (snapshot.data!.length > 0) {
             return DropdownButton<AreaComunModel>(
               hint: Text('Seleccione'),
               isExpanded: true,
-              items: getOpcionesDropdown(snapshot.data),
+              items: getOpcionesDropdown(snapshot.data!),
               value: _seleccionArea,
-              onChanged: (AreaComunModel opc) {
+              onChanged: (AreaComunModel? opc) {
                 setState(() {
                   _reservando = true;
                 });
-                _seleccionArea = opc;
+                _seleccionArea = opc!;
                 _areasComunesProvider
                     .obtenerReservasCalendario(
-                        _prefs.usuarioLogged, _seleccionArea.idAreasComunes)
+                        _prefs.usuarioLogged, _seleccionArea!.idAreasComunes)
                     .then((reservas) {
                   setState(() {
                     _fechasNoDispsList = reservas;
@@ -98,15 +97,19 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
           }
         } else {
           return Padding(
-            padding:  EdgeInsets.symmetric(vertical: 22.0),
-            child: LinearProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(utils.colorPrincipal) ,backgroundColor: Theme.of(context).scaffoldBackgroundColor,),
+            padding: EdgeInsets.symmetric(vertical: 22.0),
+            child: LinearProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(utils.colorPrincipal),
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            ),
           );
         }
       },
     );
   }
 
-    List<DropdownMenuItem<AreaComunModel>> getOpcionesDropdown(List<AreaComunModel> list) {
+  List<DropdownMenuItem<AreaComunModel>> getOpcionesDropdown(
+      List<AreaComunModel> list) {
     return list.map((AreaComunModel item) {
       return DropdownMenuItem(
         child: Text(item.nombre),
@@ -117,53 +120,56 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
 
   Widget _creaCalendario() {
     return Container(
-      child: TableCalendar(
-        daysOfWeekStyle: DaysOfWeekStyle(
-          weekdayStyle: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
-          weekendStyle: TextStyle(color: Theme.of(context).textTheme.bodyText2.color)),
-        availableCalendarFormats: {CalendarFormat.month: 'mes'},
-        calendarController: _calendarController,
-        locale: 'es-MX',
-        startDay: DateTime.now(),
-        endDay: DateTime.now().add(Duration(days: 182)),
-        calendarStyle: CalendarStyle(
-          weekendStyle: TextStyle(color: Theme.of(context).textTheme.bodyText2.color),
-          selectedColor: utils.colorPrincipal,
-          todayColor: utils.colorSecundarioSemi,
-          outsideDaysVisible: false,
-        ),
-        // builders:
-        //     CalendarBuilders(markersBuilder: (context, date, events, holidays) {
-        //   final children = <Widget>[];
-        //   if (holidays.isNotEmpty) {
-        //     children.add(
-        //       Positioned(
-        //         right: -2,
-        //         top: -2,
-        //         child: _buildHolidaysMarker(),
-        //       ),
-        //     );
-        //   }
-        //   return children;
-        // }),
-        // holidays: _bloquearAreasReservadas(),
-        enabledDayPredicate: (date) {
-          return !_fechasNoDispsList
-              .contains(DateFormat('yyyy-MM-dd').format(date));
-        },
-        onUnavailableDaySelected: () {
-          _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-              Icon(Icons.sentiment_dissatisfied), 'Fecha no disponible', 1));
-        },
+        child: TableCalendar(
+      selectedDayPredicate: (day) {
+        return isSameDay(_selectedDay, day);
+      },
+      onDaySelected: (selectedDay, focusedDay) {
+        setState(() {
+          _selectedDay = selectedDay.toUtc();
+        });
+      },
+      daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle:
+              TextStyle(color: Theme.of(context).textTheme.bodyText2!.color),
+          weekendStyle:
+              TextStyle(color: Theme.of(context).textTheme.bodyText2!.color)),
+      availableCalendarFormats: {CalendarFormat.month: 'mes'},
+      locale: 'es-MX',
+      calendarStyle: CalendarStyle(
+        weekendTextStyle:
+            TextStyle(color: Theme.of(context).textTheme.bodyText2!.color),
+        selectedTextStyle: TextStyle(color: Colors.white),
+        selectedDecoration:
+            BoxDecoration(color: utils.colorPrincipal, shape: BoxShape.circle),
+        todayDecoration: BoxDecoration(
+            color: utils.colorSecundarioSemi, shape: BoxShape.circle),
+        outsideDaysVisible: false,
       ),
-    );
+      enabledDayPredicate: (date) {
+        return !_fechasNoDispsList
+            .contains(DateFormat('yyyy-MM-dd').format(date));
+      },
+      firstDay: DateTime.now(),
+      focusedDay: _selectedDay,
+      lastDay: DateTime.now().add(
+        Duration(days: 182),
+
+        // onUnavailableDaySelected: () {
+        //   ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+        //       Icon(Icons.sentiment_dissatisfied), 'Fecha no disponible', 1));
+        // },
+      ),
+    ));
   }
 
   Widget _creaBtnReservar() {
-    return RaisedButton(
-      color: utils.colorPrincipal,
-      disabledColor: utils.colorSecundario,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        primary: utils.colorPrincipal,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+      //disabledColor: utils.colorSecundario,
       child: Container(
         height: 60,
         alignment: Alignment.center,
@@ -175,14 +181,14 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
       onPressed: _reservando
           ? null
           : () {
-              if (_seleccionArea.idAreasComunes!='') {
-                if (!_fechasNoDispsList.contains(DateFormat('yyyy-MM-dd')
-                    .format(_calendarController.selectedDay))) {
+              if (_seleccionArea!.idAreasComunes != '') {
+                if (!_fechasNoDispsList
+                    .contains(DateFormat('yyyy-MM-dd').format(_selectedDay))) {
                   creaDialogYesNo(
                       context,
                       'Confirma tu reserva',
-                      '¿Confirmas la reserva de ${_seleccionArea.nombre} para '
-                          '${utils.fechaCompletaFuturo(_calendarController.selectedDay, articuloDef: 'el')}?\n\nCuando confirmes, '
+                      '¿Confirmas la reserva de ${_seleccionArea!.nombre} para '
+                          '${utils.fechaCompletaFuturo(_selectedDay, articuloDef: 'el')}?\n\nCuando confirmes, '
                           'le llegará una notificación a tu administración, la cual será la encargada de reservar tu fecha.',
                       'Sí',
                       'No',
@@ -208,13 +214,14 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
     creaDialogProgress(context, 'Enviando solicitud');
     Map resultado = await _areasComunesProvider.reservarAreaComun(
         _prefs.usuarioLogged,
-        _calendarController.selectedDay.toIso8601String(),
-        _seleccionArea.idAreasComunes);
+        DateFormat('yyyy-MM-dd').format(_selectedDay),
+        _seleccionArea!.idAreasComunes);
     Navigator.pop(context);
     setState(() {
       _reservando = false;
-      _scaffoldKey.currentState.showSnackBar(utils.creaSnackBarIcon(
-          Icon(resultado['OK'] ? Icons.send : Icons.error),
+      ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+          Icon(resultado['OK'] ? Icons.send : Icons.error,
+              color: Theme.of(context).snackBarTheme.actionTextColor),
           resultado['message'],
           5));
       _areasResevadasFuture =
@@ -247,12 +254,12 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
         builder: (BuildContext context,
             AsyncSnapshot<List<AreaReservadaModel>> snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data.length > 0) {
+            if (snapshot.data!.length > 0) {
               return Scrollbar(
                 child: ListView.builder(
-                    itemCount: snapshot.data.length,
+                    itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
-                      return _creaItemReservas(snapshot.data[index]);
+                      return _creaItemReservas(snapshot.data![index]);
                     }),
               );
             } else {
@@ -315,7 +322,6 @@ class _AreasComunesPageState extends State<AreasComunesPage> {
   @override
   void dispose() {
     super.dispose();
-    _calendarController.dispose();
     _scrollController.dispose();
     _fechasNoDispsList.clear();
   }

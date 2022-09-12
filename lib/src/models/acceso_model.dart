@@ -14,20 +14,20 @@ class AccesoModel {
         this.accionNombre,
         this.fechaAcceso,
         this.horaAcceso,
-        this.tipoAcceso,
-        this.nombreAcceso,
-        this.rutaImg
+        required this.tipoAcceso,
+        required this.nombreAcceso,
+        required this.rutaImg
     });
 
-    String idEntradaSalida;
-    String placas;
-    String marca;
-    String modelo;
-    String color;
-    String accion;
-    String accionNombre;
-    DateTime fechaAcceso;
-    String horaAcceso;
+    String? idEntradaSalida;
+    String? placas;
+    String? marca;
+    String? modelo;
+    String? color;
+    String? accion;
+    String? accionNombre;
+    DateTime? fechaAcceso;
+    String? horaAcceso;
     String tipoAcceso;
     String nombreAcceso;
     String rutaImg;
