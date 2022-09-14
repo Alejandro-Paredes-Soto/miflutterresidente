@@ -1,16 +1,20 @@
 import 'dart:convert';
 
+import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
+
 import 'visitas_provider.dart';
 import 'constantes_provider.dart' as constantes;
 
 import 'package:http/http.dart' as http;
 
 class NotificacionesProvider {
+  final _prefs = PreferenciasUsuario();
 
   Future<dynamic> obtenerUltimaNotificacion(String idUsuario) async {
     try {
-      final resp = await http
-          .post(Uri.parse('${constantes.urlApp}/revisa_notificacion_visita.php'), body: {'id': idUsuario});
+      final resp = await http.post(
+          Uri.parse('${constantes.urlApp}/revisa_notificacion_visita.php'),
+          body: {'id': idUsuario});
       Map? decodeResp = json.decode(resp.body);
       // print(decodeResp);
       if (decodeResp == null) return null;
@@ -36,7 +40,8 @@ class NotificacionesProvider {
   Future<Map<String, dynamic>> respuestaVisita(
       String idUsuario, String idVisita, int respuesta) async {
     try {
-      final resp = await http.post(Uri.parse('${constantes.urlApp}/actualizar_visita_notificacion.php'),
+      final resp = await http.post(
+          Uri.parse('${constantes.urlApp}/actualizar_visita_notificacion.php'),
           body: {
             'id': idUsuario,
             'id_visita': idVisita,
@@ -44,7 +49,8 @@ class NotificacionesProvider {
           });
       Map? decodeResp = json.decode(resp.body);
       // print(decodeResp);
-      if (decodeResp == null) return {'OK': 2, 'mensaje': 'No se pudo enviar la respuesta'};
+      if (decodeResp == null)
+        return {'OK': 2, 'mensaje': 'No se pudo enviar la respuesta'};
       if (decodeResp.containsKey('estatus')) {
         switch (decodeResp['estatus']) {
           case '1':
@@ -67,9 +73,11 @@ class NotificacionesProvider {
 
   Future<bool> actualizarEstadoNotif(String idUsuario) async {
     try {
-      final resp = await http.post(Uri.parse('${constantes.urlApp}/actualizar_notificacion2.php'), body: {
-        'id': idUsuario,
-      });
+      final resp = await http.post(
+          Uri.parse('${constantes.urlApp}/actualizar_notificacion2.php'),
+          body: {
+            'id': idUsuario,
+          });
       Map? decodeResp = json.decode(resp.body);
       // print(decodeResp);
       if (decodeResp == null) return false;
@@ -87,5 +95,29 @@ class NotificacionesProvider {
           'Ocurrió un error en la llamada al Servicio de NOTIFICACIONES:\n $e');
       return false;
     }
+  }
+
+  Future<Map> notificationChannel() async {
+    try {
+      // final resp = await http.post(
+      //     Uri.parse('${constantes.urlApp}/notificationChannel.php'),
+      //     body: {
+      //       'idColono': _prefs.usuarioLogged,
+      //       'playerID': _prefs.playerID,
+      //       'token': _prefs.token
+      //     });
+      // Map? decodeResp = json.decode(resp.body);
+      // if (decodeResp != null && decodeResp.containsKey('channel'))
+      //   return decodeResp;
+      return {
+        'statusCode': 200,
+        'channel': 'canal_visita_001'
+      };
+    } catch (e) {
+      print(
+          'Ocurrió un error en la llamada al Servicio de NOTIFICACIONES:\n $e');
+    }
+
+    return {'statusCode': 0, 'message': '¡Ups! algo salió mal'};
   }
 }

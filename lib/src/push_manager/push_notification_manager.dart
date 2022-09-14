@@ -48,6 +48,13 @@ class PushNotificationsManager {
     OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
     await OneSignal.shared.setAppId("42665aa6-8bda-4596-b0fb-9ca0b5569b8d");
 
+    // iOS-only method to open launch URLs in Safari when set to false
+    OneSignal.shared.setLaunchURLsInApp(false);
+    OneSignal.shared.disablePush(false);
+
+    OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+    });
+
     OneSignal.shared.setNotificationWillShowInForegroundHandler((event) {
       _evaluaPayload(event.notification);
     });

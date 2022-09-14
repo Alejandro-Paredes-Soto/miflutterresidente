@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/login_provider.dart';
+import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
 import 'package:dostop_v2/src/widgets/gradient_button.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pie_chart/pie_chart.dart';
@@ -153,40 +158,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ],
         ),
         actions: [
-          IconButton(
-            padding: EdgeInsets.all(0),
-            onPressed: () => utils.abrirPaginaWeb(
-                url: 'https://dostop.mx/aviso-de-privacidad.html'),
-            icon: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.lock_outlined,
-                  size: 15,
-                ),
-                SizedBox(height: 2),
-                Text('Privacidad', style: TextStyle(fontSize: 8)),
-              ],
-            ),
-          ),
-          SizedBox(width: 5),
-          IconButton(
+          const SizedBox(width: 10),
+          _creaBtnContacto(),
+          const SizedBox(width: 10),
+           IconButton(
               padding: EdgeInsets.all(0),
               icon: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Theme.of(context).brightness == Brightness.dark
-                        ? Icons.wb_sunny_outlined
-                        : Icons.nightlight_round,
-                    size: 30,
-                  ),
-                  Text('Tema', style: TextStyle(fontSize: 10)),
+                    Icons.settings,
+                    size: 40,
+                  )
                 ],
               ),
-              onPressed: MyApp.of(context)!.changeTheme),
-          const SizedBox(width: 10),
-          _creaBtnContacto(),
+              onPressed: () {
+                Navigator.pushNamed(context, 'setting');
+              },),
           const SizedBox(width: 15),
         ],
       ),
@@ -895,7 +883,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   _cerrarSesion() {
     creaDialogYesNoAlt(
-        context,
+      context,
         'Confirmar',
         '¿Estás seguro de que deseas cerrar sesión?\n\nDejarás de recibir notificaciones de tus visitas.',
         'Cerrar sesión',
@@ -920,6 +908,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       });
     }, () => Navigator.pop(context));
   }
+
 
   @override
   void dispose() {
