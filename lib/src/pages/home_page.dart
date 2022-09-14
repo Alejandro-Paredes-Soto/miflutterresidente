@@ -89,6 +89,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         });
       }
     });
+
+    configUsuarioProvider
+        .obtenerEstadoConfig(_prefs.usuarioLogged, 7)
+        .then((estadoAccesos) {
+      ///previene la llamada del setState cuando el widget ya ha sido destruido. (if (!mounted) return;)
+      if (!mounted) return;
+      setState(() {
+        if (estadoAccesos.containsKey('valor')) {
+          _qrResidente = estadoAccesos['valor'] == '1';
+        }
+      });
+    });
+
     configUsuarioProvider
         .obtenerEstadoConfig(_prefs.usuarioLogged, 2)
         .then((estadoAccesos) {
