@@ -25,6 +25,7 @@ class VisitaNofificacionPage extends StatefulWidget {
 class _VisitaNofificacionPageState extends State<VisitaNofificacionPage> {
   final _notifProvider = NotificacionesProvider();
   final _pushManager = PushNotificationsManager();
+
   final _serviceCall = VisitasProvider();
   bool _respuestaEnviada = false,
       _tiempoVencido = false,

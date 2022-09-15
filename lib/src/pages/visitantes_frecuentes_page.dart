@@ -8,7 +8,6 @@ import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/utils/popups.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/svg.dart';
@@ -152,9 +151,10 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   Widget _creaPagFrecuentes() {
+    int typeService = _tipoServicio == '2' ? (_tabIndex + 2) : (_tabIndex + 1);
     return FutureBuilder(
       future: visitanteProvider.cargaVisitantesFrecuentes(
-          _prefs.usuarioLogged, _tabIndex + 1),
+          _prefs.usuarioLogged, typeService),
       builder: (BuildContext context,
           AsyncSnapshot<List<VisitanteFreqModel>> snapshot) {
         if (snapshot.connectionState == ConnectionState.done)
@@ -199,9 +199,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
 
   Widget _crearItem(BuildContext context, VisitanteFreqModel visitante) {
     return ElevatedContainer(
-      padding: EdgeInsets.all(15.0),
-      child: Row(
-        children: <Widget>[
+        padding: EdgeInsets.all(15.0),
+        child: Row(children: <Widget>[
           Expanded(
             flex: 3,
             child: Column(
@@ -488,7 +487,11 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
             ),
             Visibility(
               visible: (visitante.estatusDispositivo == '1' ||
-                      visitante.estatusDispositivo == '2') &&
+                      visitante.estatusDispositivo == '2' ||
+                      DateTime.parse(visitante.fechaAlta.toString())
+                              .add(const Duration(minutes: 3))
+                              .compareTo(DateTime.now()) ==
+                          -1) &&
                   visitante.activo == '1',
               child: Container(
                   alignment: Alignment.bottomCenter,

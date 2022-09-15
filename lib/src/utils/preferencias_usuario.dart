@@ -45,6 +45,13 @@ class PreferenciasUsuario {
     _prefs.setString('playerID', value);
   }
 
+  bool get registeredPlayerID {
+    return _prefs.getBool('registeredPlayerID') ?? false;
+  }
+
+  set registeredPlayerID(bool value){
+    _prefs.setBool('registeredPlayerID', value);
+  }
   // GET y SET del idUsuario
   String get usuarioLogged {
     return _prefs.getString('usuario') ?? '';

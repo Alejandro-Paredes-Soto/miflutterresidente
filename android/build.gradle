@@ -3,6 +3,8 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal()
+        //maven {url 'https://developer.huawei.com/repo/'}
     }
 
     dependencies {
@@ -10,6 +12,10 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
          // Add the following line:
         classpath 'com.google.gms:google-services:4.3.10'  // Google Services plugin
+
+        //Huawei-OneSignal
+        //classpath 'gradle.plugin.com.onesignal:onesignal-gradle-plugin:[0.12.10, 0.99.99]'
+        //classpath 'com.huawei.agconnect:agcp:1.6.0.300'
     }
 }
 
@@ -17,6 +23,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        //maven {url 'https://developer.huawei.com/repo/'}
     }
 }
 

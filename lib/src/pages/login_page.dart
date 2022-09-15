@@ -214,20 +214,16 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _navegarAHome() async {
-    Map estatus = await loginProvider
-        .registrarTokenFCM(utils.obtenerIDPlataforma(context));
-    switch (estatus['OK']) {
+    Map response = await loginProvider
+        .registrarTokenOS();
+    switch (response['statusCode']) {
       case 0:
-        print(estatus['message']);
+        print(response['message']);
         break;
-      case 1:
-        print(estatus['message']);
+      case 200:
         break;
-      case 2:
-        print(estatus['message']);
-        break;
-      case 3:
-        print(estatus['message']);
+      case 500:
+        print(response['message']);
         break;
     }
   }

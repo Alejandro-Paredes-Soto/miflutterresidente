@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/models/tipo_visitante_model.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
 import 'package:dostop_v2/src/utils/popups.dart';
@@ -113,12 +114,72 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
               _creaTextoErrorImg(),
               SizedBox(height: 10.0),
               _creaRecomendacionImg(),
+              _imageRecommendations(),
               SizedBox(height: 10.0),
               _creaBtnRegistrar(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _imageRecommendations() {
+    return ElevatedButton(
+      onPressed: () {
+        creaDialogWidget(
+            context,
+            '',
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Text('Recomendaciones: ',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Text(
+                      '1. La fotografía debe de tomarse en un área bien iluminada. Se recomienda utilizar fondo blanco.'),
+                  Text(
+                      '2. En la fotografía deberá salir todo el rostro sin cubrebocas, lentes de sol o gorros. '
+                      'El rostro puede contar con lentes oftálmicos siempre y cuando no sean polarizados.'),
+                  const SizedBox(height: 10),
+                  Text('Ejemplo de fotografía:'),
+                  const SizedBox(height: 15),
+                  ElevatedContainer(
+                    blurRadius: 15,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedNetworkImage(
+                          height: 200,
+                          width: 150,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              Image.asset(utils.rutaGifLoadRed),
+                          imageUrl:
+                              'https://dostop.mx/dostop/public/imageFacialRegistrationRecommendations.jpg',
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.broken_image)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            'Cerrar',
+            (() => Navigator.of(context).pop()));
+      },
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.info, color: Theme.of(context).iconTheme.color),
+        const SizedBox(width: 10),
+        Text('Recomendaciones',
+            style:
+                TextStyle(color: Theme.of(context).textTheme.bodyText2!.color)),
+      ]),
+      style: ElevatedButton.styleFrom(
+          elevation: 0,
+          primary: Colors.transparent,
+          textStyle:
+              TextStyle(color: Theme.of(context).textTheme.bodyText2!.color)),
     );
   }
 
@@ -376,10 +437,8 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
-              Icon(
-                Icons.error,
-                color: Theme.of(context).snackBarTheme.actionTextColor
-              ),
+              Icon(Icons.error,
+                  color: Theme.of(context).snackBarTheme.actionTextColor),
               'La imagen no está en formato vertical',
               2));
         }
