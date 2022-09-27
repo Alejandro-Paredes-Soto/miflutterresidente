@@ -13,6 +13,7 @@ import 'package:dostop_v2/src/pages/main_page.dart';
 import 'package:dostop_v2/src/pages/promociones_page.dart';
 import 'package:dostop_v2/src/pages/restablecer_usuario_page.dart';
 import 'package:dostop_v2/src/pages/seguimiento_reporte_page.dart';
+import 'package:dostop_v2/src/pages/settings_page.dart';
 import 'package:dostop_v2/src/pages/visita_detalle_page.dart';
 import 'package:dostop_v2/src/pages/reportar_incidente_page.dart';
 import 'package:dostop_v2/src/pages/visita_notificacion_page.dart';
@@ -136,7 +137,8 @@ class _MyAppState extends State<MyApp> {
           'Incidente': (BuildContext context) => ReportarIncidentePage(),
           'SeguimientoInc': (BuildContext context) =>
               SeguimientoIncidentePage(),
-          'misAccesos': (BuildContext context) => MisAccesosPage()
+          'misAccesos': (BuildContext context) => MisAccesosPage(),
+          'setting': (BuildContext context) => SettingsPage(),
         },
         themeMode: prefs.themeMode == 'Dark' ? ThemeMode.dark : ThemeMode.light,
         theme: ThemeData(

@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:dostop_v2/src/pages/restrict_version_page.dart';
 import 'package:dostop_v2/src/providers/login_validator.dart';
 import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
@@ -21,9 +24,12 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
    final configUsuarioProvider = ConfigUsuarioProvider();
   final GlobalKey<NavigatorState> navigatorKey =
       new GlobalKey<NavigatorState>();
+  bool _importance = false;
+
 
   @override
   void initState() {
+    checkVersion();
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) => Future.delayed(
         Duration(milliseconds: 2300), () => pushManager.mostrarUltimaVisita()));
@@ -88,11 +94,26 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         break;
     }
   }
+  
+   void checkVersion() async {
+    final value = await _validaSesion.checkVersion();
+
+    if (value == 'Critico') {
+      _importance = true;
+    } else {
+      _importance = false;
+    }
+    setState(() {});
+  } 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(key: navigatorKey, body: 
-    HomePage());
+    //log('importance $_importance');
+    if (_importance == false) {
+      return Scaffold(key: navigatorKey, body: HomePage());
+    } else {
+      return Scaffold(key: navigatorKey, body: RestrictVersionPage());
+    }
   }
 
   @override

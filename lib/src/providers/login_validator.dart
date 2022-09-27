@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -73,10 +74,23 @@ class LoginValidator {
         addIntStatusSesion(0);
       }
     } catch (e) {
-      //print(e);
       sesion.drain();
       addIntStatusSesion(1);
     }
-    //print(mapResp);
+  }
+
+  Future<dynamic> checkVersion() async {
+    try {
+      final infoApp = await PackageInfo.fromPlatform();
+      final resp = await http.get(Uri.parse('${constantes.urlApp}/versionApp.php?versionApp=${infoApp.version}'));
+      Map decodeResp = json.decode(resp.body);
+      if (decodeResp.containsKey('data')) {
+        final importance = decodeResp['data']['importance'];
+        return importance;
+      }
+    } catch (e) {
+      log('Ocurrió un error en la llamada chekVersion :\n $e');
+      return null;
+    }
   }
 }

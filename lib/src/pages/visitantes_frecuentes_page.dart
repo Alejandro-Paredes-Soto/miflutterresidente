@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -41,6 +42,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   late Timer timer;
   bool _dialogAbierto = false;
   bool _registrandoImg = false;
+  
 
   @override
   void initState() {
@@ -397,7 +399,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     return ElevatedContainer(
       padding: EdgeInsets.all(10),
       child: Container(
-        height: visitante.tipoVisitante != '' ? 168 : 138,
+        //color: Colors.amber,
+        height: visitante.tipoVisitante != '' ? 188  : 138,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -445,38 +448,49 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   ),
                   SizedBox(height: 5),
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
-                  Row(
-                    children: [
-                      (visitante.estatusDispositivo == '1' ||
-                                  visitante.estatusDispositivo == '2') &&
-                              visitante.activo == '1'
-                          ? visitante.estatusDispositivo == '1'
-                              ? Icon(Icons.check_circle_outline,
-                                  color: utils.colorContenedorSaldo)
-                              : Icon(Icons.error_rounded,
-                                  color: utils.colorToastRechazada)
-                          : Container(
-                              height: 15,
-                              width: 15,
-                              child: CircularProgressIndicator()),
+                  visitante.estatusDispositivo == '0' && DateTime.parse(visitante.fechaAlta.toString()).add(const Duration(minutes: 3)).compareTo(DateTime.now()) == -1
+                   ?Row(
+                     children: [
+                      Icon(Icons.warning_amber_rounded, color: Colors.amber,),
                       SizedBox(width: 5),
-                      AutoSizeText(visitante.estatusDispositivo == '1'
-                          ? visitante.activo == '0'
-                              ? 'Eliminando...'
-                              : 'Listo para usarse'
-                          : visitante.estatusDispositivo == '2'
-                              ? 'Imagen no admitida'
-                              : 'Registrando...'),
-                    ],
-                  ),
+                       Expanded(child: AutoSizeText('Sobrecarga en el servicio facial.')),
+                     ],
+                   )
+                   :Row(
+                     children: [
+                       (visitante.estatusDispositivo == '1' ||
+                                   visitante.estatusDispositivo == '2') &&
+                               visitante.activo == '1'
+                           ? visitante.estatusDispositivo == '1'
+                               ? Icon(Icons.check_circle_outline,
+                                   color: utils.colorContenedorSaldo)
+                               : Icon(Icons.error_outline_outlined,
+                                   color: utils.colorToastRechazada)
+                           : Container(
+                               height: 15,
+                               width: 15,
+                               child: CircularProgressIndicator()),
+                       SizedBox(width: 5),
+                       AutoSizeText(visitante.estatusDispositivo == '1'
+                           ? visitante.activo == '0'
+                               ? 'Eliminando...'
+                               : 'Listo para usarse'
+                           : visitante.estatusDispositivo == '2'
+                               ? 'Imagen no admitida'
+                               : 'Registrando...')
+                          
+                     ],
+                   ),
+                  
                   SizedBox(height: 10),
-                  Visibility(
+                  DateTime.parse(visitante.fechaAlta.toString()).add(const Duration(minutes: 3)).compareTo(DateTime.now()) == -1 && visitante.estatusDispositivo == '0'
+                  ?AutoSizeText('Elimina el registro e intentalo más tarde.')
+                  :Visibility(
                       visible: visitante.estatusDispositivo == '0' ||
                           visitante.activo == '0',
-                      child: AutoSizeText(
-                        !visitante.expiroTolerancia
+                      child: AutoSizeText( !visitante.expiroTolerancia
                             ? 'Esto puede tomar alrededor de 30 segundos.'
-                            : 'El tiempo de espera está tomando mas de lo normal. Puede que en caseta ocurra una falla de internet.',
+                            : 'El tiempo de espera está tomando más de lo normal. Puede que en caseta ocurra una falla de internet.',
                         style: utils.estiloTituloTarjeta(12),
                         maxLines: 2,
                         minFontSize: 8,
@@ -488,17 +502,20 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
             Visibility(
               visible: (visitante.estatusDispositivo == '1' ||
                       visitante.estatusDispositivo == '2' ||
-                      DateTime.parse(visitante.fechaAlta.toString())
-                              .add(const Duration(minutes: 3))
-                              .compareTo(DateTime.now()) ==
-                          -1) &&
-                  visitante.activo == '1',
+                      DateTime.parse(visitante.fechaAlta.toString()).add(const Duration(minutes: 3)).compareTo(DateTime.now()) == -1) &&
+                      visitante.activo == '1' ,
+                  
               child: Container(
                   alignment: Alignment.bottomCenter,
                   child: GestureDetector(
-                    child: Icon(Icons.delete),
-                    onTap: () => _eliminaVisitanteFreq(context, visitante),
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete, color: utils.colorToastRechazada,),
+                      ],
+                    ),
+                    onTap: () => _eliminaVisitanteFreq(context, visitante)
                   )),
+                  
             )
           ],
         ),
@@ -773,8 +790,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 height: utils.tamanoIcoSnackbar,
                 color: Theme.of(context).snackBarTheme.actionTextColor),
             tipoRostro == 1
-                ? 'Acceso residente creado'
-                : 'Visitante frecuente creado',
+                ? 'Registrando acceso residente'
+                : 'Registrando visitante frecuente',
             5));
       });
     }
