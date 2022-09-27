@@ -91,6 +91,7 @@ String rutaIconoCaseta = 'assets/IconoCaseta.svg';
 String rutaGifLoadRed = 'assets/loading-image.gif';
 String rutaGifLoadBanner = 'assets/loading-banner.gif';
 String rutaIconoWhastApp = 'assets/whatsapp.svg';
+String rutaIconoSettings = 'assets/settings.svg';
 String rutaFondoLogin = 'assets/fondo-login-main.jpg';
 String rutaFondoQR = 'assets/FondoQR.png';
 String rutaIconoAccesos = 'assets/IconoAccesos.svg';
