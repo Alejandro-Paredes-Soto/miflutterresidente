@@ -174,25 +174,33 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           const SizedBox(width: 10),
           _creaBtnContacto(),
           const SizedBox(width: 10),
-           IconButton(
-              padding: EdgeInsets.all(0),
-              icon: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.settings,
-                    size: 40,
-                  )
-                ],
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, 'setting');
-              },),
+           _creaBtnSettings(),
           const SizedBox(width: 15),
         ],
       ),
       body: _creaBody(),
     );
+  }
+
+  Widget _creaBtnSettings(){
+    return IconButton(
+                padding: EdgeInsets.all(0),
+                iconSize: 33,
+                icon: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                  utils.rutaIconoSettings,
+                  height: 30,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                    Text('Ajustes', style: TextStyle(fontSize: 10),)
+                  ],
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, 'setting');
+                },);
+    
   }
 
   Widget _creaBtnContacto() {
@@ -220,16 +228,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         verticalMargin: 5,
         barrierColor: Colors.black45,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              utils.rutaIconoWhastApp,
-              height: 30,
-              color: Theme.of(context).iconTheme.color,
-            ),
-            Text('Contacto', style: TextStyle(fontSize: 10)),
-          ],
-        ),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                utils.rutaIconoWhastApp,
+                height: 30,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              Text('Contacto', style: TextStyle(fontSize: 10)),
+            ],
+          ),
         menuBuilder: () => ClipRRect(
               borderRadius: BorderRadius.circular(5),
               child: Container(
