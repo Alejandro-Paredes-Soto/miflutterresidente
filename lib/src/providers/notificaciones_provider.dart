@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 
@@ -16,7 +17,6 @@ class NotificacionesProvider {
           Uri.parse('${constantes.urlApp}/revisa_notificacion_visita.php'),
           body: {'id': idUsuario});
       Map? decodeResp = json.decode(resp.body);
-      // print(decodeResp);
       if (decodeResp == null) return null;
       if (decodeResp.containsKey('visita')) {
         final visita = VisitaModel.fromJson(decodeResp['visita']);
@@ -48,7 +48,6 @@ class NotificacionesProvider {
             'respuesta_visita': respuesta.toString()
           });
       Map? decodeResp = json.decode(resp.body);
-      // print(decodeResp);
       if (decodeResp == null)
         return {'OK': 2, 'mensaje': 'No se pudo enviar la respuesta'};
       if (decodeResp.containsKey('estatus')) {
@@ -79,7 +78,6 @@ class NotificacionesProvider {
             'id': idUsuario,
           });
       Map? decodeResp = json.decode(resp.body);
-      // print(decodeResp);
       if (decodeResp == null) return false;
       if (decodeResp.containsKey('estatus')) {
         switch (decodeResp['estatus']) {
@@ -99,20 +97,16 @@ class NotificacionesProvider {
 
   Future<Map> notificationChannel() async {
     try {
-      // final resp = await http.post(
-      //     Uri.parse('${constantes.urlApp}/notificationChannel.php'),
-      //     body: {
-      //       'idColono': _prefs.usuarioLogged,
-      //       'playerID': _prefs.playerID,
-      //       'token': _prefs.token
-      //     });
-      // Map? decodeResp = json.decode(resp.body);
-      // if (decodeResp != null && decodeResp.containsKey('channel'))
-      //   return decodeResp;
-      return {
-        'statusCode': 200,
-        'channel': 'canal_visita_001'
-      };
+       final resp = await http.post(
+        Uri.parse('${constantes.ulrApiProd}/device/chanel/'),
+           body: {
+             'playerID': _prefs.playerID,
+           });
+       Map? decodeResp = json.decode(resp.body);
+       if (decodeResp != null && decodeResp.containsKey('canal'))
+         return decodeResp;
+         log(decodeResp.toString());
+
     } catch (e) {
       print(
           'Ocurrió un error en la llamada al Servicio de NOTIFICACIONES:\n $e');
