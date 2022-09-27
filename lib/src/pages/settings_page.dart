@@ -1,8 +1,16 @@
+
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
 import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart' as toast;
+import 'package:package_info_plus/package_info_plus.dart';
+
 
 import '../../main.dart';
 
@@ -18,75 +26,96 @@ class _SettingsPageState extends State<SettingsPage> {
       FlutterLocalNotificationsPlugin();
   final _notificationProvider = NotificacionesProvider();
 
+
   @override
   Widget build(BuildContext context) {
+    bool _isDarkMode =
+        Theme.of(context).brightness == Brightness.dark ? true : false;
+    bool _enabled = true;
+    if(Platform.isIOS){
+      _enabled = false;
+      setState(() {});
+    }
     return Scaffold(
-      appBar: utils.appBarLogo(titulo: 'Configuraciones'),
+      appBar: utils.appBarLogo(titulo: 'Configuración'),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ElevatedButton(
-              onPressed: MyApp.of(context)!.changeTheme,
-              child: Row(
-                children: [
-                  Icon(
-                    Theme.of(context).brightness == Brightness.dark
-                        ? Icons.wb_sunny_outlined
-                        : Icons.nightlight_round,
-                    size: 30,
-                    color: Theme.of(context).textTheme.bodyText2!.color
-                  ),
-                  const SizedBox(width: 10),
-                  Text('Tema',
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Theme.of(context).textTheme.bodyText2!.color)),
-                ],
-              ),
-              style: ElevatedButton.styleFrom(
-                  primary: Colors.transparent, elevation: 0),
+            _title('Tema'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(width: 20),
+                    _option(Icons.dark_mode ,'Modo oscuro')
+                  ],
+                ),
+                CupertinoSwitch(
+                    value: _isDarkMode,
+                    onChanged: (bool value) {
+                      _isDarkMode = value;
+                      MyApp.of(context)!.changeTheme();
+                      setState(() {});
+                    }),
+              ],
             ),
-            Divider(),
-            ElevatedButton(
-                onPressed: _notificationChannel,
+            const SizedBox(height: 30),
+            _title('Notificaciones'),      
+            TextButton(
+                onPressed:
+                 _enabled == false 
+                  ? null
+                  : _notificationChannel,
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.notifications_outlined,
-                      size: 30,
-                      color: Theme.of(context).textTheme.bodyText2!.color
-                    ),
-                    const SizedBox(width: 10),
-                    Text('Restablecer notificación de visita',
-                        style: TextStyle(
-                            fontSize: 20,
-                            color:
-                                Theme.of(context).textTheme.bodyText2!.color)),
+                    const SizedBox(width: 20),
+                    _enabled == false
+                    ?_option(Icons.notifications_outlined, 'Restablecer configuración\n(Disponible solo para dispositivos Android)', _enabled)
+                    :_option(Icons.notifications_outlined, 'Restablecer configuración'),
                   ],
                 ),
                 style: ElevatedButton.styleFrom(
-                    primary: Colors.transparent, elevation: 0)),
-            Divider(),
-            ElevatedButton(
-              onPressed: () => utils.abrirPaginaWeb(
-                  url: 'https://dostop.mx/aviso-de-privacidad.html'),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.lock_outlined,
-                    size: 30,
-                    color: Theme.of(context).textTheme.bodyText2!.color
-                  ),
-                  const SizedBox(width: 10),
-                  Text('Aviso de privacidad',
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Theme.of(context).textTheme.bodyText2!.color)),
-                ],
+                    primary: Colors.transparent, elevation: 0)
               ),
-              style: ElevatedButton.styleFrom(
-                  primary: Colors.transparent, elevation: 0),
+            const SizedBox(height: 50),
+            Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () => utils.abrirPaginaWeb(
+                      url: 'https://dostop.mx/aviso-de-privacidad.html'),
+                  child: Row(
+                    children: [
+                      Text('Aviso de privacidad\nTérminos y condiciones',
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyText2!
+                                  .color)),
+                    ],
+                  ),
+                  style: ElevatedButton.styleFrom(
+                      primary: Colors.transparent, elevation: 0),
+                ),
+                FutureBuilder(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot){
+                    if (snapshot.hasData)
+                      return
+                        Text('DostopV ${snapshot.data.version}',
+                            style: TextStyle(
+                                fontSize: 15,
+                                color: Theme.of(context).textTheme.bodyText2!.color));
+                    else
+                      return 
+                        Text('Dostop');
+                  }),
+              ],
             ),
           ],
         ),
@@ -94,15 +123,76 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _title(String title) {
+    return Text(title,
+        style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+            color: Theme.of(context).textTheme.bodyText2!.color));
+  }
+
+  Widget _option(icon, String option, [bool? enabled]) {
+    Color color;
+    enabled == false
+    ? color = Colors.grey
+    : color = Theme.of(context).textTheme.bodyText2!.color!;
+    return Row(
+      children: [
+        Icon(icon,
+            size: 30, color: color),
+        const SizedBox(width: 10),
+        Text(option,
+            style: TextStyle(
+                fontSize: 16,
+                color: color
+                )
+                ),
+      ],
+    );
+  }
+
+  _cupertinoIndicator(BuildContext context) {
+    showCupertinoDialog(
+        context: context,
+        builder: (ctx) {
+          return CupertinoActivityIndicator(
+            animating: true,
+            radius: 25,
+            color: Colors.white,
+          );
+        });
+  }
+
+  _newChannelReady() {
+    toast.showToast('Configuración restablecida',
+        context: context,
+        textStyle: const TextStyle(fontSize: 24, color: Colors.white),
+        backgroundColor: utils.colorPrincipal,
+        borderRadius: BorderRadius.circular(20),
+        animation: toast.StyledToastAnimation.slideFromTop,
+        reverseAnimation: toast.StyledToastAnimation.slideToTop,
+        position: toast.StyledToastPosition.top,
+        startOffset: Offset(0.0, -3.0),
+        reverseEndOffset: Offset(0.0, -3.0),
+        duration: Duration(seconds: 3),
+        animDuration: Duration(seconds: 1),
+        curve: Curves.elasticOut,
+        reverseCurve: Curves.fastOutSlowIn);
+  }
+
   _notificationChannel() async {
+    _cupertinoIndicator(context);
     final Map resp = await _notificationProvider.notificationChannel();
 
-    if (resp['statusCode'] == 200) {
+    if (resp['statusCode'] == 201) {
       final List<AndroidNotificationChannel>? channels =
           await flutterLocalNotificationsPlugin
               .resolvePlatformSpecificImplementation<
                   AndroidFlutterLocalNotificationsPlugin>()!
               .getNotificationChannels();
+              
+      Navigator.pop(context);
+      _newChannelReady();
 
       for (AndroidNotificationChannel channel in channels!) {
         await flutterLocalNotificationsPlugin
@@ -111,7 +201,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ?.deleteNotificationChannel(channel.id);
       }
 
-      String channelId = resp['channel'];
+      String channelId = resp['canal'];
       AndroidNotificationChannel androidNotificationChannel =
           AndroidNotificationChannel(
         channelId,
@@ -127,13 +217,16 @@ class _SettingsPageState extends State<SettingsPage> {
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(androidNotificationChannel);
+          log('chanel: ${androidNotificationChannel.sound}');
     } else {
       creaDialogSimple(
           context,
           '¡Ups! Algo salió mal',
           'Ocurrió un error al intentar restablecer los ajuste de la notificación de visita',
           'Aceptar',
-          () => Navigator.pop(context));
+          () {Navigator.pop(context);
+          Navigator.pop(context);}
+          );
     }
   }
 }
