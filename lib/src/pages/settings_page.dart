@@ -47,11 +47,13 @@ class _SettingsPageState extends State<SettingsPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const SizedBox(width: 20),
-                    _option(Icons.dark_mode ,'Modo oscuro')
-                  ],
+                TextButton(
+                  onPressed: (){},
+                  child: Row(
+                    children: [
+                       _option(Icons.dark_mode ,'Modo oscuro')
+                    ],
+                  ),
                 ),
                 CupertinoSwitch(
                     value: _isDarkMode,
@@ -69,23 +71,26 @@ class _SettingsPageState extends State<SettingsPage> {
                  _enabled == false 
                   ? null
                   : _notificationChannel,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 20),
-                    _enabled == false
-                    ?_option(Icons.notifications_outlined, 'Restablecer configuración\n(Disponible solo para dispositivos Android)', _enabled)
+               
+                child: _enabled == false
+                   ?Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       _option(Icons.notifications_outlined, 'Restablecer configuración', _enabled),
+                       Padding(
+                         padding: const EdgeInsets.only(left: 40),
+                         child: Text('(Solo para dispositivos Android)', style: TextStyle(fontSize: 12, color: Colors.grey),),
+                       )
+                     ],
+                   )
                     :_option(Icons.notifications_outlined, 'Restablecer configuración'),
-                  ],
-                ),
-                style: ElevatedButton.styleFrom(
-                    primary: Colors.transparent, elevation: 0)
               ),
             const SizedBox(height: 50),
             Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton(
+                TextButton(
                   onPressed: () => utils.abrirPaginaWeb(
                       url: 'https://dostop.mx/aviso-de-privacidad.html'),
                   child: Row(
@@ -99,8 +104,6 @@ class _SettingsPageState extends State<SettingsPage> {
                                   .color)),
                     ],
                   ),
-                  style: ElevatedButton.styleFrom(
-                      primary: Colors.transparent, elevation: 0),
                 ),
                 FutureBuilder(
                   future: PackageInfo.fromPlatform(),
