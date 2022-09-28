@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
@@ -66,7 +68,10 @@ class PushNotificationsManager {
 
     OneSignal.shared
         .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
-      if (!changes.from.isSubscribed && changes.to.isSubscribed) {
+       if(Platform.isIOS && changes.to.userId != null && changes.from.pushToken == null && changes.to.pushToken == null ){
+        log('isEmulator');
+          _prefs.playerID = changes.to.userId!;
+       } else if (!changes.from.isSubscribed && changes.to.isSubscribed) {
         _prefs.playerID = changes.to.userId!;
         if (_prefs.usuarioLogged.isNotEmpty && _prefs.playerID.isNotEmpty) {
           _loginProvider.registrarTokenOS();
