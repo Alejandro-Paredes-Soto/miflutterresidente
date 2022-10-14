@@ -2,6 +2,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dostop_v2/src/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:app_settings/app_settings.dart';
+
 
 void creaDialogSimple(BuildContext context, String titulo, String contenido,
     String textOpcionOK, Function() funcionOK) {
@@ -65,6 +67,35 @@ creaDialogBloqueo(BuildContext context, String titulo, String mensaje) {
         );
       });
 }
+
+
+creaDialogSettingsNotify(BuildContext context, String titulo, String mensaje) {
+  showCupertinoDialog(
+      context: context,
+      builder: (ctx) {
+          return CupertinoAlertDialog(  
+     title: Text(titulo),
+     content: Text(mensaje), 
+     actions: [
+         CupertinoDialogAction(
+            child: Text("Abrir\nconfiguración", maxLines: 2,),
+            onPressed: ()
+            {
+              Navigator.of(context).pop();
+                AppSettings.openNotificationSettings();
+            }
+         ),
+         CupertinoDialogAction(
+            child: Text("Cancelar"),
+            onPressed: (){
+                Navigator.of(context).pop();
+            }
+         )
+     ],   
+);
+      });
+}
+
 
 creaDialogWidget(BuildContext context, String titulo, Widget widget,
     String textOpcionOK, Function() funcionOK) {
