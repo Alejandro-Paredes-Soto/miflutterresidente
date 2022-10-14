@@ -46,6 +46,8 @@
 	<string>Uso de almacenamiento para guardar imagenes</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Captura de audio para videollamada</string>
+	<key>PermissionGroupCriticalAlerts</key>
+	<string>uso de alertas criticas</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
