@@ -68,14 +68,11 @@ class PushNotificationsManager {
 
     OneSignal.shared
         .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
-       if(Platform.isIOS && changes.to.userId != null && changes.from.pushToken == null && changes.to.pushToken == null ){
-        log('isEmulator');
-          _prefs.playerID = changes.to.userId!;
-       } else if (!changes.from.isSubscribed && changes.to.isSubscribed) {
+      if(changes.to.userId != null){
         _prefs.playerID = changes.to.userId!;
         if (_prefs.usuarioLogged.isNotEmpty && _prefs.playerID.isNotEmpty) {
-          _loginProvider.registrarTokenOS();
-        }
+                  _loginProvider.registrarTokenOS();
+                }
       }
     });
   }
@@ -174,5 +171,12 @@ class PushNotificationsManager {
         mensajeStream.addMessage({'visita': visita});
       }
     }
+  }
+
+  checkStatusnotifications() async {
+  final resp = await OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+      return accepted;
+    });
+    return resp;
   }
 }
