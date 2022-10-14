@@ -152,7 +152,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   Widget _creaPagFrecuentes() {
-    int typeService = _tipoServicio == '2' ? (_tabIndex + 2) : (_tabIndex + 1);
+    int typeService = _tipoServicio == '1' ? (_tabIndex + 1) : (_tabIndex + 1);
     return FutureBuilder(
       future: visitanteProvider.cargaVisitantesFrecuentes(
           _prefs.usuarioLogged, typeService),
@@ -619,9 +619,14 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   List<SpeedDialChild> _obtenerElementosFAB(String valor) {
     List<SpeedDialChild> elementos = [
       _elementoFAB(
-          titulo: 'Nuevo visitante QR',
-          icon: Icon(Icons.qr_code, color: Colors.white),
-          pageRoute: 'NuevoVisitFreq'),
+          titulo: 'Nuevo residente rostro',
+          icon: Icon(
+            Icons.home,
+            color: Colors.white,
+          ),
+          pageRoute: 'NuevoVisitRostro',
+          tipoRostro: 1,
+          tipoAcceso: _tipoAcceso),
       _elementoFAB(
           titulo: 'Nuevo visitante rostro',
           icon: Icon(
@@ -632,14 +637,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
           tipoRostro: 2,
           tipoAcceso: _tipoAcceso),
       _elementoFAB(
-          titulo: 'Nuevo residente rostro',
-          icon: Icon(
-            Icons.home,
-            color: Colors.white,
-          ),
-          pageRoute: 'NuevoVisitRostro',
-          tipoRostro: 1,
-          tipoAcceso: _tipoAcceso),
+          titulo: 'Nuevo visitante QR',
+          icon: Icon(Icons.qr_code, color: Colors.white),
+          pageRoute: 'NuevoVisitFreq'),
     ];
     if (valor == '0') {
       elementos.removeAt(0);
