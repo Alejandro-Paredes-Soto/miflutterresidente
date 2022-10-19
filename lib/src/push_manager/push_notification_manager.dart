@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
 
 import 'package:dostop_v2/src/models/aviso_model.dart';
 import 'package:dostop_v2/src/providers/notificaciones_provider.dart';
@@ -66,11 +68,11 @@ class PushNotificationsManager {
 
     OneSignal.shared
         .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
-      if (!changes.from.isSubscribed && changes.to.isSubscribed) {
+      if(changes.to.userId != null){
         _prefs.playerID = changes.to.userId!;
         if (_prefs.usuarioLogged.isNotEmpty && _prefs.playerID.isNotEmpty) {
-          _loginProvider.registrarTokenOS();
-        }
+                  _loginProvider.registrarTokenOS();
+                }
       }
     });
   }
@@ -169,5 +171,12 @@ class PushNotificationsManager {
         mensajeStream.addMessage({'visita': visita});
       }
     }
+  }
+
+  checkStatusnotifications() async {
+  final resp = await OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+      return accepted;
+    });
+    return resp;
   }
 }

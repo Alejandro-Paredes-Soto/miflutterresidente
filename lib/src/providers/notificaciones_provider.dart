@@ -96,17 +96,21 @@ class NotificacionesProvider {
   }
 
   Future<Map> notificationChannel() async {
+    Object _body = '';
+    if (_prefs.playerID.isEmpty) {
+          _body = {'token': _prefs.token};
+        }else if(_prefs.playerID.isNotEmpty && _prefs.token.isNotEmpty){
+          _body = {'playerID': _prefs.playerID};
+        }else{
+          _body = {'player': _prefs.playerID};
+        }
     try {
        final resp = await http.post(
         Uri.parse('${constantes.ulrApiProd}/device/chanel/'),
-           body: {
-             'playerID': _prefs.playerID,
-           });
+           body: _body);
        Map? decodeResp = json.decode(resp.body);
        if (decodeResp != null && decodeResp.containsKey('canal'))
          return decodeResp;
-         log(decodeResp.toString());
-
     } catch (e) {
       print(
           'Ocurrió un error en la llamada al Servicio de NOTIFICACIONES:\n $e');

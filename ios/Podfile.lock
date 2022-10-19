@@ -3,6 +3,8 @@ PODS:
     - AgoraIrisRTC_iOS (= 3.6.2-fix.1)
     - Flutter
   - AgoraIrisRTC_iOS (3.6.2-fix.1)
+  - "app_settings (3.0.0+1)":
+    - Flutter
   - device_info_plus (0.0.1):
     - Flutter
   - Firebase/CoreOnly (9.4.0):
@@ -113,6 +115,7 @@ PODS:
 
 DEPENDENCIES:
   - agora_rtc_engine (from `.symlinks/plugins/agora_rtc_engine/ios`)
+  - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
@@ -149,6 +152,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   agora_rtc_engine:
     :path: ".symlinks/plugins/agora_rtc_engine/ios"
+  app_settings:
+    :path: ".symlinks/plugins/app_settings/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   firebase_core:
@@ -185,6 +190,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   agora_rtc_engine: ffc530eff766a38272568ebaead9341d73f58856
   AgoraIrisRTC_iOS: 9b11083bb79048ae4db7e2f56109cc51ac9e3834
+  app_settings: d103828c9f5d515c4df9ee754dabd443f7cedcf3
   device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
   Firebase: 7703fc4022824b6d6db1bf7bea58d13b8e17ec46
   firebase_core: 8e500850dd138c269d197c8dfca3ae886fa3b6f2
@@ -214,6 +220,6 @@ SPEC CHECKSUMS:
   store_redirect: 2977747cf81689a39bd62c248c2deacb7a0d131e
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
 
-PODFILE CHECKSUM: d7aba3abac50c26bdc581e03570256e2f49e8d42
+PODFILE CHECKSUM: 47f524a25f3f72ee698eaa8939eb23ca2b10ea72
 
 COCOAPODS: 1.11.3

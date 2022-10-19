@@ -30,6 +30,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   @override
   void initState() {
     checkVersion();
+    checkNotifications();
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((_) => Future.delayed(
         Duration(milliseconds: 2300), () => pushManager.mostrarUltimaVisita()));
@@ -106,9 +107,23 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
     setState(() {});
   } 
 
+
+void checkNotifications()  async{
+  final resp =  await pushManager.checkStatusnotifications();
+  log('respuesta: $resp');
+  if (resp == false){
+    creaDialogSettingsNotify(navigatorKey.currentContext!, 'Notificaciones desactivadas',
+            'Dostop necesita enviarte notificaciones para poder avisarte cuando tengas alguna visita.');
+    log('activa tus notificaciones');
+  }else{
+    log('notificaciones activadas');
+  }
+
+}
+  
+
   @override
   Widget build(BuildContext context) {
-    //log('importance $_importance');
     if (_importance == false) {
       return Scaffold(key: navigatorKey, body: HomePage());
     } else {
