@@ -56,6 +56,6 @@ class VisitanteFreqModel {
         estatusDispositivo: json["estatus_dispositivo"] ?? "",
         activo: json["activo"] ?? "",
         expiroTolerancia: json["expiro_tolerancia"] == "true" ? true : false,
-        tipoVisitante: json["tipo_visitante"] ?? "", 
+        tipoVisitante: json["tipo_visitante"] ?? "",
       );
 }
