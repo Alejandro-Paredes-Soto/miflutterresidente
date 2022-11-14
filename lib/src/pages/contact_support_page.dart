@@ -1,28 +1,31 @@
 import 'dart:developer';
 
-import 'package:dostop_v2/src/providers/restablecer_usuario_provider.dart';
 import 'package:dostop_v2/src/providers/contact_support_provider.dart';
+import 'package:dostop_v2/src/providers/restablecer_usuario_provider.dart';
 import 'package:dostop_v2/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:whatsapp_unilink/whatsapp_unilink.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
+import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 
-class ContactSupport extends StatefulWidget {
+class ContactSupportPage extends StatefulWidget {
   @override
-  _ContactSupportState createState() => _ContactSupportState();
+  _ContactSupportPageState createState() => _ContactSupportPageState();
 }
 
-class _ContactSupportState extends State<ContactSupport> {
+class _ContactSupportPageState extends State<ContactSupportPage> {
   final formKey = GlobalKey<FormState>();
   final restableceUsrProvider = RestablecerUsuarioProvider();
   final _txtReason = TextEditingController();
-  final _contactW = ContactSupport();
+  final _prefs = PreferenciasUsuario();
+  final _numberContact = ContactSupport();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    getNumber();
     
   }
 
@@ -114,18 +117,19 @@ class _ContactSupportState extends State<ContactSupport> {
       color: colorPrincipal,
       disabledColor: colorSecundario,
       onPressed: (){
-
-        // if(formKey.currentState!.validate()){
-        //   _launchWhatsApp(
-        //    '524776708906', _txtReason.text);
-        // _txtReason.clear();
-        // }
-        // _launchWhatsApp(
-        //   '524775872189', _txtReason.text);
+        if(formKey.currentState!.validate()){
+          _launchWhatsApp(_prefs.supportContact == '' ? '524775872189' : _prefs.supportContact, _txtReason.text);
+        _txtReason.clear();
+        }
           }
     );
   }
-  
+
+  void getNumber() async {
+    final _num = await _numberContact.getContactNumber();
+    _prefs.supportContact = _num;
+  } 
+
 
   _launchWhatsApp(String numero, String mensaje) async {
     final link = WhatsAppUnilink(phoneNumber: numero, text: mensaje);
@@ -133,7 +137,6 @@ class _ContactSupportState extends State<ContactSupport> {
         mode: LaunchMode.externalApplication);
   }
 
-  
 
   @override
   void dispose() {

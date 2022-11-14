@@ -7,13 +7,16 @@ import 'package:http/http.dart' as http;
 
 class ContactSupport {
 
-  Future<dynamic> getContact() async {
+  Future<dynamic> getContactNumber() async {
     try {
       final resp =
-          await http.get(Uri.parse('http://192.168.100.2/integracionpd/public/api/v1/dostop/contact/info/'));
+          await http.get(Uri.parse('http://192.168.100.15/integracionpd/public/api/v1/dostop/contact/info/'));
       Map<String, dynamic> mapResp = json.decode(resp.body);
-      log(mapResp.toString());
-      return mapResp;
+      if (mapResp.containsKey('contactNumber')) {
+        final number = mapResp['contactNumber'];
+        return number;
+      }
+      return;
     } catch (e) {
       print(
           'Ocurrió un error en la llamada al Servicio de CONTACTO-SOPORTE:\n $e');
