@@ -61,13 +61,13 @@ class PreferenciasUsuario {
     _prefs.setString('usuario', value);
   }
   //GET Y SET DEL CONTACTO DE SOPORTE
-  // String get supportContact {
-  //   return _prefs.getString('numSupport') ?? '';
-  // }
+  String get supportContact {
+    return _prefs.getString('numSupport') ?? '';
+  }
 
-  // set supportContact(String value) {
-  //   _prefs.setString('numSupport', value);
-  // }
+  set supportContact(String value) {
+    _prefs.setString('numSupport', value);
+  }
 //THEME MODE
   String get themeMode {
     return _prefs.getString('tema') ?? 'Dark';
