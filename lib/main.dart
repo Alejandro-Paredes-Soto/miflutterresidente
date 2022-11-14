@@ -140,7 +140,7 @@ class _MyAppState extends State<MyApp> {
               SeguimientoIncidentePage(),
           'misAccesos': (BuildContext context) => MisAccesosPage(),
           'setting': (BuildContext context) => SettingsPage(),
-          'contactSupport': (BuildContext context) => ContactSupport(),
+          'contactSupport': (BuildContext context) => ContactSupportPage(),
         },
         themeMode: prefs.themeMode == 'Dark' ? ThemeMode.dark : ThemeMode.light,
         theme: ThemeData(
