@@ -10,7 +10,7 @@ class ContactSupport {
   Future<dynamic> getContactNumber() async {
     try {
       final resp =
-          await http.get(Uri.parse('http://192.168.100.15/integracionpd/public/api/v1/dostop/contact/info/'));
+          await http.get(Uri.parse('${constantes.ulrApiProd}/dostop/contact/info/'));
       Map<String, dynamic> mapResp = json.decode(resp.body);
       if (mapResp.containsKey('contactNumber')) {
         final number = mapResp['contactNumber'];
@@ -23,6 +23,4 @@ class ContactSupport {
       return {'OK': 2, 'message': 'No se pudo obtener'};
     }
   }
-
-  
 }
