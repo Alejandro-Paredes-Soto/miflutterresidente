@@ -208,7 +208,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ? _creaMenuContacto()
         : IconButton(
             padding: EdgeInsets.all(0),
-            onPressed: _abrirSoporte,
+            onPressed: (){Navigator.pushNamed(context, 'contactSupport');},
             icon: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -257,8 +257,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                           title: 'Soporte app',
                           icon: Icons.phone_iphone_rounded,
                           onPressed: () {
-                            _controller.hideMenu();
-                            _abrirSoporte();
+                             _controller.hideMenu();
+                            // _abrirSoporte();
+                            Navigator.pushNamed(context, 'contactSupport');
                           }),
                     ],
                   ),
@@ -856,18 +857,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         mode: LaunchMode.externalApplication);
   }
 
-  _abrirSoporte() {
-    creaDialogYesNo(
-        context,
-        'Chat de WhatsApp',
-        'Este canal de comunicación es únicamente para el soporte de la aplicación. NO es un canal directo con caseta. ¿Quieres continuar?',
-        'Sí',
-        'No', () async {
-      await _launchWhatsApp(
-          '524775872189', 'Hola. Necesito ayuda con la aplicación Dostop.');
-      Navigator.of(context, rootNavigator: true).pop('dialog');
-    }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
-  }
+  // _abrirSoporte() {
+  //   creaDialogYesNo(
+  //       context,
+  //       'Chat de WhatsApp',
+  //       'Este canal de comunicación es únicamente para el soporte de la aplicación. NO es un canal directo con caseta. ¿Quieres continuar?',
+  //       'Sí',
+  //       'No', () async {
+  //     await _launchWhatsApp(
+  //         '524775872189', 'Hola. Necesito ayuda con la aplicación Dostop.');
+  //     Navigator.of(context, rootNavigator: true).pop('dialog');
+  //   }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
+  // }
+
 
   _generarCodigo() async {
     creaDialogProgress(context, 'Generando código...');

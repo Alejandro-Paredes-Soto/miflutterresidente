@@ -1,6 +1,7 @@
 import 'package:dostop_v2/src/pages/areas_comunes_page.dart';
 import 'package:dostop_v2/src/pages/aviso_detalle_page.dart';
 import 'package:dostop_v2/src/pages/avisos_page.dart';
+import 'package:dostop_v2/src/pages/contact_support_page.dart';
 import 'package:dostop_v2/src/pages/emergencia_page.dart';
 import 'package:dostop_v2/src/pages/estado_de_cuenta_page.dart';
 import 'package:dostop_v2/src/pages/mi_casa_page.dart';
@@ -139,6 +140,7 @@ class _MyAppState extends State<MyApp> {
               SeguimientoIncidentePage(),
           'misAccesos': (BuildContext context) => MisAccesosPage(),
           'setting': (BuildContext context) => SettingsPage(),
+          'contactSupport': (BuildContext context) => ContactSupportPage(),
         },
         themeMode: prefs.themeMode == 'Dark' ? ThemeMode.dark : ThemeMode.light,
         theme: ThemeData(
