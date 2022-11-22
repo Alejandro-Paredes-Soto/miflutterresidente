@@ -273,26 +273,6 @@ void creaDialogQR(
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      Flexible(
-                          child: ElevatedButton(
-                        child: Container(
-                          alignment: Alignment.center,
-                          height: 60,
-                          width: 220,
-                          child: AutoSizeText(
-                            textOpcionNeg,
-                            maxLines: 1,
-                            style: estiloBotones(13),
-                          ),
-                        ),
-                        onPressed: funcionNeg,
-                        style: ElevatedButton.styleFrom(
-                          primary: colorPrincipal,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15)),
-                        ),
-                      ))
                     ],
                   ),
                 ),
@@ -340,25 +320,24 @@ void creaDialogInvite(BuildContext context, String titulo, Widget contenido,
                       Container(width: 220, child: contenido),
                       SizedBox(height: 20),
                       Flexible(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: colorPrincipal,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
+                          child: ElevatedButton(
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 60,
+                          width: 220,
+                          child: AutoSizeText(
+                            textOpcionNeg,
+                            maxLines: 1,
+                            style: estiloBotones(13),
                           ),
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 60,
-                            width: 220,
-                            child: AutoSizeText(
-                              textOpcionNeg,
-                              maxLines: 1,
-                              style: estiloBotones(13),
-                            ),
-                          ),
-                          onPressed: funcionNeg,
                         ),
-                      ),
+                        onPressed: funcionNeg,
+                        style: ElevatedButton.styleFrom(
+                          primary: colorPrincipal,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                        ),
+                      ))
                     ],
                   ),
                 ),

@@ -418,7 +418,7 @@ Future<List<Map<String, dynamic>>> validaImagenesOrientacion(
 
   for (var i = 0; i < imagenes.length; i++) {
     // ignore: unnecessary_null_comparison
-    if (imagenes[i] != null && imagenes[i] != '') {
+    if (imagenes[i] != null && imagenes[i] != '' ) {
       ui.Image img = await getImage(imagenes[i]);
       list.add({'img': imagenes[i], 'isVertical': img.height > img.width});
     }
@@ -561,7 +561,6 @@ Future<File> fixExifRotation(String imagePath) async {
 
   final imageTools.Image capturedImage =
       imageTools.decodeImage(await originalFile.readAsBytes())!;
-
   final imageTools.Image orientedImage =
       imageTools.bakeOrientation(capturedImage);
 

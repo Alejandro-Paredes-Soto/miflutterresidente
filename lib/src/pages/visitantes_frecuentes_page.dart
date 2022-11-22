@@ -22,6 +22,7 @@ import 'package:dostop_v2/src/utils/dialogs.dart';
 import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 import 'package:dostop_v2/src/utils/utils.dart' as utils;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
 class VisitantesFrecuentesPage extends StatefulWidget {
@@ -257,53 +258,53 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
             flex: 0,
             child: Container(
               child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15)),
-                        primary: utils.colorPrincipal,
-                      ),
-                      child: Container(
-                        width: 100,
-                        height: 50,
-                        alignment: Alignment.center,
-                        child: Text(
-                          (visitante.telefono.isNotEmpty &&
-                                  visitante.codigo.isEmpty)
-                              ? 'Invitación Parco'
-                              : 'Ver código',
-                          style: utils.estiloBotones(12),
-                        ),
-                      ),
-                      onPressed: () {
-                        if ((visitante.telefono.isNotEmpty &&
-                            visitante.codigo.isEmpty)) {
-                          creaDialogInvite(
-                              _scaffoldKey.currentContext!,
-                              'Invitación con Parco',
-                              _crearDatosInvite(visitante),
-                              'Cancelar',
-                              () => {},
-                              () => Navigator.of(_scaffoldKey.currentContext!)
-                                  .pop('dialog'));
-                        } else {
-                          creaDialogQR(
-                              _scaffoldKey.currentContext!,
-                              '',
-                              _creaQR(visitante.codigo),
-                              'Compartir',
-                              'Cancelar',
-                              () => utils.compartir(visitante.codigo),
-                              () => Navigator.of(_scaffoldKey.currentContext!)
-                                  .pop('dialog'));
-                        }
-                      },
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      primary: utils.colorPrincipal,
                     ),
-                    SizedBox(height: 15),
-                    ElevatedButton(
+                    child: Container(
+                      width: 100,
+                      height: 50,
+                      alignment: Alignment.center,
+                      child: Text(
+                                (visitante.telefono.isNotEmpty &&
+                                    visitante.codigo.isEmpty)
+                            ? 'Invitación Parco'
+                            : 'Ver código',
+                        style: utils.estiloBotones(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      if((visitante.telefono.isNotEmpty &&
+                              visitante.codigo.isEmpty)) {
+                        creaDialogInvite(
+                            _scaffoldKey.currentContext!,
+                            'Invitación con Parco',
+                            _crearDatosInvite(visitante),
+                            'Cancelar',
+                            () => {},
+                            () => Navigator.of(_scaffoldKey.currentContext!)
+                                .pop('dialog'));
+                      } else {
+                        creaDialogQR(
+                            _scaffoldKey.currentContext!,
+                            '',
+                            _creaQR(visitante.codigo),
+                            'Compartir',
+                            'Cancelar',
+                            () => utils.compartir(visitante.codigo),
+                            () => Navigator.of(_scaffoldKey.currentContext!)
+                                .pop('dialog'));
+                      }
+                    },
+                  ),
+                  SizedBox(height: 15),
+                  ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15)),
@@ -311,23 +312,22 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                             ? Colors.white
                             : utils.colorFondoPrincipalDark,
                       ),
-                      child: Container(
-                          width: 100,
-                          height: 50,
-                          alignment: Alignment.center,
-                          child: Text(
-                            'Eliminar',
-                            softWrap: false,
-                            style: utils.estiloBotones(12,
-                                color:
-                                    Theme.of(context).scaffoldBackgroundColor),
-                          )),
-                      onPressed: () {
-                        _eliminaVisitanteFreq(
-                            _scaffoldKey.currentContext!, visitante);
-                      },
-                    )
-                  ]),
+                    child: Container(
+                        width: 100,
+                        height: 50,
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Eliminar',
+                          softWrap: false,
+                          style: utils.estiloBotones(12,
+                              color: Theme.of(context).scaffoldBackgroundColor),
+                        )),
+                    onPressed: () {
+                      _eliminaVisitanteFreq(
+                          _scaffoldKey.currentContext!, visitante);
+                    },
+                  )
+                ]),
             ),
           ),
         ]));
@@ -777,11 +777,10 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     });
   }
 
-  _navegaPaginaRespuesta(BuildContext context, String pageRoute,
-      int? tipoRostro, Map? tipoAcceso) async {
+  _navegaPaginaRespuesta(BuildContext context, String pageRoute, int? tipoRostro,
+      Map? tipoAcceso) async {
     final result = await Navigator.of(context)
-            .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]) ??
-        false;
+        .pushNamed(pageRoute, arguments: [tipoRostro, tipoAcceso]) ?? false;
     if (result as bool) {
       setState(() {});
       Future.delayed(Duration(milliseconds: 500), () {
