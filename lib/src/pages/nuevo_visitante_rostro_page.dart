@@ -444,16 +444,27 @@ class _NuevoVisitanteRostroPageState extends State<NuevoVisitanteRostroPage> {
         }
       }
     } on PlatformException catch (e) {
-      String mensajeError = utils.messageImagePlatformException(e);
+      //buscamos el error. Si contiene el texto photo_access_deined de los permisos de android
+      // o directamente de la plataforma ios cambiamos el mensaje.
+      String mensajeError = '';
+      if (e.code.toString().contains('photo_access_denied'))
+        mensajeError = 'Otorga el permiso de almacenamiento por favor';
+      else if (e.code.toString().contains('camera_access_denied'))
+        mensajeError = 'Otorga el permiso de la cámara por favor';
       ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error),
+          Icon(Icons.error,
+              color: Theme.of(context).snackBarTheme.actionTextColor),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     } catch (e) {
-      String mensajeError = utils.messageErrorImage(e as Exception);
-      
+      String mensajeError = '';
+      if (e.toString().contains('permission_denied'))
+        mensajeError = 'Otorga los permisos correspondientes.';
+      else
+        mensajeError = e.toString();
       ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
-          Icon(Icons.error),
+          Icon(Icons.error,
+              color: Theme.of(context).snackBarTheme.actionTextColor),
           'Ocurrió un error al procesar la imagen. $mensajeError',
           2));
     }

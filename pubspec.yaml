@@ -11,7 +11,7 @@ description: A new Flutter project.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.6.0+69
+version: 2.5.0+68
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
@@ -42,7 +42,6 @@ dependencies:
   image_gallery_saver: ^1.7.1
   image_picker: ^0.8.5+3
   intl: null
-  intl_phone_field: ^3.1.0
   onesignal_flutter: ^3.3.2
   package_info_plus: ^1.4.2
   pagination_view: ^2.0.0

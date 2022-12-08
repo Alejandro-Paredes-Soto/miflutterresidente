@@ -66,7 +66,7 @@ class _CustomQrState extends State<CustomQr> {
                   Text('Vence en:', style: utils.estiloBotones(15,
                           color: utils.colorPrincipal)),
                   CountdownTimer(
-                    mainAxisSize: MainAxisSize.min,
+                    // mainAxisSize: MainAxisSize.min,
                     showZeroNumbers: false,
                     endTime: widget.date!.millisecondsSinceEpoch,
                     minSymbol: 'm',
