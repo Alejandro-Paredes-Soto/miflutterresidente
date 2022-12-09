@@ -172,9 +172,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         actions: [
           const SizedBox(width: 10),
-          _creaBtnContacto(),
+          _creaBtnHelp(),
           const SizedBox(width: 10),
-           _creaBtnSettings(),
+          _creaBtnSettings(),
           const SizedBox(width: 15),
         ],
       ),
@@ -182,135 +182,47 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  Widget _creaBtnSettings(){
+  Widget _creaBtnSettings() {
     return IconButton(
-                padding: EdgeInsets.all(0),
-                iconSize: 33,
-                icon: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                  utils.rutaIconoSettings,
-                  height: 30,
-                  color: Theme.of(context).iconTheme.color,
-                ),
-                    Text('Ajustes', style: TextStyle(fontSize: 10),)
-                  ],
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(context, 'setting');
-                },);
-    
-  }
-
-  Widget _creaBtnContacto() {
-    return _numeroCaseta != '' && _qrResidente
-        ? _creaMenuContacto()
-        : IconButton(
-            padding: EdgeInsets.all(0),
-            onPressed: (){Navigator.pushNamed(context, 'contactSupport');},
-            icon: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(
-                  utils.rutaIconoWhastApp,
-                  height: 30,
-                  color: Theme.of(context).iconTheme.color,
-                ),
-                Text('Soporte', style: TextStyle(fontSize: 10)),
-              ],
-            ));
-  }
-
-  Widget _creaMenuContacto() {
-    return CustomPopupMenu(
-        horizontalMargin: 15,
-        verticalMargin: 5,
-        barrierColor: Colors.black45,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                utils.rutaIconoWhastApp,
-                height: 30,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              Text('Contacto', style: TextStyle(fontSize: 10)),
-            ],
-          ),
-        menuBuilder: () => ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: Container(
-                child: IntrinsicWidth(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _creaItemContacto(
-                          title: 'Caseta',
-                          rutaIcon: utils.rutaIconoCaseta,
-                          onPressed: () {
-                            _launchWhatsApp(_numeroCaseta, '');
-                            _controller.hideMenu();
-                          }),
-                      const SizedBox(height: 15),
-                      _creaItemContacto(
-                          title: 'Soporte app',
-                          icon: Icons.phone_iphone_rounded,
-                          onPressed: () {
-                             _controller.hideMenu();
-                            // _abrirSoporte();
-                            Navigator.pushNamed(context, 'contactSupport');
-                          }),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        pressType: PressType.singleClick,
-        controller: _controller);
-  }
-
-  Widget _creaItemContacto(
-      {
-      required String title,
-      IconData? icon,
-      String rutaIcon = '',
-      required Function() onPressed}) {
-    return GestureDetector(
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
+      padding: EdgeInsets.all(0),
+      iconSize: 33,
+      icon: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: Container(
-                alignment: Alignment.center,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                width: 180,
-                decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(15)),
-                child: Text(title,
-                    textAlign: TextAlign.center,
-                    style: utils.estiloBotones(16,
-                        color: Theme.of(context).textTheme.bodyText2!.color!))),
+          SvgPicture.asset(
+            utils.rutaIconoSettings,
+            height: 30,
+            color: Theme.of(context).iconTheme.color,
           ),
-          const SizedBox(width: 10),
-          Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(5),
-            decoration: BoxDecoration(
-                color: utils.colorPrincipal, shape: BoxShape.circle),
-            child: rutaIcon == ''
-                ? Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 30,
-                  )
-                : SvgPicture.asset(rutaIcon, height: 30, color: Colors.white),
-          ),
+          Text(
+            'Ajustes',
+            style: TextStyle(fontSize: 10),
+          )
         ],
       ),
-      onTap: onPressed,
+      onPressed: () {
+        Navigator.pushNamed(context, 'setting');
+      },
+    );
+  }
+
+  Widget _creaBtnHelp() {
+    return IconButton(
+      padding: EdgeInsets.all(0),
+      iconSize: 33,
+      icon: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.help_outline_outlined),
+          Text(
+            'Ayuda',
+            style: TextStyle(fontSize: 10),
+          )
+        ],
+      ),
+      onPressed: () {
+        Navigator.pushNamed(context, 'help');
+      },
     );
   }
 
@@ -466,7 +378,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-   Widget _creaQuintaFila() {
+  Widget _creaQuintaFila() {
     return Container(
       height: 120,
       padding: EdgeInsets.only(top: 20.0),
@@ -711,7 +623,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               children: <Widget>[
                 Icon(
                   Icons.send,
-                  color:Theme.of(context).snackBarTheme.actionTextColor,
+                  color: Theme.of(context).snackBarTheme.actionTextColor,
                 ),
                 SizedBox(
                   width: 15,
@@ -729,8 +641,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   _mostrarResultados(_datosEncuesta!.pregunta, resultados[1]),
             )));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            utils.creaSnackBarIcon(Icon(Icons.error, color: Theme.of(context).snackBarTheme.actionTextColor), resultados[2], 10));
+        ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
+            Icon(Icons.error,
+                color: Theme.of(context).snackBarTheme.actionTextColor),
+            resultados[2],
+            10));
       }
     });
   }
@@ -842,10 +757,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() {
       _noMolestar = valor;
       ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
-          Icon(
-            resultado['OK'] == 1 ? Icons.notifications_active : Icons.error,
-            color: Theme.of(context).snackBarTheme.actionTextColor
-          ),
+          Icon(resultado['OK'] == 1 ? Icons.notifications_active : Icons.error,
+              color: Theme.of(context).snackBarTheme.actionTextColor),
           resultado['message'],
           5));
     });
@@ -870,7 +783,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //   }, () => Navigator.of(context, rootNavigator: true).pop('dialog'));
   // }
 
-
   _generarCodigo() async {
     creaDialogProgress(context, 'Generando código...');
     final codeResponse =
@@ -884,8 +796,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           Column(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(15.0),
-                child: CustomQr(code: codeResponse['codigo'], date: fecha,)),
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: CustomQr(
+                    code: codeResponse['codigo'],
+                    date: fecha,
+                  )),
             ],
           ),
           '',
@@ -906,7 +821,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   _cerrarSesion() {
     creaDialogYesNoAlt(
-      context,
+        context,
         'Confirmar',
         '¿Estás seguro de que deseas cerrar sesión?\n\nDejarás de recibir notificaciones de tus visitas.',
         'Cerrar sesión',
@@ -931,7 +846,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       });
     }, () => Navigator.pop(context));
   }
-
 
   @override
   void dispose() {
