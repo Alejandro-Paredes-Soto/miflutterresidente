@@ -4,6 +4,7 @@ import 'package:dostop_v2/src/pages/avisos_page.dart';
 import 'package:dostop_v2/src/pages/contact_support_page.dart';
 import 'package:dostop_v2/src/pages/emergencia_page.dart';
 import 'package:dostop_v2/src/pages/estado_de_cuenta_page.dart';
+import 'package:dostop_v2/src/pages/frequently_questions.dart';
 import 'package:dostop_v2/src/pages/mi_casa_page.dart';
 import 'package:dostop_v2/src/pages/mis_accesos_page.dart';
 import 'package:dostop_v2/src/pages/nuevo_visitante_freq_page.dart';
@@ -141,6 +142,7 @@ class _MyAppState extends State<MyApp> {
           'misAccesos': (BuildContext context) => MisAccesosPage(),
           'setting': (BuildContext context) => SettingsPage(),
           'contactSupport': (BuildContext context) => ContactSupportPage(),
+          'help': (BuildContext context) => FrequentlyQuestionsScreen(),
         },
         themeMode: prefs.themeMode == 'Dark' ? ThemeMode.dark : ThemeMode.light,
         theme: ThemeData(
