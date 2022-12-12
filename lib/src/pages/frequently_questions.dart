@@ -34,7 +34,12 @@ class _FrequentlyQuestionsScreenState extends State<FrequentlyQuestionsScreen> {
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        body: _createQuestion());
+        body: Column(
+          children: [
+            Expanded(child: _createQuestion()),
+            SizedBox(height: 90),
+          ],
+        ));
   }
 
   Widget _createQuestion() {
