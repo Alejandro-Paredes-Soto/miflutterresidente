@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dostop_v2/src/models/visitante_freq_model.dart';
+import 'package:flutter/material.dart';
 import 'login_validator.dart';
 import 'constantes_provider.dart' as constantes;
 
@@ -9,27 +10,29 @@ import 'package:http/http.dart' as http;
 class VisitantesFreqProvider {
   final validaSesion = LoginValidator();
 
-  Future<List<VisitanteFreqModel>> cargaVisitantesFrecuentes(
+  Future<ValueNotifier<List<VisitanteFreqModel>>> cargaVisitantesFrecuentes(
       String idUsuario, int tipo) async {
     validaSesion.verificaSesion();
+    ValueNotifier<List<VisitanteFreqModel>> listFreq = ValueNotifier([]);
     try {
       final resp = await http.post(
           Uri.parse('${constantes.urlApp}/obtener_frecuentes.php'),
           body: {'id_colono': idUsuario, 'tipo_frecuente': '$tipo'});
       Map? decodeResp = json.decode(resp.body);
       final List<VisitanteFreqModel> visitantes = [];
-      if (decodeResp == null) return [];
+      if (decodeResp == null) return listFreq;
       if (decodeResp.containsKey('lista_frecuente'))
         decodeResp['lista_frecuente'].forEach((visitante) {
           final tempFrecuente = VisitanteFreqModel.fromJson(visitante);
           visitantes.add(tempFrecuente);
+          listFreq.value.add(tempFrecuente);
         });
 
-      return visitantes;
+      return listFreq;
     } catch (e) {
       print(
           'Ocurrió un error en la llamada al Servicio de VISITANTES FRECUENTES - CARGAR VISITANTES:\n $e');
-      return [];
+      return listFreq;
     }
   }
 
