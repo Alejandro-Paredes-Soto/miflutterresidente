@@ -37,14 +37,7 @@ class MainActivity : FlutterActivity() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        MethodChannel(flutterEngine?.getDartExecutor(), CHANNEL).setMethodCallHandler { call, result ->
-            if (call.method == "getBatteryLevel") {
-                var resultNoti = getBatteryLevel()
-                result.success(resultNoti)
-            } else {
-                result.notImplemented()
-            }
-        }
+       
     }
 
     private fun getBatteryLevel(): Int {
