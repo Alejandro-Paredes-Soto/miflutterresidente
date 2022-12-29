@@ -26,7 +26,6 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
     // TODO: implement initState
     super.initState();
     getNumber();
-    
   }
 
   @override
@@ -60,19 +59,26 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Contáctanos', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900),),
+        Text(
+          'Contáctanos',
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900),
+        ),
         SizedBox(height: 20),
         RichText(
           textAlign: TextAlign.start,
           text: TextSpan(
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(
+                fontSize: 16,
+                color:
+                    _prefs.themeMode == 'Dark' ? Colors.white : Colors.black),
             children: <TextSpan>[
               TextSpan(text: 'Por favor ingresa '),
               TextSpan(
-                text: 'tu dirección y el problema que tienes',
-                style: TextStyle(fontWeight: FontWeight.w900)
-              ),
-              TextSpan(text: ', alguien de nuestro equipo de soporte te atenderá lo antes posible.'),
+                  text: 'tu dirección y el problema que tienes',
+                  style: TextStyle(fontWeight: FontWeight.w900)),
+              TextSpan(
+                  text:
+                      ', alguien de nuestro equipo de soporte te atenderá lo antes posible.'),
             ],
           ),
         ),
@@ -82,10 +88,10 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
           minLines: 5,
           controller: _txtReason,
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))
-          ),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
           validator: (value) {
-            if(value!.isEmpty){
+            if (value!.isEmpty) {
               return 'Este formulario es de carácter obligatorio';
             }
             return null;
@@ -97,46 +103,48 @@ class _ContactSupportPageState extends State<ContactSupportPage> {
 
   Widget _buttonSendMessage() {
     return MaterialButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      height: 60,
-      minWidth: double.infinity,
-      highlightElevation: 1,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Flexible(
-            flex: 1,
-            child: Text(
-               'Enviar WhatsApp a soporte',
-              style: estiloBotones(15),
-              textAlign: TextAlign.center,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        height: 60,
+        minWidth: double.infinity,
+        highlightElevation: 1,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Flexible(
+              flex: 1,
+              child: Text(
+                'Enviar WhatsApp a soporte',
+                style: estiloBotones(15),
+                textAlign: TextAlign.center,
+              ),
             ),
-          ),
-        ],
-      ),
-      color: colorPrincipal,
-      disabledColor: colorSecundario,
-      onPressed: (){
-        if(formKey.currentState!.validate()){
-          _launchWhatsApp(_prefs.supportContact == '' ? '524775872189' : _prefs.supportContact, _txtReason.text);
-        _txtReason.clear();
-        }
+          ],
+        ),
+        color: colorPrincipal,
+        disabledColor: colorSecundario,
+        onPressed: () {
+          if (formKey.currentState!.validate()) {
+            _launchWhatsApp(
+                _prefs.supportContact == ''
+                    ? '524775872189'
+                    : _prefs.supportContact,
+                _txtReason.text);
+            _txtReason.clear();
           }
-    );
+        });
   }
 
   void getNumber() async {
     final _num = await _numberContact.getContactNumber();
     _prefs.supportContact = _num;
-  } 
-
+  }
 
   _launchWhatsApp(String numero, String mensaje) async {
-    final link = WhatsAppUnilink(phoneNumber: numero, text: mensaje);
+    final link = WhatsAppUnilink(
+        phoneNumber: numero, text: '*Soy usuario Dostop:* $mensaje');
     await launchUrl(Uri.parse(link.toString()),
         mode: LaunchMode.externalApplication);
   }
-
 
   @override
   void dispose() {
