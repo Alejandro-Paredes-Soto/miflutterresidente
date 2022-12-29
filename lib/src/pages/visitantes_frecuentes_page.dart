@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/popups.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
@@ -44,6 +45,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   bool _registrandoImg = false;
   ValueNotifier<List<VisitanteFreqModel>> listFreq = ValueNotifier([]);
   ValueNotifier<bool> loading = ValueNotifier(true);
+  final pushManager = PushNotificationsManager();
 
   @override
   void initState() {
@@ -68,6 +70,14 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         _creaPagFrecuentes();
       });
     });
+
+    pushManager.mensajeStream.mensajes.listen((data) async {
+      if(data.containsKey('frecuentes')){
+        if (!mounted) return;
+        _creaPagFrecuentes();
+      }
+    });
+  
 
     timer = Timer.periodic(Duration(seconds: 2), (Timer t) {
       if (!_dialogAbierto && !_registrandoImg && _tabIndex > 0)
@@ -130,8 +140,8 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
               (index) {
                 setState(() {
                   _tabIndex = _tipoServicio == '1' && index == 1 ? 2 : index;
-                  listFreq.value.clear();
                   loading.value = true;
+                  listFreq.value.clear();
                   //loading.notifyListeners();
                   _creaPagFrecuentes();
                 });
@@ -161,7 +171,6 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                 return ValueListenableBuilder(
                     valueListenable: listFreq,
                     builder: (context, value, widget) {
-                      log(listFreq.value.length.toString());
                       if (listFreq.value.isEmpty) {
                         return Center(
                           child: Text(
@@ -199,58 +208,12 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   }
 
   _creaPagFrecuentes() async {
-    log("Aqui");
     int typeService = _tipoServicio == '1' ? (_tabIndex + 1) : (_tabIndex + 1);
-    log(typeService.toString());
     listFreq = await visitanteProvider.cargaVisitantesFrecuentes(
         _prefs.usuarioLogged, typeService);
     listFreq.notifyListeners();
     loading.value = false;
     loading.notifyListeners();
-    log(listFreq.value.toString());
-    /*return FutureBuilder(
-      future: visitanteProvider.cargaVisitantesFrecuentes(
-          _prefs.usuarioLogged, typeService),
-      builder: (BuildContext context,
-          AsyncSnapshot<List<VisitanteFreqModel>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done)
-          return _creaListadoFrecuentes(snapshot.data!);
-        else
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-      },
-    );*/
-  }
-
-  Widget _creaListadoFrecuentes(List<VisitanteFreqModel> lista) {
-    if (lista.length > 0) {
-      return ListView.separated(
-        separatorBuilder: (context, index) => SizedBox(height: 15),
-        padding: EdgeInsets.only(top: 15.0),
-        itemCount: lista.length,
-        itemBuilder: (context, index) => Column(
-          children: [
-            _tabIndex == 0
-                ? _crearItem(context, lista[index])
-                : _crearItemRostro(context, lista[index]),
-            Visibility(
-                visible: index == (lista.length - 1),
-                child: SizedBox(
-                  height: 70,
-                ))
-          ],
-        ),
-      );
-    } else {
-      return Center(
-        child: Text(
-          'No hay registros por aqui',
-          style: TextStyle(fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
   }
 
   Widget _crearItem(BuildContext context, VisitanteFreqModel visitante) {
@@ -517,7 +480,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                             SizedBox(width: 5),
                             Expanded(
                                 child: AutoSizeText(
-                                    'Sobrecarga en el servicio facial.')),
+                                  'El registro del rostro está tomando más de lo normal. Puede que en caseta ocurra una falla de internet. ')),
                           ],
                         )
                       : Row(

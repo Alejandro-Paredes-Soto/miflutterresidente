@@ -153,6 +153,21 @@ class PushNotificationsManager {
       case 'áreas comunes':
         mensajeStream.addMessage({'areas': message});
         break;
+      case 'imagen facial no admitida':
+        mensajeStream.addMessage({'frecuentes': true});
+        break;
+      case 'alta de acceso para residente':
+        mensajeStream.addMessage({'frecuentes': true});
+        break;
+      case 'baja de acceso para residente':
+        mensajeStream.addMessage({'frecuentes': true});
+        break;
+      case 'alta de visitante frecuente':
+        mensajeStream.addMessage({'frecuentes': true});
+        break;
+      case 'baja de visitante frecuente':
+        mensajeStream.addMessage({'frecuentes': true});
+        break;
     }
   }
 
