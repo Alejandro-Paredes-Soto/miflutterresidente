@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dostop_v2/src/providers/config_usuario_provider.dart';
+import 'package:dostop_v2/src/push_manager/push_notification_manager.dart';
 import 'package:dostop_v2/src/utils/popups.dart';
 import 'package:dostop_v2/src/widgets/custom_tabbar.dart';
 import 'package:dostop_v2/src/widgets/elevated_container.dart';
@@ -42,7 +43,9 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
   late Timer timer;
   bool _dialogAbierto = false;
   bool _registrandoImg = false;
-  
+  ValueNotifier<List<VisitanteFreqModel>> listFreq = ValueNotifier([]);
+  ValueNotifier<bool> loading = ValueNotifier(true);
+  final pushManager = PushNotificationsManager();
 
   @override
   void initState() {
@@ -64,11 +67,21 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       setState(() {
         _obteniendoConfig = resultado['OK'];
         _tipoServicio = resultado['valor'];
+        _creaPagFrecuentes();
       });
     });
 
-    timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      if (!_dialogAbierto && !_registrandoImg && _tabIndex > 0) setState(() {});
+    pushManager.mensajeStream.mensajes.listen((data) async {
+      if(data.containsKey('frecuentes')){
+        if (!mounted) return;
+        _creaPagFrecuentes();
+      }
+    });
+  
+
+    timer = Timer.periodic(Duration(seconds: 2), (Timer t) {
+      if (!_dialogAbierto && !_registrandoImg && _tabIndex > 0)
+        _creaPagFrecuentes();
     });
   }
 
@@ -127,6 +140,10 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
               (index) {
                 setState(() {
                   _tabIndex = _tipoServicio == '1' && index == 1 ? 2 : index;
+                  loading.value = true;
+                  listFreq.value.clear();
+                  //loading.notifyListeners();
+                  _creaPagFrecuentes();
                 });
               },
               allowExpand: true,
@@ -143,7 +160,46 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         children: [
           _creaTabs(_tipoServicio),
           Expanded(
-            child: _creaPagFrecuentes(),
+            child: ValueListenableBuilder(
+              valueListenable: loading,
+              builder: (context, value, widget) {
+                if (loading.value) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                return ValueListenableBuilder(
+                    valueListenable: listFreq,
+                    builder: (context, value, widget) {
+                      if (listFreq.value.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No hay registros por aqui',
+                            style: TextStyle(fontSize: 18),
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      }
+                      return ListView.separated(
+                        separatorBuilder: (context, index) =>
+                            SizedBox(height: 15),
+                        padding: EdgeInsets.only(top: 15.0),
+                        itemCount: listFreq.value.length,
+                        itemBuilder: (context, index) => Column(
+                          children: [
+                            _tabIndex == 0
+                                ? _crearItem(context, listFreq.value[index])
+                                : _crearItemRostro(
+                                    context, listFreq.value[index]),
+                            Visibility(
+                                visible: index == (listFreq.value.length - 1),
+                                child: SizedBox(height: 70))
+                          ],
+                        ),
+                      );
+                    });
+              },
+            ),
             flex: 1,
           )
         ],
@@ -151,51 +207,13 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
     );
   }
 
-  Widget _creaPagFrecuentes() {
+  _creaPagFrecuentes() async {
     int typeService = _tipoServicio == '1' ? (_tabIndex + 1) : (_tabIndex + 1);
-    return FutureBuilder(
-      future: visitanteProvider.cargaVisitantesFrecuentes(
-          _prefs.usuarioLogged, typeService),
-      builder: (BuildContext context,
-          AsyncSnapshot<List<VisitanteFreqModel>> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done)
-          return _creaListadoFrecuentes(snapshot.data!);
-        else
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-      },
-    );
-  }
-
-  Widget _creaListadoFrecuentes(List<VisitanteFreqModel> lista) {
-    if (lista.length > 0) {
-      return ListView.separated(
-        separatorBuilder: (context, index) => SizedBox(height: 15),
-        padding: EdgeInsets.only(top: 15.0),
-        itemCount: lista.length,
-        itemBuilder: (context, index) => Column(
-          children: [
-            _tabIndex == 0
-                ? _crearItem(context, lista[index])
-                : _crearItemRostro(context, lista[index]),
-            Visibility(
-                visible: index == (lista.length - 1),
-                child: SizedBox(
-                  height: 70,
-                ))
-          ],
-        ),
-      );
-    } else {
-      return Center(
-        child: Text(
-          'No hay registros por aqui',
-          style: TextStyle(fontSize: 18),
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
+    listFreq = await visitanteProvider.cargaVisitantesFrecuentes(
+        _prefs.usuarioLogged, typeService);
+    listFreq.notifyListeners();
+    loading.value = false;
+    loading.notifyListeners();
   }
 
   Widget _crearItem(BuildContext context, VisitanteFreqModel visitante) {
@@ -400,7 +418,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
       padding: EdgeInsets.all(10),
       child: Container(
         //color: Colors.amber,
-        height: visitante.tipoVisitante != '' ? 188  : 138,
+        height: visitante.tipoVisitante != '' ? 188 : 138,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -448,74 +466,90 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
                   ),
                   SizedBox(height: 5),
                   Text('Estatus', style: utils.estiloTituloTarjeta(11)),
-                  visitante.estatusDispositivo == '0' && DateTime.parse(visitante.fechaAlta.toString()).add(const Duration(minutes: 3)).compareTo(DateTime.now()) == -1
-                   ?Row(
-                     children: [
-                      Icon(Icons.warning_amber_rounded, color: Colors.amber,),
-                      SizedBox(width: 5),
-                       Expanded(child: AutoSizeText('Sobrecarga en el servicio facial.')),
-                     ],
-                   )
-                   :Row(
-                     children: [
-                       (visitante.estatusDispositivo == '1' ||
-                                   visitante.estatusDispositivo == '2') &&
-                               visitante.activo == '1'
-                           ? visitante.estatusDispositivo == '1'
-                               ? Icon(Icons.check_circle_outline,
-                                   color: utils.colorContenedorSaldo)
-                               : Icon(Icons.error_outline_outlined,
-                                   color: utils.colorToastRechazada)
-                           : Container(
-                               height: 15,
-                               width: 15,
-                               child: CircularProgressIndicator()),
-                       SizedBox(width: 5),
-                       AutoSizeText(visitante.estatusDispositivo == '1'
-                           ? visitante.activo == '0'
-                               ? 'Eliminando...'
-                               : 'Listo para usarse'
-                           : visitante.estatusDispositivo == '2'
-                               ? 'Imagen no admitida'
-                               : 'Registrando...')
-                          
-                     ],
-                   ),
-                  
+                  visitante.estatusDispositivo == '0' &&
+                          DateTime.parse(visitante.fechaAlta.toString())
+                                  .add(const Duration(minutes: 3))
+                                  .compareTo(DateTime.now()) ==
+                              -1
+                      ? Row(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.amber,
+                            ),
+                            SizedBox(width: 5),
+                            Expanded(
+                                child: AutoSizeText(
+                                  'El registro del rostro está tomando más de lo normal. Puede que en caseta ocurra una falla de internet. ')),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            (visitante.estatusDispositivo == '1' ||
+                                        visitante.estatusDispositivo == '2') &&
+                                    visitante.activo == '1'
+                                ? visitante.estatusDispositivo == '1'
+                                    ? Icon(Icons.check_circle_outline,
+                                        color: utils.colorContenedorSaldo)
+                                    : Icon(Icons.error_outline_outlined,
+                                        color: utils.colorToastRechazada)
+                                : Container(
+                                    height: 15,
+                                    width: 15,
+                                    child: CircularProgressIndicator()),
+                            SizedBox(width: 5),
+                            AutoSizeText(visitante.estatusDispositivo == '1'
+                                ? visitante.activo == '0'
+                                    ? 'Eliminando...'
+                                    : 'Listo para usarse'
+                                : visitante.estatusDispositivo == '2'
+                                    ? 'Imagen no admitida'
+                                    : 'Registrando...')
+                          ],
+                        ),
                   SizedBox(height: 10),
-                  DateTime.parse(visitante.fechaAlta.toString()).add(const Duration(minutes: 3)).compareTo(DateTime.now()) == -1 && visitante.estatusDispositivo == '0'
-                  ?AutoSizeText('Elimina el registro e intentalo más tarde.')
-                  :Visibility(
-                      visible: visitante.estatusDispositivo == '0' ||
-                          visitante.activo == '0',
-                      child: AutoSizeText( !visitante.expiroTolerancia
-                            ? 'Esto puede tomar alrededor de 30 segundos.'
-                            : 'El tiempo de espera está tomando más de lo normal. Puede que en caseta ocurra una falla de internet.',
-                        style: utils.estiloTituloTarjeta(12),
-                        maxLines: 2,
-                        minFontSize: 8,
-                        wrapWords: false,
-                      )),
+                  DateTime.parse(visitante.fechaAlta.toString())
+                                  .add(const Duration(minutes: 3))
+                                  .compareTo(DateTime.now()) ==
+                              -1 &&
+                          visitante.estatusDispositivo == '0'
+                      ? AutoSizeText(
+                          'Elimina el registro e intentalo más tarde.')
+                      : Visibility(
+                          visible: visitante.estatusDispositivo == '0' ||
+                              visitante.activo == '0',
+                          child: AutoSizeText(
+                            !visitante.expiroTolerancia
+                                ? 'Esto puede tomar alrededor de 30 segundos.'
+                                : 'El tiempo de espera está tomando más de lo normal. Puede que en caseta ocurra una falla de internet.',
+                            style: utils.estiloTituloTarjeta(12),
+                            maxLines: 2,
+                            minFontSize: 8,
+                            wrapWords: false,
+                          )),
                 ],
               ),
             ),
             Visibility(
               visible: (visitante.estatusDispositivo == '1' ||
                       visitante.estatusDispositivo == '2' ||
-                      DateTime.parse(visitante.fechaAlta.toString()).add(const Duration(minutes: 3)).compareTo(DateTime.now()) == -1) &&
-                      visitante.activo == '1' ,
-                  
+                      DateTime.parse(visitante.fechaAlta.toString())
+                              .add(const Duration(minutes: 3))
+                              .compareTo(DateTime.now()) ==
+                          -1) &&
+                  visitante.activo == '1',
               child: Container(
                   alignment: Alignment.bottomCenter,
                   child: GestureDetector(
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete, color: utils.colorToastRechazada,),
-                      ],
-                    ),
-                    onTap: () => _eliminaVisitanteFreq(context, visitante)
-                  )),
-                  
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: utils.colorToastRechazada,
+                          ),
+                        ],
+                      ),
+                      onTap: () => _eliminaVisitanteFreq(context, visitante))),
             )
           ],
         ),
@@ -573,9 +607,12 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
             visitante.idFrecuente, _prefs.usuarioLogged, _tabIndex + 1);
       }
 
+      _creaPagFrecuentes();
+
       switch (estatus['OK']) {
         case 1:
           setState(() {});
+          listFreq.notifyListeners();
           ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
               Icon(Icons.delete,
                   color: Theme.of(context).snackBarTheme.actionTextColor),
@@ -784,6 +821,7 @@ class _VisitantesFrecuentesPageState extends State<VisitantesFrecuentesPage> {
         false;
     if (result as bool) {
       setState(() {});
+      _creaPagFrecuentes();
       Future.delayed(Duration(milliseconds: 500), () {
         ScaffoldMessenger.of(context).showSnackBar(utils.creaSnackBarIcon(
             SvgPicture.asset(utils.rutaIconoVisitantesFrecuentes,
