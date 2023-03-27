@@ -25,8 +25,8 @@ dependencies:
   cupertino_icons: ^1.0.5
   custom_pop_up_menu: ^1.2.3+1
   device_info_plus: ^4.0.0
-  firebase_core: ^1.20.0
-  firebase_messaging: ^11.3.0
+  firebase_core: ^2.5.0
+  firebase_messaging: ^14.1.2
   flutter:
     sdk: flutter
   flutter_local_notifications: ^9.9.1
