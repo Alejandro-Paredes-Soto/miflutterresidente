@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dostop_v2/src/models/questions_model.dart';
+import 'package:dostop_v2/src/providers/constantes_provider.dart';
 export 'package:dostop_v2/src/models/questions_model.dart';
 import 'login_validator.dart';
 import 'package:http/http.dart' as http;
@@ -13,8 +14,7 @@ class QuestionsProvider {
     log('cargando preguntas');
     try {
       final resp = await http.get(
-        Uri.parse(
-            'http://192.168.100.9/integracionpd/public/api/v1/suport/all/'),
+        Uri.parse('$ulrApiProd/suport/all/'),
       );
       Map? decodeResp = json.decode(resp.body);
       if (decodeResp!.containsKey('FAQ')) {

@@ -75,6 +75,8 @@ String rutaLogoParcoLight = 'assets/LogoParcoLight.png';
 String rutaLogoDostopDPng = 'assets/LogoDostopD.png';
 String rutaLogoLetrasDostopPng = 'assets/LogoLetrasDostop.png';
 String rutaLogoLetrasDostopParco = 'assets/LogoLetrasDostopParco.png';
+String rutaLogo2023 = 'assets/Logo2023.png';
+String rutaLogoLetras2023 = 'assets/LogoLetras2023.png';
 
 String rutaIconoInicio = 'assets/IconoInicio.svg';
 String rutaIconoVisitas = 'assets/IconoVisitas.svg';
@@ -118,7 +120,8 @@ AppBar appBarLogo(
           ),
         ),
         SizedBox(),
-        dostopLogo(),
+        Image.asset(rutaLogoLetras2023, width: 60),
+        //dostopLogo(),
       ],
     ),
   );

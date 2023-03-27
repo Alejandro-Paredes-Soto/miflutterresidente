@@ -5,13 +5,13 @@ QuestionModel questionModelFromJson(String str) =>
 
 class QuestionModel {
   List<String> answer = [];
-  int idFAQ;
+  String idFAQ;
   String nameFAQ;
   String descriptionFAQ;
   String note;
   String linkYT;
   QuestionModel(
-      {this.idFAQ = 0,
+      {this.idFAQ = '',
       this.nameFAQ = '',
       this.descriptionFAQ = '',
       this.note = '',
