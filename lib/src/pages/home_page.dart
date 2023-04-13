@@ -152,11 +152,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            /* Image.asset(
-              utils.rutaLogoDostopDPng,
-              height: 40,
-            ),
-            SizedBox(width: 5), */
             Padding(
               padding: EdgeInsets.only(bottom: 5.0),
               child: AnimatedCrossFade(
@@ -165,7 +160,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     ? CrossFadeState.showFirst
                     : CrossFadeState.showSecond,
                 firstChild: Image.asset(utils.rutaLogo2023, height: 35),
-                secondChild: Image.asset(utils.rutaLogoParcoLight, height: 35),
+                secondChild: Image.asset(utils.rutaLogoColores2023, height: 35),
               ),
             ),
           ],

@@ -18,6 +18,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
+import 'package:dostop_v2/src/utils/preferencias_usuario.dart';
 
 bool isDebug = !kReleaseMode;
 
@@ -76,7 +77,9 @@ String rutaLogoDostopDPng = 'assets/LogoDostopD.png';
 String rutaLogoLetrasDostopPng = 'assets/LogoLetrasDostop.png';
 String rutaLogoLetrasDostopParco = 'assets/LogoLetrasDostopParco.png';
 String rutaLogo2023 = 'assets/Logo2023.png';
+String rutaLogoColores2023 = 'assets/LogoColores2023.png';
 String rutaLogoLetras2023 = 'assets/LogoLetras2023.png';
+String rutaLogoLetrasColores2023 = 'assets/LogoLetrasColores2023.png';
 
 String rutaIconoInicio = 'assets/IconoInicio.svg';
 String rutaIconoVisitas = 'assets/IconoVisitas.svg';
@@ -100,6 +103,8 @@ String rutaIconoAccesos = 'assets/IconoAccesos.svg';
 String rutaIconTipoAcceso = 'assets/accessType.svg';
 String rutaIconQR = 'assets/IconoQR.svg';
 
+final _prefs = PreferenciasUsuario();
+
 AppBar appBarLogo(
     {required String titulo, Widget? backbtn = const BackButton()}) {
   return AppBar(
@@ -120,7 +125,11 @@ AppBar appBarLogo(
           ),
         ),
         SizedBox(),
-        Image.asset(rutaLogoLetras2023, width: 60),
+        Image.asset(
+            _prefs.themeMode == 'Dark'
+                ? rutaLogoLetras2023
+                : rutaLogoLetrasColores2023,
+            width: 60),
         //dostopLogo(),
       ],
     ),
