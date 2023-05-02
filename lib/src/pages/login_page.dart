@@ -4,6 +4,7 @@ import 'package:dostop_v2/src/utils/utils.dart' as utils;
 import 'package:dostop_v2/src/widgets/gradient_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -45,10 +46,6 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Image.asset(
-            utils.rutaLogoLetrasDostopParco,
-            height: 90,
-          ),
           Expanded(
             child: Container(
               alignment: Alignment.center,
@@ -58,6 +55,10 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
+                    Image.asset(
+                      utils.rutaLogoLetras2023,
+                      height: 40,
+                    ),
                     SizedBox(height: 40.0),
                     Text(
                       'Inicio de sesión',
@@ -214,8 +215,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _navegarAHome() async {
-    Map response = await loginProvider
-        .registrarTokenOS();
+    Map response = await loginProvider.registrarTokenOS();
     switch (response['statusCode']) {
       case 0:
         print(response['message']);
@@ -242,8 +242,8 @@ class _LoginPageState extends State<LoginPage> {
             },
           ),
           minimumSize: MaterialStateProperty.all(Size(double.infinity, 60)),
-          shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0))
-        ),
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0))),
         ),
         child: Text(
           'Olvidé mi contraseña',

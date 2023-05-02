@@ -49,9 +49,10 @@ class PreferenciasUsuario {
     return _prefs.getBool('registeredPlayerID') ?? false;
   }
 
-  set registeredPlayerID(bool value){
+  set registeredPlayerID(bool value) {
     _prefs.setBool('registeredPlayerID', value);
   }
+
   // GET y SET del idUsuario
   String get usuarioLogged {
     return _prefs.getString('usuario') ?? '';
@@ -60,6 +61,7 @@ class PreferenciasUsuario {
   set usuarioLogged(String value) {
     _prefs.setString('usuario', value);
   }
+
   //GET Y SET DEL CONTACTO DE SOPORTE
   String get supportContact {
     return _prefs.getString('numSupport') ?? '';
@@ -68,6 +70,7 @@ class PreferenciasUsuario {
   set supportContact(String value) {
     _prefs.setString('numSupport', value);
   }
+
 //THEME MODE
   String get themeMode {
     return _prefs.getString('tema') ?? 'Dark';
@@ -83,6 +86,14 @@ class PreferenciasUsuario {
 
   set versionApp(String value) {
     _prefs.setString('versionApp', value);
+  }
+
+  String get dateChannel {
+    return _prefs.getString('dateChannel') ?? '';
+  }
+
+  set dateChannel(String value) {
+    _prefs.setString('dateChannel', value);
   }
 
   borraPrefs() async {
