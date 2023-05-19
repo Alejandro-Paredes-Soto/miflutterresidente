@@ -91,8 +91,8 @@ dependencies {
     implementation "androidx.core:core-ktx:+"
 
     //Onesignal-Huawei
-    //implementation 'com.onesignal:OneSignal:4.6.7'
-    //implementation 'com.huawei.hms:push:6.5.0.300'
+    implementation 'com.onesignal:OneSignal:4.6.7'
+    implementation 'com.huawei.hms:push:6.5.0.300'
     
     //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -107,7 +107,7 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
-//apply plugin: 'com.huawei.agconnect'
+apply plugin: 'com.huawei.agconnect'
 repositories {
     mavenCentral()
 }
